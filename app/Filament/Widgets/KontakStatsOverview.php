@@ -63,14 +63,16 @@ class KontakStatsOverview extends StatsOverviewWidget
                 ->descriptionIcon(Heroicon::BuildingOffice)
                 ->icon(Heroicon::OutlinedBuildingOffice2)
                 ->color('primary')
-                ->chart([2, 4, 3, 6, 5, 7, 6]),
+                ->chart([2, 4, 3, 6, 5, 7, 6])
+                ->extraAttributes(['class' => 'border-s-4 border-s-orange-500/80 dark:border-s-orange-400/70']),
 
             Stat::make('Total Kontak', number_format($totalKontak, 0, ',', '.'))
                 ->description($validHp.' nomor valid ('.$pct($validHp).'%)')
                 ->descriptionIcon(Heroicon::UserGroup)
                 ->icon(Heroicon::OutlinedUsers)
                 ->color('primary')
-                ->chart([3, 5, 4, 7, 6, 9, 8]),
+                ->chart([3, 5, 4, 7, 6, 9, 8])
+                ->extraAttributes(['class' => 'border-s-4 border-s-primary-500/80 dark:border-s-primary-400/70']),
 
             Stat::make('Terverifikasi', number_format($terverifikasi, 0, ',', '.'))
                 ->description($pct($terverifikasi).'% dari total kontak')
@@ -78,26 +80,29 @@ class KontakStatsOverview extends StatsOverviewWidget
                 ->icon(Heroicon::OutlinedCheckBadge)
                 ->color('success')
                 ->chart([1, 3, 2, 5, 4, 6, 5])
-                ->extraAttributes(['class' => 'dark:!bg-success-950/20']),
+                ->extraAttributes(['class' => 'border-s-4 border-s-success-500/80 dark:border-s-success-400/70 dark:!bg-success-950/20']),
 
             Stat::make('Perlu Dicek', number_format($perluDicek, 0, ',', '.'))
                 ->description($pct($perluDicek).'% menunggu verifikasi')
                 ->descriptionIcon(Heroicon::Clock)
                 ->icon(Heroicon::OutlinedExclamationTriangle)
                 ->color('warning')
-                ->chart([4, 3, 5, 4, 6, 5, 7]),
+                ->chart([4, 3, 5, 4, 6, 5, 7])
+                ->extraAttributes(['class' => 'border-s-4 border-s-warning-500/80 dark:border-s-warning-400/70']),
 
             Stat::make('Tidak Aktif', number_format($tidakAktif, 0, ',', '.'))
                 ->description($pct($tidakAktif).'% non-aktif')
                 ->descriptionIcon(Heroicon::NoSymbol)
                 ->icon(Heroicon::OutlinedNoSymbol)
-                ->color('danger'),
+                ->color('danger')
+                ->extraAttributes(['class' => 'border-s-4 border-s-danger-500/80 dark:border-s-danger-400/70']),
 
             Stat::make('Total Kegiatan', number_format($totalKegiatan, 0, ',', '.'))
                 ->description($totalKategori.' kategori kegiatan')
                 ->descriptionIcon(Heroicon::CalendarDays)
                 ->icon(Heroicon::OutlinedCalendarDays)
-                ->color('primary'),
+                ->color('primary')
+                ->extraAttributes(['class' => 'border-s-4 border-s-sky-500/80 dark:border-s-sky-400/70']),
         ];
     }
 }

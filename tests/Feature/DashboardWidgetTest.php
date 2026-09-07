@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Widgets\KontakKategoriBarChart;
+use App\Filament\Widgets\DistribusiKategoriWidget;
+use App\Filament\Widgets\KontakPerluDicekWidget;
 use App\Filament\Widgets\KontakStatsOverview;
-use App\Filament\Widgets\TopEventBarChart;
+use App\Filament\Widgets\SambutanDashboard;
+use App\Filament\Widgets\TopEventWidget;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
@@ -42,8 +44,10 @@ class DashboardWidgetTest extends TestCase
         );
 
         $this->assertContains(KontakStatsOverview::class, $widgets);
-        $this->assertContains(KontakKategoriBarChart::class, $widgets);
-        $this->assertContains(TopEventBarChart::class, $widgets);
+        $this->assertContains(DistribusiKategoriWidget::class, $widgets);
+        $this->assertContains(TopEventWidget::class, $widgets);
+        $this->assertContains(SambutanDashboard::class, $widgets);
+        $this->assertContains(KontakPerluDicekWidget::class, $widgets);
         $this->assertNotContains('App\Filament\Widgets\StatusVerifikasiChart', $widgets);
     }
 
@@ -79,7 +83,7 @@ class DashboardWidgetTest extends TestCase
     }
 
     #[Test]
-    public function horizontal_bar_chart_distribusi_event_per_kategori(): void
+    public function daftar_bar_distribusi_event_per_kategori(): void
     {
         $katA = KategoriKegiatan::factory()->create(['nama_kategori' => 'Dokter Umum & Estetik']);
         $katB = KategoriKegiatan::factory()->create(['nama_kategori' => 'Gizi Klinik']);
@@ -88,27 +92,27 @@ class DashboardWidgetTest extends TestCase
         Kegiatan::factory()->create(['kategori_kegiatan_id' => $katA->id]);
         Kegiatan::factory()->create(['kategori_kegiatan_id' => $katB->id]);
 
-        $widget = new KontakKategoriBarChart;
-        $getData = new ReflectionMethod($widget, 'getData');
-        $data = $getData->invoke($widget);
-        $options = (new ReflectionMethod($widget, 'getOptions'))->invoke($widget);
+        $data = DistribusiKategoriWidget::data();
 
-        $this->assertSame('bar', (new ReflectionMethod($widget, 'getType'))->invoke($widget));
-        $this->assertSame('y', $options['indexAxis']);
-        $this->assertContains('Dokter Umum & Estetik', $data['labels']);
-        $this->assertContains('Gizi Klinik', $data['labels']);
-        // KatA memiliki 2 event, KatB 1
-        $idxA = array_search('Dokter Umum & Estetik', $data['labels'], true);
-        $idxB = array_search('Gizi Klinik', $data['labels'], true);
-        $this->assertSame(2, $data['datasets'][0]['data'][$idxA]);
-        $this->assertSame(1, $data['datasets'][0]['data'][$idxB]);
-        $this->assertCount(count($data['labels']), $data['datasets'][0]['backgroundColor']);
+        $this->assertSame(3, $data['total']);
+        $this->assertCount(2, $data['rows']);
+        // Terurut desc: KatA (2) dulu, bar teratas selalu 100%
+        $this->assertSame('Dokter Umum & Estetik', $data['rows'][0]['nama']);
+        $this->assertSame(2, $data['rows'][0]['count']);
+        $this->assertSame(100.0, $data['rows'][0]['width']);
+        $this->assertSame(66.7, $data['rows'][0]['share']);
+        $this->assertSame(1, $data['rows'][1]['count']);
+        $this->assertMatchesRegularExpression('/^#[0-9A-Fa-f]{6}$/', $data['rows'][0]['hex']);
 
-        Livewire::test(KontakKategoriBarChart::class)->assertOk();
+        $this->actingAs(User::factory()->admin()->create());
+        Livewire::test(DistribusiKategoriWidget::class)
+            ->assertOk()
+            ->assertSee('Distribusi Event per Kategori Medis')
+            ->assertSee('Kelola Kategori');
     }
 
     #[Test]
-    public function vertical_bar_chart_top5_event_terbesar(): void
+    public function daftar_bar_top5_event_terbesar(): void
     {
         $events = collect(range(1, 6))->map(fn ($i) => Kegiatan::factory()->create(['nama_event' => 'Event '.$i]))->all();
         $perusahaan = Perusahaan::factory()->create();
@@ -117,19 +121,57 @@ class DashboardWidgetTest extends TestCase
             Kontak::factory()->count($count)->create(['perusahaan_id' => $perusahaan->id, 'kegiatan_id' => $events[$idx]->id]);
         }
 
-        $widget = new TopEventBarChart;
-        $getData = new ReflectionMethod($widget, 'getData');
-        $data = $getData->invoke($widget);
-        $options = (new ReflectionMethod($widget, 'getOptions'))->invoke($widget);
+        $data = TopEventWidget::data();
 
-        $this->assertSame('bar', (new ReflectionMethod($widget, 'getType'))->invoke($widget));
-        $this->assertSame('x', $options['indexAxis']);
-        $this->assertCount(5, $data['labels']);
-        $this->assertCount(5, $data['datasets'][0]['data']);
-        // Data terurut desc: 5,4,3,2,1
-        $this->assertSame([5, 4, 3, 2, 1], $data['datasets'][0]['data']);
-        $this->assertCount(5, $data['datasets'][0]['backgroundColor']);
+        $this->assertCount(5, $data['rows']);
+        // Data terurut desc: 5,4,3,2,1; peringkat dan lebar bar teratas 100%
+        $this->assertSame([5, 4, 3, 2, 1], array_column($data['rows'], 'count'));
+        $this->assertSame([1, 2, 3, 4, 5], array_column($data['rows'], 'rank'));
+        $this->assertSame(100.0, $data['rows'][0]['width']);
+        $this->assertSame(15, $data['totalTop']);
+        $this->assertMatchesRegularExpression('/^#[0-9A-Fa-f]{6}$/', $data['rows'][0]['hex']);
 
-        Livewire::test(TopEventBarChart::class)->assertOk();
+        $this->actingAs(User::factory()->admin()->create());
+        Livewire::test(TopEventWidget::class)
+            ->assertOk()
+            ->assertSee('Top 5 Event Terbesar')
+            ->assertSee('Lihat Rincian Event');
+    }
+
+    #[Test]
+    public function banner_sambutan_render_dengan_nama_pengguna(): void
+    {
+        $admin = User::factory()->admin()->create(['name' => 'Budi Santoso']);
+        $this->actingAs($admin);
+
+        Livewire::test(SambutanDashboard::class)
+            ->assertOk()
+            ->assertSee('Selamat datang kembali')
+            ->assertSee('Budi Santoso');
+    }
+
+    #[Test]
+    public function tabel_perlu_dicek_menampilkan_5_terbaru(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $perusahaan = Perusahaan::factory()->create();
+        Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'PIC Perlu Dicek',
+            'status_verifikasi' => 'perlu_dicek',
+        ]);
+        Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'PIC Terverifikasi',
+            'status_verifikasi' => 'terverifikasi',
+        ]);
+
+        Livewire::test(KontakPerluDicekWidget::class)
+            ->assertOk()
+            ->assertSee('PIC Perlu Dicek')
+            ->assertSee('1 Menunggu Dicek')
+            ->assertDontSee('PIC Terverifikasi');
     }
 }

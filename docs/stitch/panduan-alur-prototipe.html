@@ -1,0 +1,136 @@
+# ICM SPONSOR — PROTOCOL & USER FLOW MAP PROTOTYPE
+**Panduan Pengujian Prototipe Terpadu (Interkoneksi 8 Modul Sistem)**
+*Merujuk pada Dokumen Spesifikasi Resmi ICM Sponsor (SPESIFIKASI_ICM_SPONSOR_UNTUK_CLIENT.md)*
+
+---
+
+## 🗺️ PETA ALUR INTERKONEKSI MODUL (PROTOTYPE TEST MATRIX)
+
+Berikut adalah skema interkoneksi antarmuka yang telah dibangun di canvas. Penguji dapat menguji transisi logika dari gerbang otentikasi awal hingga seluruh transaksi data operasional:
+
+```
+                  ┌──────────────────────────────┐
+                  │ 1. Masuk Sistem (Login)      │◄────────┐
+                  │ URL: /admin/login            │         │
+                  └──────────────┬───────────────┘         │
+                                 │                        │
+               [Belum punya akun?│Pendaftaran Baru]       │
+                                 ▼                        │
+                  ┌──────────────────────────────┐        │
+                  │ 2. Registrasi Karyawan       │        │
+                  │ URL: /admin/register         │        │
+                  │ Status: Nonaktif Sementara   │────────┤
+                  └──────────────┬───────────────┘        │
+                                 │                        │
+                     [Admin Otentikasi Sukses]            │
+                                 ▼                        │
+                  ┌──────────────────────────────┐        │
+                  │ 3. Dashboard Utama           │        │
+                  │ URL: /admin                  │        │
+                  └──────┬───────────────┬───────┘        │
+                         │               │                │
+          ┌──────────────┴───────┐       └──────────────┬─┴─────────────────┐
+          ▼                      ▼                      ▼                   ▼
+┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐ ┌──────────────────┐
+│ 4. Arsip Kontak  │   │ 5. Perusahaan    │   │ 6. Kegiatan &    │ │ 7. Impor Excel   │
+│ URL: /admin/     │   │ Master Baku      │   │ Kategori Event   │ │ URL: /admin/     │
+│ kontak           │   │ URL: /admin/     │   │ URL: /admin/     │ │ import-excel     │
+│ [WA / Salin HP]  │   │ perusahaan       │   │ kegiatan-kategori│ │ [Preview & Sink] │
+└─────────┬────────┘   └─────────┬────────┘   └─────────┬────────┘ └─────────┬────────┘
+          │                      │                      │                    │
+          └──────────────────────┴──────────┬───────────┴────────────────────┘
+                                            │
+                     ┌──────────────────────┴──────────────────────┐
+                     ▼                                             ▼
+      ┌──────────────────────────────┐              ┌──────────────────────────────┐
+      │ 8. Manajemen Akun & Hak Akses│              │ 9. Histori Aktivitas & Audit │
+      │ URL: /admin/manajemen-akun   │              │ URL: /admin/histori-aktivitas│
+      │ [Approve User & Impersonate] │              │ [Diff Inspector & Log Mutasi]│
+      └──────────────┬───────────────┘              └──────────────┬───────────────┘
+                     │                                             │
+                     └──────────────────────┬──────────────────────┘
+                                            ▼
+                             ┌──────────────────────────────┐
+                             │ 10. Profil Saya & Keamanan   │
+                             │ URL: /admin/profil           │
+                             │ [Ubah Sandi & Sesi WA]       │
+                             └──────────────────────────────┘
+```
+
+---
+
+## 🧪 5 SKENARIO PENGUJIAN PROTOTIPE LENGKAP (STEP-BY-STEP TEST CASES)
+
+### Skenario 1: Siklus Hidup Pendaftaran & Otorisasi Karyawan Baru
+1. **Langkah 1 (Karyawan):** Buka layar **Masuk Sistem (Login)**, klik link *"Ajukan Pendaftaran Karyawan Baru"*.
+2. **Langkah 2:** Masuk ke layar **Registrasi Karyawan**. Masukkan Nama Lengkap, Divisi, Email kedinasan (`@icm-congress.id`), dan No WhatsApp. Centang Pakta Integritas (NDS). Kirim formulir.
+3. **Langkah 3 (Pencegahan Akses Ilegal - Bab 2.2):** Akun berstatus `Nonaktif Sementara`. User belum bisa login sampai disetujui.
+4. **Langkah 4 (Admin):** Super Admin login -> Buka menu **Manajemen Akun & Hak Akses**. Pada antrean akun baru (misal: *Dewi Lestari*), Admin meninjau kesesuaian divisi dan menekan tombol hijau **Setujui (Approve)**.
+5. **Langkah 5 (Sistem & Audit):** Status akun berubah jadi `Aktif`. Otomatis tercatat di **Histori Aktivitas & Jejak Audit** dengan aksi *"Persetujuan Akun Staf Baru oleh Admin Utama"*.
+
+---
+
+### Skenario 2: Impor Data Excel Panitia & Normalisasi Otomatis
+1. **Langkah 1:** Buka menu **Impor Data Excel Pintar** dari tombol aksi header atau navigasi sidebar.
+2. **Langkah 2 (Upload File):** Upload file spreadsheet panitia (dukungan `.xlsx, .csv` maks 10MB).
+3. **Langkah 3 (Kecerdasan Sistem - Bab 5):**
+   - Sistem membaca semua sheet dan mendeteksi nama sheet (misal *"HOGSI"*) $\rightarrow$ otomatis menghubungkan ke Kegiatan *"PIT HOGSI XVII 2026"* (Kategori *Obgyn*).
+   - Sel gabungan multi-kontak otomatis dipecah menjadi 2 baris PIC mandiri.
+   - Variasi nama *"PT Abbott"*, *"Abbott Indonesia"* otomatis disatukan ke Master Perusahaan *"PT Abbott Indonesia"*.
+   - Baris non-sponsor (nota logistik, serah terima spanduk, konsumsi) otomatis disortir sebagai *"Sampah Terdeteksi"* dan di-exclude.
+4. **Langkah 4 (Simpan Transaksi):** Klik tombol **Simpan ke Arsip Data**.
+5. **Langkah 5 (Hasil Interkoneksi):**
+   - Data otomatis masuk ke layar **Arsip Kontak PIC Sponsor** dengan status default `Perlu Dicek` (kuning).
+   - Metrik di **Dashboard Utama** (Total Perusahaan, Total Kontak, Perlu Dicek) langsung bertambah secara *real-time*.
+   - Jejak pemecahan sel dan sanitasi baris sampah tercatat di modul **Histori Aktivitas**.
+
+---
+
+### Skenario 3: Operasional Harian Staf Sponsorship (Pencarian, Kontak WA & Ekspor)
+1. **Langkah 1:** Buka layar **Arsip Kontak PIC Sponsor**.
+2. **Langkah 2 (Cari Cepat & Filter):**
+   - Ketik keyword *"Kalbe"* atau filter berdasarkan Kategori *"Paru"* / *"Obgyn"*.
+   - Baris tabel otomatis menampilkan kode warna kategori kegiatan yang selaras.
+3. **Langkah 3 (Deteksi Duplikasi Cerdas):**
+   - Nomor telepon yang digunakan pada 2 perusahaan berbeda diberi tanda badge merah muda *"Duplikat Nomor"* untuk mencegah benturan komunikasi antar-staf.
+4. **Langkah 4 (Interaksi Langsung):**
+   - Klik ikon **WhatsApp** hijau pada baris PIC untuk langsung membuka jalur obrolan kedinasan tanpa perlu simpan nomor manual.
+   - Klik nomor untuk menyalin ke clipboard.
+5. **Langkah 5 (Ekspor Laporan 1-Klik - Bab 6):**
+   - Klik tombol **Ekspor CSV**. File yang terunduh otomatis mengikuti hasil filter aktif, lengkap dengan format UTF-8 BOM untuk Excel tanpa karakter rusak.
+
+---
+
+### Skenario 4: Asistensi Super Admin (Fitur Penyamaran / Impersonate)
+1. **Langkah 1:** Admin Utama membuka menu **Manajemen Akun & Hak Akses**.
+2. **Langkah 2:** Ketika staf lapangan membutuhkan bantuan validasi kuota booth, Admin mengklik tombol aksi **Samaran (Impersonate)** pada akun staf terkait.
+3. **Langkah 3:** Banner kuning atas menyala menandakan sesi penyamaran aktif dengan token otorisasi sementara (15 menit).
+4. **Langkah 4:** Seluruh operasi yang dilakukan selama penyamaran dicatat secara kriptografis di **Histori Aktivitas & Jejak Audit** dengan label *"Penyamaran Akun (Impersonate) Super Admin atas nama Dewi Lestari"*.
+
+---
+
+### Skenario 5: Manajemen Profil, Ganti Sandi & Keamanan Sesi
+1. **Langkah 1:** Klik foto profil di sudut kanan atas header atau menu sidebar bawah, pilih **Profil Saya & Pengaturan**.
+2. **Langkah 2:** Tinjau ringkasan statistik (kontak yang dikelola, kegiatan yang ditugaskan, dan perusahaan baku).
+3. **Langkah 3 (Ganti Password Mandiri):** Sesuai Bab 2.3, pengguna wajib memasukkan *Kata Sandi Saat Ini* sebelum membuat kata sandi baru.
+4. **Langkah 4 (Proteksi Sesi):** Lihat daftar sesi aktif perangkat. Terdapat tombol darurat *"Keluar dari Semua Perangkat Lain"* jika perangkat tertinggal.
+
+---
+
+## 📌 DAFTAR REFERENSI SCREEN DI CANVAS
+
+| No | Nama Layanan / Modul | ID Screen di Canvas | Target Pengujian |
+|---|---|---|---|
+| 1 | **Masuk Sistem (Login - Gradasi Elegan)** | `SCREEN_3` & `SCREEN_4` | Otentikasi domain panitia, validasi SSL, tautan bantuan |
+| 2 | **Registrasi Karyawan Mandiri** | `SCREEN_5` | Form pendaftaran, validasi format WA `628...`, pakta integritas NDS |
+| 3 | **Dashboard Utama ICM Sponsor** | `SCREEN_18` | 6 kartu metrik dinamis, 2 chart distribusi kategori & top 5 event |
+| 4 | **Arsip Kontak PIC Sponsor** | `SCREEN_17` | Filter multi-event, pencarian instan, tombol WA, badge duplikat |
+| 5 | **Direktori Master Perusahaan Sponsor** | `SCREEN_12` | Standarisasi nama korporasi PT/CV, jumlah PIC terdaftar, industri |
+| 6 | **Kegiatan Kongres & Kategori Event** | `SCREEN_15` | Manajemen 10 kategori medis, tanggal kongres, kuota sponsor |
+| 7 | **Impor Data Excel Pintar (3 Langkah)** | `SCREEN_16` | Upload, auto-mapping kolom, pembersihan sampah, preview edit |
+| 8 | **Manajemen Akun & Hak Akses** | `SCREEN_14` | Approval akun nonaktif, matriks izin modul, fitur impersonate |
+| 9 | **Histori Aktivitas & Jejak Audit** | `SCREEN_11` | Log diff inspector (sebelum vs sesudah), filter aksi, transparansi |
+| 10 | **Profil Saya & Keamanan Akun** | `SCREEN_9` | Data kontak staf, reset password berkala, pemutusan sesi jarak jauh |
+
+---
+*Semua modul menggunakan Design System konsisten (`DESIGN_SYSTEM_2`), palet resmi Deep Slate Navy (`#0f172a`) & Warm Amber/Orange khas ICM (`#ea580c`), jenis huruf Plus Jakarta Sans, dan layout ramah desktop enterprise.*

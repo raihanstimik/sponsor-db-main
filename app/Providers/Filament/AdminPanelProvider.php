@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Auth\CustomLogin;
 use App\Filament\Pages\Auth\CustomRegister;
 use App\Filament\Pages\ProfilSaya;
 use Filament\Http\Middleware\Authenticate;
@@ -13,6 +14,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Width;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -28,14 +30,18 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(CustomLogin::class)
             ->registration(CustomRegister::class)
             ->brandName('ICM Sponsor')
+            ->brandLogo(asset('images/logo-icm.png'))
+            ->brandLogoHeight('2.25rem')
+            ->darkModeBrandLogo(asset('images/logo-icm.png'))
             ->colors([
                 'primary' => Color::hex('#1E2A4A'),
             ])
             ->font('Fira Sans')
             ->spa()
+            ->simplePageMaxContentWidth(Width::Medium)
             ->viteTheme(['resources/css/filament/admin/theme.css', 'resources/js/app.js'])
             ->sidebarFullyCollapsibleOnDesktop()
             ->sidebarWidth('16.5rem')

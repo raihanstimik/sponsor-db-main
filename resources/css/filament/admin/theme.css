@@ -176,3 +176,36 @@
         transition: none;
     }
 }
+
+/*
+ * Halaman auth ala Stitch "Masuk Sistem": gradasi navy + glow oranye samar.
+ * Berlaku untuk login & register (simple layout) — light maupun dark.
+ */
+.fi-simple-layout {
+    background:
+        radial-gradient(60rem 28rem at 50% -8rem, rgba(253, 138, 42, 0.22), transparent 60%),
+        linear-gradient(135deg, #0a1230 0%, #18225e 55%, #0a1230 100%);
+}
+
+/*
+ * Auth ramping: kartu + header dipadatkan agar pas satu layar desktop tanpa scroll.
+ * Logo auth diperbesar khusus di sini (sidebar tidak ikut).
+ */
+.fi-simple-layout .fi-simple-main {
+    margin-block: 1.5rem;
+    padding: 1.75rem 1.5rem;
+}
+@media (min-width: 640px) {
+    .fi-simple-layout .fi-simple-main {
+        padding: 2.25rem 2.5rem;
+    }
+}
+.fi-simple-layout .fi-simple-page-content {
+    row-gap: 1.1rem;
+}
+.fi-simple-layout .fi-simple-header-heading {
+    font-size: 1.35rem;
+}
+.fi-simple-layout .fi-simple-header img.fi-logo {
+    height: 3rem !important;
+}

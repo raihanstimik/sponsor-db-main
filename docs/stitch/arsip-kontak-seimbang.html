@@ -1,0 +1,936 @@
+<!DOCTYPE html><html lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Arsip Kontak PIC Sponsor - ICM Sponsor Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+    @layer base {
+      html, body { margin: 0; padding: 0; }
+      body { overscroll-behavior: none; }
+    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+  </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "tertiary-container": "#002b45",
+            "on-background": "#0b1c30",
+            "inverse-surface": "#213145",
+            "on-primary-fixed": "#081351",
+            "primary-fixed": "#dee0ff",
+            "secondary-fixed-dim": "#ffb785",
+            "tertiary-fixed-dim": "#93ccff",
+            "background": "#f8f9ff",
+            "outline": "#767681",
+            "on-secondary-fixed-variant": "#713700",
+            "on-error-container": "#93000a",
+            "tertiary": "#001626",
+            "on-secondary": "#ffffff",
+            "on-tertiary": "#ffffff",
+            "on-error": "#ffffff",
+            "surface-variant": "#d3e4fe",
+            "surface": "#f8f9ff",
+            "outline-variant": "#c6c5d1",
+            "on-tertiary-fixed": "#001d31",
+            "error-container": "#ffdad6",
+            "surface-container-high": "#dce9ff",
+            "on-surface": "#0b1c30",
+            "on-surface-variant": "#454650",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#828bcd",
+            "primary-fixed-dim": "#bbc3ff",
+            "error": "#ba1a1a",
+            "surface-dim": "#cbdbf5",
+            "inverse-primary": "#bbc3ff",
+            "secondary": "#954a00",
+            "on-tertiary-container": "#2f96db",
+            "tertiary-fixed": "#cce5ff",
+            "surface-tint": "#505a98",
+            "surface-container-low": "#eff4ff",
+            "surface-container-highest": "#d3e4fe",
+            "secondary-container": "#fd8a2a",
+            "secondary-fixed": "#ffdcc6",
+            "inverse-on-surface": "#eaf1ff",
+            "primary": "#00094a",
+            "on-tertiary-fixed-variant": "#004b73",
+            "on-secondary-container": "#632f00",
+            "on-primary-fixed-variant": "#38427e",
+            "surface-container": "#e5eeff",
+            "surface-bright": "#f8f9ff",
+            "primary-container": "#18225e",
+            "surface-container-lowest": "#ffffff",
+            "on-secondary-fixed": "#301400"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "spacing": {
+            "space-sm": "0.75rem",
+            "space-xs": "0.5rem",
+            "space-2xl": "3rem",
+            "space-lg": "1.5rem",
+            "space-2xs": "0.25rem",
+            "sidebar-width": "260px",
+            "header-height": "64px",
+            "space-xl": "2rem",
+            "space-md": "1rem"
+          },
+          "fontFamily": {
+            "display-md": ["Plus Jakarta Sans"],
+            "headline-lg": ["Plus Jakarta Sans"],
+            "body-lg": ["Plus Jakarta Sans"],
+            "label-md": ["Plus Jakarta Sans"],
+            "body-sm": ["Plus Jakarta Sans"],
+            "headline-sm": ["Plus Jakarta Sans"],
+            "body-md": ["Plus Jakarta Sans"],
+            "label-lg": ["Plus Jakarta Sans"],
+            "display-lg": ["Plus Jakarta Sans"],
+            "label-sm": ["Plus Jakarta Sans"],
+            "headline-md": ["Plus Jakarta Sans"]
+          },
+          "fontSize": {
+            "display-md": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.015em", "fontWeight": "700" }],
+            "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+            "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600" }],
+            "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-background font-body-md text-body-md text-on-surface antialiased min-h-screen">
+<!-- SIDEBAR NAVIGATION -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-surface-container-lowest z-50 flex flex-col justify-between border-r border-surface-container-high/60 shadow-[0_1px_8px_rgba(24,34,94,0.04)]">
+<div class="flex flex-col">
+<!-- Brand Logo Header -->
+<div class="h-[64px] px-space-md flex items-center gap-space-xs border-b border-surface-container-high/40">
+<img alt="Logo Indonesia Congress Management" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIeTU8zIfi3R8Ma9p99O1AKlnki6bg260aa2ifNcclknDN_bMonJPcQGMsUWXgcWUMwReQEGhtsYPiwOCex1H2f1xzyJZpT5wl88siUVNvEi0KX2RaKbgoBUKSYJY4I9vgJ7efnDHFltV2He2_D1yKPynyUdutRbduLj8bx26XI2IZi9u6KG1wY5m1r7ltxF4Rg4SDfBvRUETC1SD-4VuHVH5sgx7WTdBpHfL0a6pFOJU7NnE03K689jAd5Iy-3YbIDQ">
+<div class="flex flex-col ml-1">
+<span class="font-headline-sm text-[15px] font-bold text-primary-container leading-none">ICM Sponsor</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant leading-tight">Congress Management</span>
+</div>
+</div>
+<!-- Navigation Section -->
+<div class="px-space-md pt-space-sm pb-space-2xs">
+<span class="font-label-sm text-[10px] text-on-surface-variant/80 uppercase tracking-wider font-bold">Menu Utama</span>
+</div>
+<nav class="flex flex-col gap-1 px-space-sm" data-active-classes="bg-primary-container text-on-primary font-label-md rounded-xl">
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="dashboard" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</div>
+</a>
+<a aria-current="page" class="flex items-center justify-between px-space-sm py-2 transition-colors bg-primary-container text-on-primary font-label-md rounded-xl shadow-xs" data-path="kontak" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-secondary-container">group</span>
+<span class="font-label-md text-label-md font-bold">Kontak</span>
+</div>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="perusahaan" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">apartment</span>
+<span class="font-label-md text-label-md">Perusahaan</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="kegiatan-kategori" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">calendar_month</span>
+<span class="font-label-md text-label-md">Kegiatan &amp; Kategori</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="import-data-excel" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">table_chart</span>
+<span class="font-label-md text-label-md">Import Data Excel</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="ekspor-laporan" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">download</span>
+<span class="font-label-md text-label-md">Ekspor Laporan</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="histori-aktivitas" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-label-md text-label-md">Histori Aktivitas</span>
+</div>
+</a>
+<a class="flex items-center justify-between px-space-sm py-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" data-path="manajemen-akun" href="#">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="font-label-md text-label-md">Manajemen Akun</span>
+</div>
+
+</a>
+</nav>
+</div>
+<!-- Sidebar Footer -->
+<div class="p-space-sm m-space-sm bg-surface-container-low rounded-xl flex flex-col gap-space-xs border border-surface-container-high/40">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-on-surface font-semibold">Sistem Online</span>
+</div>
+<span class="font-label-sm text-[11px] text-on-surface-variant bg-surface-container-highest px-1.5 py-0.5 rounded font-mono">v2.4</span>
+</div>
+<a class="flex items-center justify-center gap-space-xs py-1.5 rounded-lg bg-surface-container-lowest text-error hover:bg-error-container hover:text-on-error-container transition-colors font-label-md text-label-md" data-path="logout" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span>Keluar Sesi</span>
+</a>
+</div>
+</aside>
+<!-- MAIN WRAPPER -->
+<div class="pl-[260px]">
+<!-- TOPBAR -->
+<header class="fixed top-0 left-[260px] right-0 h-[64px] bg-surface-container-lowest/95 backdrop-blur-md z-40 border-b border-surface-container-high/60 px-space-xl flex items-center justify-between shadow-[0_1px_4px_rgba(24,34,94,0.03)]">
+<!-- Global Search -->
+<div class="flex items-center gap-space-md flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-12 bg-surface-container-low rounded-xl text-on-surface font-body-md text-body-sm placeholder:text-on-surface-variant/70 focus:outline-none focus:bg-surface-container-lowest focus:ring-2 focus:ring-secondary-container/50 border border-transparent focus:border-secondary-container/40 transition-all" id="global-search" placeholder="Cari kontak, perusahaan, atau kegiatan..." type="text">
+<kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-on-surface-variant bg-surface-container-highest px-1.5 py-0.5 rounded border border-surface-container-high">⌘K</kbd>
+</div>
+</div>
+<!-- User Profile & Notifications -->
+<div class="flex items-center gap-space-md">
+<button aria-label="Notifikasi" class="relative p-2 rounded-xl text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-colors" type="button">
+<span class="material-symbols-outlined text-[22px]">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary-container ring-2 ring-surface-container-lowest"></span>
+</button>
+<div class="h-6 w-px bg-surface-container-high"></div>
+<div class="flex items-center gap-space-sm cursor-pointer group p-1 pr-2 rounded-xl hover:bg-surface-container-low transition-colors">
+<img alt="Admin Manager" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary-fixed" src="https://lh3.googleusercontent.com/aida/AEtjO1W5F4t5fNowX1JhTUCdbNDgDkTVa3KiFIdU96Lmbd9IBhRenY8mky4k4G2gcJ_6pRaFdsrfqLqa6V2fRZBwW7Fv11iH1rnVSLNtlUpS7pHKUUiJEf4xqyGCNYrbmG8sEvjKAl5wgMWajl1-tsdrXZf_G4EppJmfbM_u8xw-f3z-U-9sIzSyGNqkoT9_5JvFvN0i_DTJ0q4ztZnIRGr_qeadKheHBRc9j5iwMhhsQCGKRxCdJ3VAi1uAJV8">
+<div class="flex flex-col text-left">
+<span class="font-label-md text-[13px] font-bold text-on-surface leading-none">Admin Manager</span>
+<span class="font-label-sm text-[11px] text-secondary-container font-medium leading-tight mt-0.5">Admin Utama</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-on-surface transition-colors">arrow_drop_down</span>
+</div>
+</div>
+</header>
+<!-- CONTENT AREA -->
+<main class="w-full pt-[64px] bg-background min-h-screen px-space-xl py-space-lg">
+<div class="flex flex-col w-full gap-space-lg">
+<!-- HERO SECTION & 4 BALANCED METRIC CARDS -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg pt-space-xs">
+<!-- Title & Subtitle -->
+<div class="flex flex-col gap-1 max-w-xl">
+<div class="flex items-center gap-space-xs">
+<span class="h-2 w-7 bg-secondary-container rounded-full"></span>
+<span class="font-label-sm text-[11px] uppercase tracking-widest text-secondary font-bold">Arsip Enterprise ICM</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight font-extrabold">Arsip Kontak PIC Sponsor</h1>
+<p class="text-on-surface-variant text-body-sm">Database penanggung jawab kemitraan kongres, terintegrasi nomor WhatsApp &amp; histori verifikasi</p>
+</div>
+<!-- 4 Mini Metric Cards Row -->
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-space-sm flex-1 max-w-2xl">
+<!-- Card 1: Total PIC -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl border border-surface-container-high/60 shadow-xs relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 bottom-0 w-1 bg-primary-container"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-medium">Total Kontak</span>
+<span class="material-symbols-outlined text-[16px] text-primary-container">group</span>
+</div>
+<div class="flex items-baseline gap-1.5 mt-2">
+<span class="font-headline-lg text-[22px] text-primary-container font-extrabold leading-none">1.482</span>
+<span class="font-label-sm text-[10px] text-emerald-700 bg-emerald-100 font-bold px-1.5 py-0.5 rounded leading-tight">+12 mgg</span>
+</div>
+</div>
+<!-- Card 2: Terverifikasi -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl border border-surface-container-high/60 shadow-xs relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 bottom-0 w-1 bg-emerald-500"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-medium">Terverifikasi</span>
+<span class="material-symbols-outlined text-[16px] text-emerald-600">verified</span>
+</div>
+<div class="flex items-baseline gap-1.5 mt-2">
+<span class="font-headline-lg text-[22px] text-emerald-700 font-extrabold leading-none">1.240</span>
+<span class="font-label-sm text-[10px] text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded font-semibold">84%</span>
+</div>
+</div>
+<!-- Card 3: Perlu Dicek -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl border border-surface-container-high/60 shadow-xs relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 bottom-0 w-1 bg-amber-500"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-medium">Perlu Dicek</span>
+<span class="material-symbols-outlined text-[16px] text-amber-600">pending_actions</span>
+</div>
+<div class="flex items-baseline gap-1.5 mt-2">
+<span class="font-headline-lg text-[22px] text-amber-700 font-extrabold leading-none">186</span>
+<span class="font-label-sm text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded font-semibold">Review</span>
+</div>
+</div>
+<!-- Card 4: Duplikat Terdeteksi -->
+<div class="bg-surface-container-lowest p-space-sm rounded-xl border border-surface-container-high/60 shadow-xs relative overflow-hidden flex flex-col justify-between">
+<div class="absolute top-0 left-0 bottom-0 w-1 bg-error"></div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-[11px] text-on-surface-variant uppercase font-medium">Duplikat Terdeteksi</span>
+<span class="material-symbols-outlined text-[16px] text-error">warning</span>
+</div>
+<div class="flex items-baseline gap-1.5 mt-2">
+<span class="font-headline-lg text-[22px] text-error font-extrabold leading-none">14</span>
+<span class="font-label-sm text-[10px] text-error bg-error-container font-bold px-1.5 py-0.5 rounded">Konflik</span>
+</div>
+</div>
+</div>
+</div>
+<!-- COMPLETE FILTER BAR & ACTIONS MATRIX -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md border border-surface-container-high/60 shadow-xs flex flex-col gap-space-sm">
+<!-- Top Row: Search + Action Buttons -->
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<!-- Search PIC Input -->
+<div class="relative flex-1 min-w-[280px] max-w-lg">
+<span class="material-symbols-outlined absolute left-space-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-space-md bg-surface-container-low rounded-xl text-on-surface font-body-md text-body-sm placeholder:text-on-surface-variant/70 border border-transparent focus:border-secondary-container/40 focus:bg-surface-container-lowest focus:ring-2 focus:ring-secondary-container/30 transition-all" id="search-input" placeholder="Cari nama PIC, nama perusahaan, atau nomor HP..." type="text">
+</div>
+<!-- Action Buttons Group -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<button class="flex items-center gap-space-xs bg-primary-container hover:bg-primary text-on-primary px-space-md py-2 rounded-xl font-label-md text-label-md transition-all shadow-xs active:scale-95" id="btn-add-contact">
+<span class="material-symbols-outlined text-[18px] text-secondary-container">person_add</span>
+<span>+ Tambah Kontak</span>
+</button>
+<button class="flex items-center gap-space-xs bg-surface-container-lowest hover:bg-surface-container-low text-primary border border-surface-container-high px-space-md py-2 rounded-xl font-label-md text-label-md transition-colors" id="btn-export-csv" onclick="triggerCsvExport()" title="Download Format Siap Excel UTF-8 BOM">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">file_download</span>
+<span>Ekspor CSV</span>
+</button>
+<button class="flex items-center gap-space-xs bg-secondary-container hover:bg-secondary text-on-secondary px-space-md py-2 rounded-xl font-label-md text-label-md transition-all shadow-xs" id="btn-smart-import">
+<span class="material-symbols-outlined text-[18px]">auto_fix_high</span>
+<span>Import Data</span>
+</button>
+</div>
+</div>
+<!-- Bottom Row: Dropdown Filters & Status Strip & Pagination Limit -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm pt-space-xs border-t border-surface-container-high/40">
+<div class="flex flex-wrap items-center gap-space-xs">
+<!-- Filter Kategori -->
+<div class="relative min-w-[160px]">
+<select class="w-full h-9 pl-3 pr-8 bg-surface-container-low text-on-surface font-label-sm text-label-sm rounded-lg appearance-none focus:outline-none focus:ring-1 focus:ring-secondary-container border border-surface-container-high/50 cursor-pointer">
+<option value="">Semua Kategori</option>
+<option value="obgyn">Obgyn (Kebidanan)</option>
+<option value="paru">Paru (Pulmonologi)</option>
+<option value="gizi">Gizi Klinik</option>
+<option value="anak">Anak (Pediatrik)</option>
+<option value="kardiologi">Kardiologi</option>
+<option value="kejiwaan">Kejiwaan (Psikiatri)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[16px]">expand_more</span>
+</div>
+<!-- Filter Event Congress -->
+<div class="relative min-w-[180px]">
+<select class="w-full h-9 pl-3 pr-8 bg-surface-container-low text-on-surface font-label-sm text-label-sm rounded-lg appearance-none focus:outline-none focus:ring-1 focus:ring-secondary-container border border-surface-container-high/50 cursor-pointer">
+<option value="">Semua Event Congress</option>
+<option value="hogsi2026">PIT HOGSI XVII 2026</option>
+<option value="indaac2026">INDAAC JABAR 2026</option>
+<option value="paru2026">Simposium Paru 2026</option>
+<option value="pediatrik2026">Kongres Nasional Anak 2026</option>
+<option value="anxiety2026">Anxiety Master Class</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[16px]">expand_more</span>
+</div>
+<!-- Filter Status Quick Segmented -->
+<div class="flex items-center bg-surface-container-low p-0.5 rounded-lg border border-surface-container-high/50">
+<button class="px-2.5 py-1 rounded-md bg-surface-container-lowest text-primary font-label-sm text-label-sm shadow-2xs font-semibold">Semua</button>
+<button class="px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Terverifikasi
+                </button>
+<button class="px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Perlu Dicek
+                </button>
+<button class="px-2.5 py-1 rounded-md text-on-surface-variant hover:text-on-surface font-label-sm text-label-sm flex items-center gap-1 transition-colors">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>Tidak Aktif
+                </button>
+</div>
+</div>
+<!-- Rows Limit Selector -->
+<div class="flex items-center gap-space-xs text-body-sm text-on-surface-variant">
+<span>Tampilkan:</span>
+<select class="bg-surface-container-low text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-lg border border-surface-container-high/50 focus:outline-none focus:ring-1 focus:ring-secondary-container">
+<option>25 baris</option>
+<option selected="">50 baris per halaman</option>
+<option>100 baris</option>
+</select>
+</div>
+</div>
+</div>
+<!-- DATA TABLE AND SLIDE-IN DETAIL PREVIEW PANEL -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- MAIN DATA TABLE CONTAINER (8 Cols on XL) -->
+<div class="xl:col-span-8 bg-surface-container-lowest rounded-xl border border-surface-container-high/60 shadow-xs overflow-hidden flex flex-col">
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left text-on-surface min-w-[760px] border-collapse" id="contact-table">
+<thead>
+<tr class="bg-surface-container-low/70 text-on-surface-variant font-label-sm text-[11px] uppercase tracking-wider border-b border-surface-container-high">
+<th class="py-3 px-3 w-10 text-center">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</th>
+<th class="py-3 px-4">PIC &amp; Kontak</th>
+<th class="py-3 px-4">Perusahaan Sponsor</th>
+<th class="py-3 px-4">Event &amp; Kategori</th>
+<th class="py-3 px-4">Status Verifikasi</th>
+<th class="py-3 px-4 text-right">Aksi Cepat</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-high/50 text-body-sm">
+<!-- Row 1: Kalbe Farma (Active / Selected) -->
+<tr class="bg-surface-container-low/40 hover:bg-surface-container-low transition-colors group cursor-pointer" onclick="openDrawer('dr. Hendra Wijaya', 'PT Kalbe Farma Tbk', '628111465133', 'PIT HOGSI XVII 2026', 'Obgyn', 'Terverifikasi', 'Farmasi', 'Diubah oleh Budi Santoso 2 jam lalu', 'Respons Cepat (&lt; 2 Jam)', 'Tidak ada bentrok data')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input checked="" class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-primary-container text-on-primary font-bold text-[13px] flex items-center justify-center shrink-0">
+                          HW
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-primary font-bold leading-tight group-hover:text-secondary-container transition-colors truncate">dr. Hendra Wijaya</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-on-surface-variant mt-0.5">
+<span>628111465133</span>
+<button class="p-0.5 text-on-surface-variant hover:text-primary rounded hover:bg-surface-container" onclick="event.stopPropagation(); copyToClipboard('628111465133', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">PT Kalbe Farma Tbk</span>
+<span class="bg-surface-container-high text-primary-container font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Farmasi</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="PIT HOGSI XVII 2026">PIT HOGSI XVII 2026</span>
+<span class="bg-blue-50 text-blue-800 border border-blue-200 font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Obgyn</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-emerald-800 bg-emerald-50 border border-emerald-200 font-label-sm text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terverifikasi
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/628111465133" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary rounded-lg transition-all" onclick="openDrawer('dr. Hendra Wijaya', 'PT Kalbe Farma Tbk', '628111465133', 'PIT HOGSI XVII 2026', 'Obgyn', 'Terverifikasi', 'Farmasi', 'Diubah oleh Budi Santoso 2 jam lalu', 'Respons Cepat (&lt; 2 Jam)', 'Tidak ada bentrok data')" title="Lihat Detail">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2: Dexa Medica -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="openDrawer('Siti Rahmawati, S.Farm', 'Dexa Medica', '6281288990011', 'INDAAC JABAR 2026', 'Gizi Klinik', 'Terverifikasi', 'Nutrisi / Farmasi', 'Diperbarui otomatis via Import Excel 1 hari lalu', 'Normal (&lt; 6 Jam)', 'Tidak ada duplikasi')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-purple-700 text-white font-bold text-[13px] flex items-center justify-center shrink-0">
+                          SR
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-primary font-bold leading-tight group-hover:text-secondary-container transition-colors truncate">Siti Rahmawati, S.Farm</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-on-surface-variant mt-0.5">
+<span>6281288990011</span>
+<button class="p-0.5 text-on-surface-variant hover:text-primary rounded hover:bg-surface-container" onclick="event.stopPropagation(); copyToClipboard('6281288990011', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">Dexa Medica</span>
+<span class="bg-surface-container-high text-primary-container font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Farmasi / Nutrisi</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="INDAAC JABAR 2026">INDAAC JABAR 2026</span>
+<span class="bg-purple-50 text-purple-800 border border-purple-200 font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Gizi Klinik</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-emerald-800 bg-emerald-50 border border-emerald-200 font-label-sm text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terverifikasi
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/6281288990011" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary rounded-lg transition-all" onclick="openDrawer('Siti Rahmawati, S.Farm', 'Dexa Medica', '6281288990011', 'INDAAC JABAR 2026', 'Gizi Klinik', 'Terverifikasi', 'Nutrisi / Farmasi', 'Diperbarui otomatis via Import Excel 1 hari lalu', 'Normal (&lt; 6 Jam)', 'Tidak ada duplikasi')" title="Lihat Detail">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: Sanbe Farma (Perlu Dicek) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="openDrawer('Budi Santoso', 'Sanbe Farma', '6281355443322', 'Simposium Paru 2026', 'Paru', 'Perlu Dicek', 'Farmasi', 'Baru diimpor via Excel Smart Matcher 3 jam lalu', 'Belum Diuji', 'Data baru tanpa kontak sekunder')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-emerald-800 text-white font-bold text-[13px] flex items-center justify-center shrink-0">
+                          BS
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-primary font-bold leading-tight group-hover:text-secondary-container transition-colors truncate">Budi Santoso</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-on-surface-variant mt-0.5">
+<span>6281355443322</span>
+<button class="p-0.5 text-on-surface-variant hover:text-primary rounded hover:bg-surface-container" onclick="event.stopPropagation(); copyToClipboard('6281355443322', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">Sanbe Farma</span>
+<span class="bg-surface-container-high text-primary-container font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Farmasi</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="Simposium Paru 2026">Simposium Paru 2026</span>
+<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Paru</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-amber-900 bg-amber-50 border border-amber-200 font-label-sm text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Perlu Dicek
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/6281355443322" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary rounded-lg transition-all" onclick="openDrawer('Budi Santoso', 'Sanbe Farma', '6281355443322', 'Simposium Paru 2026', 'Paru', 'Perlu Dicek', 'Farmasi', 'Baru diimpor via Excel Smart Matcher 3 jam lalu', 'Belum Diuji', 'Data baru tanpa kontak sekunder')" title="Lihat Detail">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4: Abbott Indonesia (DUPLICATE WARNING) -->
+<tr class="bg-rose-50/50 hover:bg-rose-100/60 transition-colors group cursor-pointer" onclick="openDrawer('Michael Tan', 'PT Abbott Indonesia', '628111465133', 'PIT HOGSI XVII 2026', 'Obgyn', 'Duplikat Terdeteksi', 'Alkes &amp; Farmasi', 'Terdeteksi bentrok data kontak 15 menit lalu', 'Tersendat', 'Duplikat no HP dengan Kalbe Farma!')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-error text-white font-bold text-[13px] flex items-center justify-center shrink-0">
+                          MT
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-error font-bold leading-tight truncate">Michael Tan</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-error font-bold mt-0.5">
+<span>628111465133</span>
+<button class="p-0.5 text-error hover:bg-white/80 rounded" onclick="event.stopPropagation(); copyToClipboard('628111465133', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+<span class="text-[10px] text-error font-semibold flex items-center gap-0.5 mt-0.5">
+<span class="material-symbols-outlined text-[12px]">warning</span> Sama dgn dr. Hendra (Kalbe)
+                          </span>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">PT Abbott Indonesia</span>
+<span class="bg-error-container text-error font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Alat Kesehatan</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="PIT HOGSI XVII 2026">PIT HOGSI XVII 2026</span>
+<span class="bg-blue-50 text-blue-800 border border-blue-200 font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Obgyn</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-rose-800 bg-rose-100 border border-rose-200 font-label-sm text-[11px] font-bold">
+<span class="material-symbols-outlined text-[13px] text-error">error</span> Duplikat Nomor
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/628111465133" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-error-container text-error hover:bg-error hover:text-on-error rounded-lg transition-all" onclick="openDrawer('Michael Tan', 'PT Abbott Indonesia', '628111465133', 'PIT HOGSI XVII 2026', 'Obgyn', 'Duplikat Terdeteksi', 'Alat Kesehatan', 'Terdeteksi bentrok data kontak 15 menit lalu', 'Tersendat', 'Duplikat no HP dengan Kalbe Farma!')" title="Lihat Detail Duplikat">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 5: Kimia Farma (Tidak Aktif) -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer opacity-80 hover:opacity-100" onclick="openDrawer('Maya Indriani', 'PT Kimia Farma Tbk', '628170099881', 'Anxiety Master Class', 'Kejiwaan', 'Tidak Aktif', 'Farmasi Retail', 'Diarsip oleh System Automation 2 minggu lalu', 'Tidak Aktif', 'Tidak ada duplikasi')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface-variant font-bold text-[13px] flex items-center justify-center shrink-0">
+                          MI
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-on-surface-variant font-bold leading-tight group-hover:text-primary transition-colors truncate">Maya Indriani</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-on-surface-variant mt-0.5">
+<span>628170099881</span>
+<button class="p-0.5 text-on-surface-variant hover:text-primary rounded hover:bg-surface-container" onclick="event.stopPropagation(); copyToClipboard('628170099881', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">PT Kimia Farma Tbk</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Farmasi Retail</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="Anxiety Master Class">Anxiety Master Class</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Kejiwaan</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-slate-700 bg-slate-100 border border-slate-200 font-label-sm text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Tidak Aktif
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-surface-container text-on-surface-variant hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/628170099881" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary rounded-lg transition-all" onclick="openDrawer('Maya Indriani', 'PT Kimia Farma Tbk', '628170099881', 'Anxiety Master Class', 'Kejiwaan', 'Tidak Aktif', 'Farmasi Retail', 'Diarsip oleh System Automation 2 minggu lalu', 'Tidak Aktif', 'Tidak ada duplikasi')" title="Lihat Detail">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 6: Bio Farma -->
+<tr class="hover:bg-surface-container-low/60 transition-colors group cursor-pointer" onclick="openDrawer('dr. Rizky Pratama', 'PT Bio Farma (Persero)', '6281312345678', 'Kongres Nasional Anak 2026', 'Anak', 'Terverifikasi', 'Vaksin &amp; Biologi', 'Divalidasi staf ICM kemarin', 'Respons Cepat (&lt; 1 Jam)', 'Tidak ada duplikasi')">
+<td class="py-3 px-3 text-center" onclick="event.stopPropagation()">
+<input class="rounded border-outline-variant text-primary-container focus:ring-secondary-container cursor-pointer" type="checkbox">
+</td>
+<td class="py-3 px-4">
+<div class="flex items-center gap-space-xs">
+<div class="w-9 h-9 rounded-full bg-cyan-700 text-white font-bold text-[13px] flex items-center justify-center shrink-0">
+                          RP
+                        </div>
+<div class="flex flex-col min-w-0">
+<span class="font-headline-sm text-[14px] text-primary font-bold leading-tight group-hover:text-secondary-container transition-colors truncate">dr. Rizky Pratama</span>
+<div class="flex items-center gap-1 font-mono text-[12px] text-on-surface-variant mt-0.5">
+<span>6281312345678</span>
+<button class="p-0.5 text-on-surface-variant hover:text-primary rounded hover:bg-surface-container" onclick="event.stopPropagation(); copyToClipboard('6281312345678', this)" title="Salin Nomor">
+<span class="material-symbols-outlined text-[14px]">content_copy</span>
+</button>
+</div>
+</div>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-0.5">
+<span class="font-label-md text-[13px] text-on-surface font-semibold">PT Bio Farma (Persero)</span>
+<span class="bg-surface-container-high text-primary-container font-label-sm text-[10px] px-2 py-0.5 rounded font-medium">Vaksin &amp; Biologi</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<div class="flex flex-col items-start gap-1">
+<span class="font-label-sm text-[12px] text-on-surface truncate max-w-[170px]" title="Kongres Nasional Anak 2026">Kongres Nasional Anak 2026</span>
+<span class="bg-teal-50 text-teal-800 border border-teal-200 font-label-sm text-[10px] px-2 py-0.5 rounded-full font-semibold">Anak</span>
+</div>
+</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-emerald-800 bg-emerald-50 border border-emerald-200 font-label-sm text-[11px] font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terverifikasi
+                      </span>
+</td>
+<td class="py-3 px-4 text-right" onclick="event.stopPropagation()">
+<div class="inline-flex items-center gap-1">
+<a class="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" href="https://wa.me/6281312345678" rel="noopener noreferrer" target="_blank" title="Hubungi via WhatsApp">
+<span class="material-symbols-outlined text-[17px]">chat</span>
+</a>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary rounded-lg transition-all" onclick="openDrawer('dr. Rizky Pratama', 'PT Bio Farma (Persero)', '6281312345678', 'Kongres Nasional Anak 2026', 'Anak', 'Terverifikasi', 'Vaksin &amp; Biologi', 'Divalidasi staf ICM kemarin', 'Respons Cepat (&lt; 1 Jam)', 'Tidak ada duplikasi')" title="Lihat Detail">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+</button>
+<button class="p-1.5 bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all" title="Ubah Data">
+<span class="material-symbols-outlined text-[17px]">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md px-space-md py-space-sm bg-surface-container-low/50 border-t border-surface-container-high/60">
+<span class="font-body-sm text-[13px] text-on-surface-variant">
+                Menampilkan <strong class="text-on-surface font-bold">1 - 6</strong> dari <strong class="text-on-surface font-bold">1.482</strong> entri kontak PIC
+              </span>
+<div class="flex items-center gap-1">
+<button class="px-space-sm py-1 text-on-surface-variant hover:bg-surface-container-high rounded-lg text-body-sm disabled:opacity-40" disabled="">
+                  Sebelumnya
+                </button>
+<button class="w-8 h-8 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">1</button>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center justify-center">2</button>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center justify-center">3</button>
+<span class="px-1 text-on-surface-variant text-body-sm">...</span>
+<button class="w-8 h-8 rounded-lg text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm flex items-center justify-center">30</button>
+<button class="px-space-sm py-1 text-on-surface-variant hover:bg-surface-container-high rounded-lg text-body-sm font-semibold">
+                  Berikutnya
+                </button>
+</div>
+</div>
+</div>
+<!-- SIDE PANEL / DRAWER: PREVIEW DETAIL PIC (4 Cols on XL) -->
+<div class="xl:col-span-4 bg-surface-container-lowest rounded-xl border border-surface-container-high/60 shadow-md p-space-md flex flex-col gap-space-md sticky top-[80px]" id="detail-drawer">
+<!-- Header Card -->
+<div class="flex items-center justify-between pb-space-xs border-b border-surface-container-high/60">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary-container text-[20px]">contact_page</span>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">Pratinjau PIC</span>
+</div>
+<span class="font-label-sm text-[11px] bg-secondary-fixed text-on-secondary-fixed px-2.5 py-0.5 rounded-full font-bold" id="drawer-badge-industry">
+                Farmasi
+              </span>
+</div>
+<!-- PIC Core Profile Identity -->
+<div class="flex items-center gap-space-sm bg-surface-container-low p-space-sm rounded-xl border border-surface-container-high/40">
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-display-md text-[20px] font-bold shadow-xs shrink-0" id="drawer-avatar">
+                HW
+              </div>
+<div class="flex flex-col min-w-0">
+<h2 class="font-headline-md text-[16px] text-primary font-bold truncate" id="drawer-pic-name">dr. Hendra Wijaya</h2>
+<span class="font-body-sm text-[12px] text-on-surface-variant truncate" id="drawer-company-name">PT Kalbe Farma Tbk</span>
+<span class="font-label-sm text-[11px] text-emerald-700 font-semibold mt-0.5 flex items-center gap-1" id="drawer-status-pill">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Terverifikasi
+                </span>
+</div>
+</div>
+<!-- Quick Communication Action Buttons -->
+<div class="grid grid-cols-2 gap-space-xs">
+<a class="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-lg font-label-md text-label-md transition-colors shadow-xs" href="https://wa.me/628111465133" id="drawer-wa-btn" target="_blank">
+<span class="material-symbols-outlined text-[18px]">chat</span>
+<span>Kirim WhatsApp</span>
+</a>
+<button class="flex items-center justify-center gap-1.5 bg-surface-container-low hover:bg-surface-container-high text-primary border border-surface-container-high/60 py-2 rounded-lg font-label-md text-label-md transition-colors" onclick="copyToClipboard(document.getElementById('drawer-phone').innerText, this)">
+<span class="material-symbols-outlined text-[18px]">content_copy</span>
+<span>Salin Nomor</span>
+</button>
+</div>
+<!-- Detailed Metadata List -->
+<div class="space-y-2 text-body-sm pt-space-2xs">
+<div class="flex justify-between items-center py-1 border-b border-surface-container-low">
+<span class="text-on-surface-variant text-[12px]">Nomor Handphone</span>
+<span class="font-mono font-bold text-primary text-[13px]" id="drawer-phone">628111465133</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-surface-container-low">
+<span class="text-on-surface-variant text-[12px]">Kategori Keilmuan</span>
+<span class="font-label-md text-label-sm bg-blue-50 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-full" id="drawer-category">Obgyn</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-surface-container-low">
+<span class="text-on-surface-variant text-[12px]">Terkait Event</span>
+<span class="font-label-md text-label-sm text-primary text-right max-w-[190px] truncate font-semibold" id="drawer-event">PIT HOGSI XVII 2026</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-surface-container-low">
+
+
+</div>
+<div class="flex justify-between items-center py-1 border-b border-surface-container-low">
+<span class="text-on-surface-variant text-[12px]">Status Duplikasi</span>
+<span class="font-label-sm text-[11px] text-on-surface-variant bg-surface-container px-2 py-0.5 rounded font-medium" id="drawer-conflict">Tidak ada bentrok data</span>
+</div>
+<!-- History Log Box -->
+<div class="bg-surface-container-low/80 p-space-sm rounded-lg flex items-start gap-space-xs mt-space-sm border border-surface-container-high/40">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mt-0.5 shrink-0">history</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-[11px] text-on-surface font-bold uppercase tracking-wider">Riwayat Terakhir</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant leading-relaxed" id="drawer-history">Diubah oleh Budi Santoso 2 jam lalu</span>
+</div>
+</div>
+</div>
+<!-- Bottom Actions -->
+<div class="flex items-center gap-space-xs pt-space-sm border-t border-surface-container-high/60 mt-2">
+<button class="flex-1 flex items-center justify-center gap-1.5 bg-primary-container hover:bg-primary text-on-primary py-2 rounded-xl font-label-md text-label-md transition-all shadow-xs" onclick="showToast('Membuka dialog ubah data kontak')">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+<span>Ubah Data</span>
+</button>
+<button class="px-space-md py-2 bg-error-container hover:bg-error text-on-error-container hover:text-on-error rounded-xl font-label-md text-label-md transition-colors flex items-center gap-1" onclick="showToast('Konfirmasi hapus kontak PIC')" title="Hapus Kontak PIC">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+<span>Hapus</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Micro-interaction / Toast Notification Container -->
+<div class="fixed bottom-6 right-6 z-50 pointer-events-none flex flex-col gap-2" id="toast-container"></div>
+<!-- INTERACTIVE SCRIPTS -->
+<script>
+    // Drawer Dynamic Updater
+    function openDrawer(picName, company, phone, eventName, category, status, industry, historyLog, sla, conflict) {
+      document.getElementById('drawer-pic-name').innerText = picName;
+      document.getElementById('drawer-company-name').innerText = company;
+      document.getElementById('drawer-phone').innerText = phone;
+      document.getElementById('drawer-event').innerText = eventName;
+      document.getElementById('drawer-category').innerText = category;
+      document.getElementById('drawer-history').innerText = historyLog;
+      document.getElementById('drawer-badge-industry').innerText = industry;
+      
+      const statusPill = document.getElementById('drawer-status-pill');
+      if (status.includes('Duplikat')) {
+        statusPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-error"></span> ' + status;
+        statusPill.className = 'font-label-sm text-[11px] text-error font-bold mt-0.5 flex items-center gap-1';
+      } else if (status.includes('Dicek')) {
+        statusPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ' + status;
+        statusPill.className = 'font-label-sm text-[11px] text-amber-700 font-bold mt-0.5 flex items-center gap-1';
+      } else if (status.includes('Tidak Aktif')) {
+        statusPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> ' + status;
+        statusPill.className = 'font-label-sm text-[11px] text-slate-600 font-bold mt-0.5 flex items-center gap-1';
+      } else {
+        statusPill.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ' + status;
+        statusPill.className = 'font-label-sm text-[11px] text-emerald-700 font-bold mt-0.5 flex items-center gap-1';
+      }
+
+      if (sla) {
+        document.getElementById('drawer-sla').innerText = sla;
+      }
+      if (conflict) {
+        const conflictEl = document.getElementById('drawer-conflict');
+        conflictEl.innerText = conflict;
+        if (conflict.includes('Duplikat') || conflict.includes('bentrok')) {
+          conflictEl.className = 'font-label-sm text-[11px] text-error font-bold bg-error-container px-2 py-0.5 rounded';
+        } else {
+          conflictEl.className = 'font-label-sm text-[11px] text-on-surface-variant bg-surface-container px-2 py-0.5 rounded font-medium';
+        }
+      }
+
+      // Inisial avatar
+      const initials = picName.replace(/^(dr\.|drg\.|prof\.|apt\.)\s*/i, '').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('drawer-avatar').innerText = initials || 'IC';
+      document.getElementById('drawer-wa-btn').href = 'https://wa.me/' + phone.replace(/[^0-9]/g, '');
+
+      showToast('Memuat data PIC: ' + picName);
+    }
+
+    // Copy-to-Clipboard with Toast Feedback
+    function copyToClipboard(text, btnElement) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Nomor ' + text + ' disalin ke clipboard');
+        if (btnElement) {
+          btnElement.classList.add('text-secondary-container');
+          setTimeout(() => {
+            btnElement.classList.remove('text-secondary-container');
+          }, 1200);
+        }
+      }).catch(err => {
+        showToast('Gagal menyalin nomor telepon');
+      });
+    }
+
+    // 1-Click CSV Downloader with UTF-8 BOM
+    function triggerCsvExport() {
+      const csvContent = "\uFEFFPerusahaan,Nama PIC,Nomor HP,Event Congress,Kategori,Status\n"
+        + '"PT Kalbe Farma Tbk","dr. Hendra Wijaya","628111465133","PIT HOGSI XVII 2026","Obgyn","Terverifikasi"\n'
+        + '"Dexa Medica","Siti Rahmawati, S.Farm","6281288990011","INDAAC JABAR 2026","Gizi Klinik","Terverifikasi"\n'
+        + '"Sanbe Farma","Budi Santoso","6281355443322","Simposium Paru 2026","Paru","Perlu Dicek"\n'
+        + '"PT Abbott Indonesia","Michael Tan","628111465133","PIT HOGSI XVII 2026","Obgyn","Duplikat Terdeteksi"\n'
+        + '"PT Kimia Farma Tbk","Maya Indriani","628170099881","Anxiety Master Class","Kejiwaan","Tidak Aktif"\n'
+        + '"PT Bio Farma (Persero)","dr. Rizky Pratama","6281312345678","Kongres Nasional Anak 2026","Anak","Terverifikasi"\n';
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "ICM_Kontak_PIC_Sponsor_" + new Date().toISOString().slice(0,10) + ".csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast('File CSV siap Excel (UTF-8 BOM) berhasil diunduh');
+    }
+
+    // Toast Generator
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'bg-primary-container text-on-primary px-4 py-2.5 rounded-xl shadow-xl flex items-center gap-2 font-label-md text-label-md pointer-events-auto transition-all transform translate-y-2 opacity-0 border border-secondary-container/30';
+      toast.innerHTML = '<span class="material-symbols-outlined text-[18px] text-secondary-container">info</span><span>' + message + '</span>';
+      
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2800);
+    }
+
+    // Keyboard shortcut CMD+K or CTRL+K
+    window.addEventListener('keydown', function(e) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.getElementById('search-input') || document.getElementById('global-search');
+        if (searchInput) {
+          searchInput.focus();
+          searchInput.select();
+        }
+      }
+    });
+  </script>
+
+
+</body></html>

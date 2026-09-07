@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Filament\Pages\Auth\CustomLogin;
+use App\Filament\Pages\Auth\CustomRegister;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
@@ -16,6 +18,9 @@ use App\Policies\UserPolicy;
 use App\Support\Hooks\SanitizeUtf8State;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -40,6 +45,13 @@ class AppServiceProvider extends ServiceProvider
             'warning' => Color::hex('#D98E04'),
             'danger' => Color::hex('#C0392B'),
         ]);
+
+        // Footer hak cipta di halaman auth (login & register) ala Stitch
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::FOOTER,
+            fn (): View => view('filament.auth.footer'),
+            scopes: [CustomLogin::class, CustomRegister::class],
+        );
         Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(KategoriKegiatan::class, KategoriKegiatanPolicy::class);
