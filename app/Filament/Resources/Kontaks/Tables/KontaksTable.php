@@ -80,7 +80,7 @@ class KontaksTable
                     ->size(TextSize::Small)
                     ->alignCenter()
                     ->extraAttributes(['style' => 'min-width: 3rem'])
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('perusahaan.nama_standar')
                     ->label('Nama Perusahaan')
                     ->size(TextSize::Small)
@@ -100,6 +100,7 @@ class KontaksTable
                     ->weight('medium')
                     ->limit(28)
                     ->tooltip(fn (Kontak $record): string => $record->nama ?? '')
+                    ->description(fn (Kontak $record): ?string => $record->kategoriKegiatan?->nama_kategori)
                     ->toggleable(),
                 TextColumn::make('no_telepon')
                     ->label('No. Telepon')
@@ -109,6 +110,7 @@ class KontaksTable
                     ->copyable()
                     ->icon(Heroicon::OutlinedPhone)
                     ->iconPosition(IconPosition::After)
+                    ->url(fn (Kontak $record): ?string => filled($record->no_telepon) ? 'tel:'.$record->no_telepon : null)
                     ->extraAttributes(['style' => 'white-space: nowrap'])
                     ->toggleable(),
                 TextColumn::make('kegiatan.nama_event')
@@ -151,7 +153,7 @@ class KontaksTable
                     ->placeholder('-')
                     ->limit(28)
                     ->tooltip(fn (Kontak $record): ?string => $record->kategoriKegiatan?->nama_kategori)
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('klasifikasi_cari')
                     ->label('Cocok pada')
                     ->badge()
