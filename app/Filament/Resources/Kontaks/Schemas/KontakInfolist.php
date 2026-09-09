@@ -27,7 +27,22 @@ class KontakInfolist
                         TextEntry::make('no_telepon')
                             ->label('No. Telepon')
                             ->copyable()
-                            ->icon('heroicon-o-phone'),
+                            ->icon('heroicon-o-phone')
+                            ->url(fn ($record) => filled($record->no_telepon) ? 'tel:'.$record->no_telepon : null),
+                        TextEntry::make('email')
+                            ->label('Email PIC')
+                            ->copyable()
+                            ->icon('heroicon-o-envelope')
+                            ->url(fn ($record) => filled($record->email) ? 'mailto:'.$record->email : null)
+                            ->placeholder('-'),
+                    ]),
+                Section::make('Catatan Follow-up')
+                    ->collapsible()
+                    ->schema([
+                        TextEntry::make('catatan')
+                            ->label('')
+                            ->placeholder('Belum ada catatan follow-up untuk kontak ini.')
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Kegiatan')
                     ->columns(2)

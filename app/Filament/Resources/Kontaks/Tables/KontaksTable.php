@@ -12,6 +12,7 @@ use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
@@ -197,6 +198,17 @@ class KontaksTable
                     ->placeholder('-')
                     ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
                     ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('email')
+                    ->label('Email')
+                    ->copyable()
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('catatan')
+                    ->label('Catatan')
+                    ->limit(30)
+                    ->tooltip(fn (Kontak $record): string => $record->catatan ?? '')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Filter::make('cari')
@@ -267,6 +279,14 @@ class KontaksTable
             ->paginated([25, 50, 100, 250, 500])
             ->defaultPaginationPageOption(50)
             ->recordActions([
+                Action::make('quick_whatsapp')
+                    ->label('')
+                    ->tooltip('Kirim WhatsApp')
+                    ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                    ->color('success')
+                    ->url(fn (Kontak $record): string => self::whatsappUrl($record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
                 ActionGroup::make([
                     ViewAction::make()->slideOver(),
                     EditAction::make(),
@@ -277,6 +297,7 @@ class KontaksTable
                         ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                         ->openUrlInNewTab()
                         ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                    DeleteAction::make(),
                 ])->icon(Heroicon::OutlinedEllipsisHorizontal)->color('gray')->tooltip('Aksi'),
             ])
             ->toolbarActions([

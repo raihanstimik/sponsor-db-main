@@ -25,6 +25,8 @@ class Kontak extends Model
         'kategori_kegiatan_id',
         'nama',
         'no_telepon',
+        'email',
+        'catatan',
         'status_format_valid',
         'status_verifikasi',
         'updated_by',
@@ -41,6 +43,7 @@ class Kontak extends Model
     {
         return LogOptions::defaults()
             ->logOnly(['perusahaan_id', 'kegiatan_id', 'kategori_kegiatan_id', 'nama', 'no_telepon', 'status_verifikasi'])
+            ->logOnly(['perusahaan_id', 'kegiatan_id', 'kategori_kegiatan_id', 'nama', 'no_telepon', 'email', 'catatan', 'status_verifikasi'])
             ->logOnlyDirty()
             ->useLogName('kontak')
             ->dontSubmitEmptyLogs();

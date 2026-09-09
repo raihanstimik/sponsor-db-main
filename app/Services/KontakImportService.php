@@ -579,7 +579,7 @@ class KontakImportService
     public function classify(array $rows): array
     {
         $perusahaanByNormalized = [];
-        foreach (Perusahaan::query()->pluck('id', 'nama_standar') as $nama => $id) {
+        foreach (Perusahaan::withTrashed()->pluck('id', 'nama_standar') as $nama => $id) {
             $key = self::normalizeCompanyName((string) $nama);
             if ($key === '') {
                 continue;
@@ -762,20 +762,42 @@ class KontakImportService
                 $norm = self::normalizeCompanyName($canonical !== '' ? $canonical : (string) $preview['nama_perusahaan']);
 
                 $perusahaan = null;
+                $targetNama = $canonical !== '' ? $canonical : (string) $preview['nama_perusahaan'];
 
-                if ($preview['perusahaan_id'] && ($candidate = Perusahaan::find($preview['perusahaan_id']))) {
+                if ($preview['perusahaan_id'] && ($candidate = Perusahaan::withTrashed()->find($preview['perusahaan_id']))) {
                     $perusahaan = $candidate;
+                    if ($perusahaan->trashed()) {
+                        $perusahaan->restore();
+                    }
                 } elseif (isset($createdCompanies[$norm])) {
                     $perusahaan = $createdCompanies[$norm];
-                } elseif ($preview['perusahaan_status'] === 'baru' && $norm !== '') {
-                    $perusahaan = Perusahaan::create([
-                        'nama_standar' => $canonical !== '' ? $canonical : (string) $preview['nama_perusahaan'],
-                        'industri' => $preview['industri'] ?: null,
-                        'catatan' => null,
-                        'updated_by' => $authId,
-                    ]);
+                } elseif ($norm !== '') {
+                    $perusahaan = Perusahaan::withTrashed()->where('nama_standar', $targetNama)->first();
+
+                    if ($perusahaan) {
+                        if ($perusahaan->trashed()) {
+                            $perusahaan->restore();
+                        }
+                    } else {
+                        $perusahaan = Perusahaan::create([
+                            'nama_standar' => $targetNama,
+                            'industri' => $preview['industri'] ?: null,
+                            'catatan' => null,
+                            'updated_by' => $authId,
+                        ]);
+                        $perusahaanDibuat++;
+                    }
+
                     $createdCompanies[$norm] = $perusahaan;
-                    $perusahaanDibuat++;
+                }
+
+                if ($perusahaan && ! isset($createdCompanies[$norm])) {
+                    $createdCompanies[$norm] = $perusahaan;
+                }
+
+                if ($perusahaan && empty($perusahaan->industri) && filled($preview['industri'] ?? null)) {
+                    $perusahaan->industri = (string) $preview['industri'];
+                    $perusahaan->save();
                 }
 
                 if (! $perusahaan) {
@@ -848,11 +870,24 @@ class KontakImportService
             'duplikat' => 0,
             'data_tidak_lengkap' => 0,
             'nomor_tidak_valid' => 0,
+            'kontak_baru' => 0,
+            'perusahaan_baru' => 0,
         ];
+
+        $uniqueNewCompanies = [];
 
         foreach ($previews as $p) {
             if ($p['status_kontak'] === 'dibuat') {
-                $counts[$p['perusahaan_status'] === 'cocok' ? 'cocok' : 'baru']++;
+                $counts['kontak_baru']++;
+                if ($p['perusahaan_status'] === 'cocok') {
+                    $counts['cocok']++;
+                } else {
+                    $counts['baru']++;
+                    $norm = self::normalizeCompanyName((string) $p['nama_perusahaan']);
+                    if ($norm !== '') {
+                        $uniqueNewCompanies[$norm] = true;
+                    }
+                }
                 if (! $p['no_telepon_valid'] && $p['no_telepon'] !== '') {
                     $counts['nomor_tidak_valid']++;
                 }
@@ -862,6 +897,8 @@ class KontakImportService
                 $counts['duplikat']++;
             }
         }
+
+        $counts['perusahaan_baru'] = count($uniqueNewCompanies);
 
         return $counts;
     }

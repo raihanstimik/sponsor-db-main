@@ -112,12 +112,18 @@ class MuatDataPelatihan extends Command
             }
 
             // --- Perusahaan (nama kanonik) ---
-            $perusahaan = Perusahaan::firstOrCreate(
-                ['nama_standar' => $canonical],
-                ['industri' => $row['industri'] ?: null, 'catatan' => null]
-            );
+            $perusahaan = Perusahaan::withTrashed()->where('nama_standar', $canonical)->first();
 
-            if ($perusahaan->wasRecentlyCreated) {
+            if ($perusahaan) {
+                if ($perusahaan->trashed()) {
+                    $perusahaan->restore();
+                }
+            } else {
+                $perusahaan = Perusahaan::create([
+                    'nama_standar' => $canonical,
+                    'industri' => $row['industri'] ?: null,
+                    'catatan' => null,
+                ]);
                 $perusahaanDibuat++;
             }
 

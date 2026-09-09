@@ -33,21 +33,24 @@
                 </x-filament::button>
             </div>
 
-            <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-                <x-filament::section class="sm:col-span-1" :heading="'Akan dibuat'" :description="$this->counts['baru'] . ' perusahaan / kontak baru'">
-                    <span class="text-3xl font-bold">{{ $this->counts['baru'] }}</span>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                <x-filament::section class="sm:col-span-1" :heading="'Kontak baru'" :description="'akan dibuat & disimpan'">
+                    <span class="text-3xl font-bold text-success-600 dark:text-success-400">{{ $this->counts['kontak_baru'] ?? ($this->counts['baru'] + $this->counts['cocok']) }}</span>
+                </x-filament::section>
+                <x-filament::section class="sm:col-span-1" :heading="'Perusahaan baru'" :description="'perusahaan baru dibuat'">
+                    <span class="text-3xl font-bold text-primary-600 dark:text-primary-400">{{ $this->counts['perusahaan_baru'] ?? $this->counts['baru'] }}</span>
                 </x-filament::section>
                 <x-filament::section class="sm:col-span-1" :heading="'Dihubungkan'" :description="'ke perusahaan yang sudah ada'">
-                    <span class="text-3xl font-bold">{{ $this->counts['cocok'] }}</span>
+                    <span class="text-3xl font-bold text-info-600 dark:text-info-400">{{ $this->counts['cocok'] }}</span>
                 </x-filament::section>
                 <x-filament::section class="sm:col-span-1" :heading="'Duplikat dilewati'" :description="'nomor / nama sudah ada'">
-                    <span class="text-3xl font-bold">{{ $this->counts['duplikat'] }}</span>
+                    <span class="text-3xl font-bold text-warning-600 dark:text-warning-400">{{ $this->counts['duplikat'] }}</span>
                 </x-filament::section>
                 <x-filament::section class="sm:col-span-1" :heading="'Data tidak lengkap'" :description="'baris dilewati'">
-                    <span class="text-3xl font-bold">{{ $this->counts['data_tidak_lengkap'] }}</span>
+                    <span class="text-3xl font-bold text-danger-600 dark:text-danger-400">{{ $this->counts['data_tidak_lengkap'] }}</span>
                 </x-filament::section>
                 <x-filament::section class="sm:col-span-1" :heading="'Nomor tak valid'" :description="'tetap disimpan dgn flag'">
-                    <span class="text-3xl font-bold">{{ $this->counts['nomor_tidak_valid'] }}</span>
+                    <span class="text-3xl font-bold text-gray-600 dark:text-gray-400">{{ $this->counts['nomor_tidak_valid'] }}</span>
                 </x-filament::section>
             </div>
 

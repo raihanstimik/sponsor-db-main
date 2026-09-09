@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Kontaks\Pages\CreateKontak;
 use App\Filament\Resources\Kontaks\Pages\ListKontaks;
 use App\Filament\Resources\Kontaks\Tables\KontaksTable;
 use App\Models\Kontak;
@@ -241,4 +242,100 @@ class KontakEnhancementsTest extends TestCase
             ->assertSee('Belum ada kontak')
             ->assertSee('Import Data');
     }
+
+    #[Test]
+    public function kontak_dapat_menyimpan_email_dan_catatan_follow_up(): void
+    {
+        $user = User::factory()->admin()->create();
+        $perusahaan = Perusahaan::factory()->create();
+
+        $this->actingAs($user);
+
+        Livewire::test(CreateKontak::class)
+            ->fillForm([
+                'perusahaan_id' => $perusahaan->id,
+                'nama' => 'Dewi Sartika',
+                'no_telepon' => '081234567890',
+                'email' => 'dewi@example.com',
+                'catatan' => 'Tertarik paket Platinum. Follow-up hari Jumat.',
+                'status_verifikasi' => 'terverifikasi',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $kontak = Kontak::where('nama', 'Dewi Sartika')->first();
+        $this->assertNotNull($kontak);
+        $this->assertSame('dewi@example.com', $kontak->email);
+        $this->assertSame('Tertarik paket Platinum. Follow-up hari Jumat.', $kontak->catatan);
+    }
+
+    #[Test]
+    public function duplikasi_nomor_telepon_tetap_dapat_disimpan_oleh_pengguna(): void
+    {
+        $user = User::factory()->admin()->create();
+        $perusahaanA = Perusahaan::factory()->create(['nama_standar' => 'PT Alpha']);
+        $perusahaanB = Perusahaan::factory()->create(['nama_standar' => 'PT Beta']);
+
+        // Kontak awal di perusahaan A
+        Kontak::factory()->create([
+            'perusahaan_id' => $perusahaanA->id,
+            'nama' => 'Rudi',
+            'no_telepon' => '081234567899',
+        ]);
+
+        $this->actingAs($user);
+
+        // Pengguna membuat kontak di perusahaan B dengan nomor sama
+        Livewire::test(CreateKontak::class)
+            ->fillForm([
+                'perusahaan_id' => $perusahaanB->id,
+                'nama' => 'Rudi Cabang',
+                'no_telepon' => '081234567899',
+                'status_verifikasi' => 'perlu_dicek',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $kontakBaru = Kontak::where('nama', 'Rudi Cabang')->first();
+        $this->assertNotNull($kontakBaru);
+        $this->assertSame($perusahaanB->id, $kontakBaru->perusahaan_id);
+    }
+
+    #[Test]
+    public function list_kontak_memiliki_kolom_email_catatan_dan_aksi_quick_whatsapp(): void
+    {
+        $user = User::factory()->admin()->create();
+        $perusahaan = Perusahaan::factory()->create();
+        Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'Sari',
+            'no_telepon' => '081299887766',
+            'email' => 'sari@example.com',
+            'catatan' => 'Catatan penting',
+        ]);
+
+        $this->actingAs($user);
+        Livewire::test(ListKontaks::class)
+            ->assertOk()
+            ->assertTableColumnExists('email')
+            ->assertTableColumnExists('catatan')
+            ->assertTableActionExists('quick_whatsapp');
+    }
+
+    #[Test]
+    public function list_kontak_tidak_memiliki_filter_deleted_records(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $component = Livewire::test(ListKontaks::class)
+            ->assertOk();
+
+        $table = $component->instance()->getTable();
+        $this->assertNull(
+            $table->getFilter('trashed'),
+            'Filter trashed (Deleted records) seharusnya sudah dihapus dari tabel kontak.'
+        );
+    }
 }
+

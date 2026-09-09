@@ -722,4 +722,77 @@ class KontakImportTest extends TestCase
         json_encode([$component->previews, $context->effects], JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE);
         $this->assertTrue(true);
     }
+
+    #[Test]
+    public function import_perusahaan_yang_terhapus_soft_delete_dipulihkan_dan_tidak_duplikat(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $bayer = Perusahaan::factory()->create(['nama_standar' => 'Bayer']);
+        $bayer->delete();
+
+        $this->assertTrue($bayer->fresh()->trashed());
+
+        $service = new KontakImportService;
+        $path = $this->makeCsv([
+            ['Bayer', 'Farmasi', 'Rangga', '081234567890', '', ''],
+        ]);
+
+        $rows = $service->extractRows($path);
+        $previews = $service->classify($rows);
+
+        $this->assertSame('cocok', $previews[0]['perusahaan_status']);
+        $this->assertSame($bayer->id, $previews[0]['perusahaan_id']);
+        $this->assertSame('dibuat', $previews[0]['status_kontak']);
+
+        $result = $service->save((int) $admin->id, $previews);
+
+        $this->assertSame(0, $result['perusahaan_dibuat']);
+        $this->assertSame(1, $result['kontak_dibuat']);
+        $this->assertFalse($bayer->fresh()->trashed());
+        $this->assertDatabaseHas('kontaks', [
+            'perusahaan_id' => $bayer->id,
+            'nama' => 'Rangga',
+            'no_telepon' => '6281234567890',
+        ]);
+    }
+
+    #[Test]
+    public function save_memulihkan_perusahaan_jika_ada_konflik_nama_standar_saat_perusahaan_baru(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $bayer = Perusahaan::factory()->create(['nama_standar' => 'Bayer']);
+        $bayer->delete();
+
+        $service = new KontakImportService;
+        $previews = [
+            [
+                'sheet' => null,
+                'baris' => 1,
+                'nama_perusahaan' => 'Bayer',
+                'perusahaan_status' => 'baru',
+                'perusahaan_id' => null,
+                'perusahaan_nama_resmi' => 'Bayer',
+                'industri' => 'Farmasi',
+                'nama' => 'Rangga',
+                'no_telepon_mentah' => '081234567890',
+                'no_telepon' => '6281234567890',
+                'no_telepon_valid' => true,
+                'catatan' => '',
+                'nama_event' => null,
+                'nama_kategori' => null,
+                'status_kontak' => 'dibuat',
+                'alasan' => '',
+            ],
+        ];
+
+        $result = $service->save((int) $admin->id, $previews);
+
+        $this->assertSame(0, $result['perusahaan_dibuat']);
+        $this->assertSame(1, $result['kontak_dibuat']);
+        $this->assertFalse($bayer->fresh()->trashed());
+        $this->assertDatabaseHas('kontaks', [
+            'perusahaan_id' => $bayer->id,
+            'nama' => 'Rangga',
+        ]);
+    }
 }
