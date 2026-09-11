@@ -95,15 +95,6 @@ class KontakForm
                     ->disabled()
                     ->dehydrated(false)
                     ->helperText('Dihitung otomatis dari format nomor.'),
-                Select::make('status_verifikasi')
-                    ->label('Status Verifikasi')
-                    ->options([
-                        'terverifikasi' => 'Terverifikasi',
-                        'perlu_dicek' => 'Perlu dicek',
-                        'tidak_aktif' => 'Tidak aktif',
-                    ])
-                    ->default('terverifikasi')
-                    ->required(),
                 Textarea::make('catatan')
                     ->label('Catatan Follow-up / Negosiasi')
                     ->placeholder('Catatan internal hasil pembicaraan, follow-up, atau preferensi sponsor...')

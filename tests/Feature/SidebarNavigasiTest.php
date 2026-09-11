@@ -35,6 +35,7 @@ class SidebarNavigasiTest extends TestCase
     private function posisi(string $nav, string $label): int
     {
         preg_match('/fi-sidebar-item-label"\s*>\s*'.preg_quote($label, '/').'\s*</', $nav, $m, PREG_OFFSET_CAPTURE);
+        preg_match('/fi-sidebar-item-label"\s*>\s*'.preg_quote(e($label), '/').'\s*</', $nav, $m, PREG_OFFSET_CAPTURE);
 
         return $m[0][1] ?? -1;
     }
@@ -88,8 +89,10 @@ class SidebarNavigasiTest extends TestCase
         $html = (string) $this->actingAs($user)->get('/admin/perusahaans')->getContent();
         $nav = $this->nav($html);
 
-        foreach (['Perusahaan', 'Kegiatan / Event', 'Kategori Kegiatan'] as $label) {
+        foreach (['Perusahaan', 'Kegiatan & Kategori'] as $label) {
             $this->assertNotSame(-1, $this->posisi($nav, $label), "{$label} hilang dari sidebar.");
         }
+
+        $this->assertSame(-1, $this->posisi($nav, 'Kategori Kegiatan'), 'Kategori Kegiatan kini menyatu di dalam halaman Kegiatan & Kategori.');
     }
 }

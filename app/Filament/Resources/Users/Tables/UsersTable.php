@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Users\Tables;
 
+use App\Support\FilamentTableHelper;
+use App\Support\KlasifikasiTabel;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
@@ -23,6 +26,8 @@ class UsersTable
 {
     public static function configure(Table $table): Table
     {
+        FilamentTableHelper::applyDefaultPresets($table);
+
         return $table
             ->columns([
                 ImageColumn::make('avatar_url')
@@ -54,32 +59,27 @@ class UsersTable
                 TextColumn::make('roles.name')
                     ->label('Peran')
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'admin' => 'primary',
-                        'karyawan' => 'gray',
-                        default => 'gray',
-                    })
+                    ->color(fn (string $state): string => KlasifikasiTabel::warnaRole($state))
                     ->formatStateUsing(fn (string $state): string => ucfirst($state))
                     ->searchable(),
 
                 IconColumn::make('is_active')
-                    ->label('Aktif')
+                    ->label('Status')
                     ->boolean()
                     ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
+                    ->falseIcon('heroicon-o-clock')
                     ->trueColor('success')
-                    ->falseColor('danger')
-                    ->sortable(),
+                    ->falseColor('warning')
+                    ->tooltip(fn ($record) => $record->is_active ? 'Aktif (Approved)' : 'Menunggu Persetujuan Admin'),
 
                 TextColumn::make('phone')
                     ->label('Telepon')
                     ->placeholder('-')
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('joined_at')
-                    ->label('Bergabung')
-                    ->date('d M Y')
-                    ->placeholder('-')
+                TextColumn::make('created_at')
+                    ->label('Terdaftar')
+                    ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -91,12 +91,15 @@ class UsersTable
                     ->label('Peran')
                     ->relationship('roles', 'name'),
                 TernaryFilter::make('is_active')
-                    ->label('Status Aktif')
+                    ->label('Status Akun')
                     ->placeholder('Semua')
                     ->trueLabel('Aktif (Approved)')
                     ->falseLabel('Menunggu Persetujuan'),
             ])
+            ->recordUrl(null)
+            ->recordAction(ViewAction::class)
             ->recordActions([
+                ViewAction::make()->slideOver(),
                 Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')

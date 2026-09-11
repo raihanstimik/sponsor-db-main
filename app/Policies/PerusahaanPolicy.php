@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Perusahaan;
 use App\Models\User;
+use App\Policies\Concerns\HandlesResourcePermissions;
 
 class PerusahaanPolicy
 {
@@ -11,6 +14,8 @@ class PerusahaanPolicy
     {
         return $user->can('perusahaan.view_any');
     }
+
+    use HandlesResourcePermissions;
 
     public function view(User $user, Perusahaan $perusahaan): bool
     {
@@ -36,4 +41,6 @@ class PerusahaanPolicy
     {
         return $user->can('perusahaan.delete');
     }
+
+    protected string $permissionPrefix = 'perusahaan';
 }

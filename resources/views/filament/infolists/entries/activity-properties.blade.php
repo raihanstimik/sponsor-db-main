@@ -13,7 +13,22 @@
         $changedKeys = array_unique(array_merge(array_keys($old), array_keys($attributes)));
     @endphp
 
-    @if(empty($old) && empty($attributes))
+    @if($record?->log_name === 'import' && !empty($props))
+        <div class="rounded-xl border border-primary-200 bg-primary-50 p-4 dark:border-primary-900 dark:bg-primary-950/30">
+            <div class="flex items-center gap-2 text-sm font-semibold text-primary-700 dark:text-primary-300">
+                <x-filament::icon alias="heroicon-o-arrow-up-tray" class="h-4 w-4" />
+                {{ $record->description }}
+            </div>
+            <dl class="mt-3 grid gap-2">
+                @foreach($props as $key => $value)
+                    <div class="flex gap-3 rounded-lg bg-white p-2.5 dark:bg-gray-800">
+                        <dt class="w-40 shrink-0 text-xs font-medium text-gray-500 dark:text-gray-400">{{ \App\Filament\Resources\ActivityLogs\ActivityLogResource::labelField($key) }}</dt>
+                        <dd class="text-sm font-medium text-gray-900 dark:text-white tabular-nums">{{ number_format((int) $value, 0, ',', '.') }}</dd>
+                    </div>
+                @endforeach
+            </dl>
+        </div>
+    @elseif(empty($old) && empty($attributes))
         <div class="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-900">
             <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
                 <x-filament::icon alias="heroicon-o-information-circle" class="h-5 w-5 text-gray-400" />

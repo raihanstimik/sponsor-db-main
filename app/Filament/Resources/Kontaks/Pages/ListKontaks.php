@@ -48,4 +48,13 @@ class ListKontaks extends ListRecords
 
         return $this->petaNomorCache;
     }
+
+    /**
+     * Reset semua filter tabel kontak.
+     */
+    public function resetFilters(): void
+    {
+        $this->resetTableFiltersForm();
+        $this->resetPage();
+    }
 }

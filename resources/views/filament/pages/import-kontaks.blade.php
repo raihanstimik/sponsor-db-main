@@ -10,9 +10,6 @@
                 {{ $this->saveResult['perusahaan_dibuat'] }} perusahaan baru dibuat,
                 {{ $this->saveResult['dilewati'] }} baris dilewati (duplikat / data tidak lengkap).
             </p>
-            <p class="mt-1 text-sm text-primary-700">
-                Kontak baru otomatis berstatus verifikasi <strong>perlu_dicek</strong>.
-            </p>
             <div class="mt-4">
                 <x-filament::button color="gray" wire:click="resetImport">
                     Import file lain

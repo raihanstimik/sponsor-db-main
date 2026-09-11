@@ -8,5 +8,6 @@ Route::get('/', function () {
     return redirect('/admin');
 });
 
-Route::middleware(['web', Authenticate::class])->get('/admin/kontak/export', KontakExportController::class)
+Route::middleware(['web', Authenticate::class, 'throttle:exports'])
+    ->get('/admin/kontak/export', KontakExportController::class)
     ->name('kontaks.export');

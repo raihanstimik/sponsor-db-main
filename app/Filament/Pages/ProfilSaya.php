@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Actions\User\UpdateUserProfileAction;
 use App\Filament\Resources\Users\UserResource;
+use App\Models\User;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
@@ -16,12 +18,9 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rules\Unique;
+use Illuminate\Validation\ValidationException;
 
-// app/Filament/Pages/ProfilSaya.php
 class ProfilSaya extends Page implements HasForms
 {
     use InteractsWithForms;
@@ -52,6 +51,7 @@ class ProfilSaya extends Page implements HasForms
 
     public function mount(): void
     {
+        /** @var User $user */
         $user = auth()->user();
         $this->form->fill([
             'name' => $user->name,
@@ -154,48 +154,18 @@ class ProfilSaya extends Page implements HasForms
         ];
     }
 
-    public function save(): void
+    public function save(UpdateUserProfileAction $action): void
     {
+        /** @var User $user */
         $user = auth()->user();
         $data = $this->form->getState();
 
-        // Validasi manual untuk current_password bila ganti password
-        if (filled($data['password'] ?? null)) {
-            $this->validate([
-                'data.current_password' => ['required', 'string'],
-            ], [], ['data.current_password' => 'Password Saat Ini']);
-
-            if (! Hash::check($data['current_password'], $user->password)) {
-                Notification::make()->title('Password saat ini salah')->danger()->send();
-
-                return;
-            }
-        }
-
-        $payload = [
-            'name' => trim($data['name']),
-            'email' => trim($data['email']),
-            'phone' => $data['phone'] ? trim($data['phone']) : null,
-            'avatar_url' => $data['avatar_url'] ?? null,
-        ];
-
-        if (filled($data['password'] ?? null)) {
-            $payload['password'] = Hash::make($data['password']);
-        }
-
-        $oldAvatar = $user->avatar_url;
-        $newAvatar = $payload['avatar_url'] ?? null;
-
         try {
-            DB::transaction(fn () => $user->update($payload));
-            // hapus lama hanya setelah DB sukses & file baru ada
-            if ($newAvatar && $oldAvatar && $oldAvatar !== $newAvatar) {
-                Storage::disk('public')->delete($oldAvatar);
-            }
-            // jika avatar dihapus (null) dan ada lama, hapus lama
-            if ($newAvatar === null && $oldAvatar) {
-                Storage::disk('public')->delete($oldAvatar);
-            }
+            $updatedUser = $action->execute($user, $data);
+        } catch (ValidationException $e) {
+            Notification::make()->title('Password saat ini salah')->danger()->send();
+
+            return;
         } catch (\Throwable $e) {
             Notification::make()->title('Gagal menyimpan')->body($e->getMessage())->danger()->send();
 
@@ -204,10 +174,10 @@ class ProfilSaya extends Page implements HasForms
 
         Notification::make()->title('Profil diperbarui')->body('Perubahan profil Anda berhasil disimpan.')->success()->send();
         $this->form->fill([
-            'name' => $user->fresh()->name,
-            'email' => $user->fresh()->email,
-            'phone' => $user->fresh()->phone,
-            'avatar_url' => $user->fresh()->avatar_url,
+            'name' => $updatedUser->name,
+            'email' => $updatedUser->email,
+            'phone' => $updatedUser->phone,
+            'avatar_url' => $updatedUser->avatar_url,
             'current_password' => null,
             'password' => null,
             'password_confirmation' => null,

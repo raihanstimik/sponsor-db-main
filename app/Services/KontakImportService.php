@@ -750,110 +750,123 @@ class KontakImportService
         $kegiatanCache = [];
         $kategoriCache = [];
 
-        DB::transaction(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache) {
-            foreach ($previews as $preview) {
-                if ($preview['status_kontak'] !== 'dibuat') {
-                    $dilewati++;
+        activity()->withoutLogs(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache): void {
+            DB::transaction(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache): void {
+                foreach ($previews as $preview) {
+                    if ($preview['status_kontak'] !== 'dibuat') {
+                        $dilewati++;
 
-                    continue;
-                }
-
-                $canonical = KlasifikasiTabel::perusahaanKanonik($preview['nama_perusahaan']);
-                $norm = self::normalizeCompanyName($canonical !== '' ? $canonical : (string) $preview['nama_perusahaan']);
-
-                $perusahaan = null;
-                $targetNama = $canonical !== '' ? $canonical : (string) $preview['nama_perusahaan'];
-
-                if ($preview['perusahaan_id'] && ($candidate = Perusahaan::withTrashed()->find($preview['perusahaan_id']))) {
-                    $perusahaan = $candidate;
-                    if ($perusahaan->trashed()) {
-                        $perusahaan->restore();
+                        continue;
                     }
-                } elseif (isset($createdCompanies[$norm])) {
-                    $perusahaan = $createdCompanies[$norm];
-                } elseif ($norm !== '') {
-                    $perusahaan = Perusahaan::withTrashed()->where('nama_standar', $targetNama)->first();
 
-                    if ($perusahaan) {
+                    $canonical = KlasifikasiTabel::perusahaanKanonik($preview['nama_perusahaan']);
+                    $norm = self::normalizeCompanyName($canonical !== '' ? $canonical : (string) $preview['nama_perusahaan']);
+
+                    $perusahaan = null;
+                    $targetNama = $canonical !== '' ? $canonical : (string) $preview['nama_perusahaan'];
+
+                    if ($preview['perusahaan_id'] && ($candidate = Perusahaan::withTrashed()->find($preview['perusahaan_id']))) {
+                        $perusahaan = $candidate;
                         if ($perusahaan->trashed()) {
                             $perusahaan->restore();
                         }
-                    } else {
-                        $perusahaan = Perusahaan::create([
-                            'nama_standar' => $targetNama,
-                            'industri' => $preview['industri'] ?: null,
-                            'catatan' => null,
-                            'updated_by' => $authId,
-                        ]);
-                        $perusahaanDibuat++;
-                    }
+                    } elseif (isset($createdCompanies[$norm])) {
+                        $perusahaan = $createdCompanies[$norm];
+                    } elseif ($norm !== '') {
+                        $perusahaan = Perusahaan::withTrashed()->where('nama_standar', $targetNama)->first();
 
-                    $createdCompanies[$norm] = $perusahaan;
-                }
-
-                if ($perusahaan && ! isset($createdCompanies[$norm])) {
-                    $createdCompanies[$norm] = $perusahaan;
-                }
-
-                if ($perusahaan && empty($perusahaan->industri) && filled($preview['industri'] ?? null)) {
-                    $perusahaan->industri = (string) $preview['industri'];
-                    $perusahaan->save();
-                }
-
-                if (! $perusahaan) {
-                    $dilewati++;
-
-                    continue;
-                }
-
-                // --- Kegiatan & kategori ---
-                $kegiatanId = null;
-                $kategoriId = null;
-                $namaEvent = KlasifikasiTabel::eventKanonik($preview['nama_event'] ?? null);
-
-                if (filled($namaEvent)) {
-                    if (! isset($kegiatanCache[$namaEvent])) {
-                        $kegiatan = Kegiatan::firstOrCreate(['nama_event' => $namaEvent]);
-                        $kegiatanCache[$namaEvent] = $kegiatan;
-
-                        if (filled($preview['nama_kategori'] ?? null)) {
-                            $kategoriNama = (string) $preview['nama_kategori'];
-                            if (! isset($kategoriCache[$kategoriNama])) {
-                                $kategoriCache[$kategoriNama] = KategoriKegiatan::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                        if ($perusahaan) {
+                            if ($perusahaan->trashed()) {
+                                $perusahaan->restore();
                             }
-                            $kegiatan->kategori_kegiatan_id = $kategoriCache[$kategoriNama]->id;
+                        } else {
+                            $perusahaan = Perusahaan::create([
+                                'nama_standar' => $targetNama,
+                                'industri' => $preview['industri'] ?: null,
+                                'catatan' => null,
+                                'updated_by' => $authId,
+                            ]);
+                            $perusahaanDibuat++;
                         }
 
-                        if (filled($preview['venue'] ?? null)) {
-                            $kegiatan->venue = (string) $preview['venue'];
-                        }
-
-                        if (filled($preview['tanggal_mulai'] ?? null)) {
-                            $kegiatan->tanggal_mulai = (string) $preview['tanggal_mulai'];
-                        }
-
-                        $kegiatan->save();
+                        $createdCompanies[$norm] = $perusahaan;
                     }
 
-                    $kegiatan = $kegiatanCache[$namaEvent];
-                    $kegiatanId = $kegiatan->id;
-                    $kategoriId = $kegiatan->kategori_kegiatan_id;
-                }
+                    if ($perusahaan && ! isset($createdCompanies[$norm])) {
+                        $createdCompanies[$norm] = $perusahaan;
+                    }
 
-                Kontak::create([
-                    'perusahaan_id' => $perusahaan->id,
-                    'kegiatan_id' => $kegiatanId,
-                    'kategori_kegiatan_id' => $kategoriId,
-                    'nama' => $preview['nama'],
-                    'no_telepon' => $preview['no_telepon'],
-                    'status_verifikasi' => 'perlu_dicek',
-                    'status_format_valid' => $preview['no_telepon_valid'],
-                    'updated_by' => $authId,
-                    'catatan' => $preview['catatan'] ?: null,
-                ]);
-                $kontakDibuat++;
-            }
+                    if ($perusahaan && empty($perusahaan->industri) && filled($preview['industri'] ?? null)) {
+                        $perusahaan->industri = (string) $preview['industri'];
+                        $perusahaan->save();
+                    }
+
+                    if (! $perusahaan) {
+                        $dilewati++;
+
+                        continue;
+                    }
+
+                    // --- Kegiatan & kategori ---
+                    $kegiatanId = null;
+                    $kategoriId = null;
+                    $namaEvent = KlasifikasiTabel::eventKanonik($preview['nama_event'] ?? null);
+
+                    if (filled($namaEvent)) {
+                        if (! isset($kegiatanCache[$namaEvent])) {
+                            $kegiatan = Kegiatan::firstOrCreate(['nama_event' => $namaEvent]);
+                            $kegiatanCache[$namaEvent] = $kegiatan;
+
+                            if (filled($preview['nama_kategori'] ?? null)) {
+                                $kategoriNama = (string) $preview['nama_kategori'];
+                                if (! isset($kategoriCache[$kategoriNama])) {
+                                    $kategoriCache[$kategoriNama] = KategoriKegiatan::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                                }
+                                $kegiatan->kategori_kegiatan_id = $kategoriCache[$kategoriNama]->id;
+                            }
+
+                            if (filled($preview['venue'] ?? null)) {
+                                $kegiatan->venue = (string) $preview['venue'];
+                            }
+
+                            if (filled($preview['tanggal_mulai'] ?? null)) {
+                                $kegiatan->tanggal_mulai = (string) $preview['tanggal_mulai'];
+                            }
+
+                            $kegiatan->save();
+                        }
+
+                        $kegiatan = $kegiatanCache[$namaEvent];
+                        $kegiatanId = $kegiatan->id;
+                        $kategoriId = $kegiatan->kategori_kegiatan_id;
+                    }
+
+                    Kontak::create([
+                        'perusahaan_id' => $perusahaan->id,
+                        'kegiatan_id' => $kegiatanId,
+                        'kategori_kegiatan_id' => $kategoriId,
+                        'nama' => $preview['nama'],
+                        'no_telepon' => $preview['no_telepon'],
+                        'status_verifikasi' => 'terverifikasi',
+                        'status_format_valid' => $preview['no_telepon_valid'],
+                        'updated_by' => $authId,
+                        'catatan' => $preview['catatan'] ?: null,
+                    ]);
+                    $kontakDibuat++;
+                }
+            });
         });
+
+        if ($kontakDibuat > 0 || $perusahaanDibuat > 0) {
+            activity('import')
+                ->causedBy($authId)
+                ->withProperties([
+                    'perusahaan_dibuat' => $perusahaanDibuat,
+                    'kontak_dibuat' => $kontakDibuat,
+                    'dilewati' => $dilewati,
+                ])
+                ->log("Mengimpor {$kontakDibuat} kontak dan {$perusahaanDibuat} perusahaan baru dari file Excel/CSV");
+        }
 
         return [
             'perusahaan_dibuat' => $perusahaanDibuat,

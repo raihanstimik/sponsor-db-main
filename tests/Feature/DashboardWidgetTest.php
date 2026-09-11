@@ -75,8 +75,7 @@ class DashboardWidgetTest extends TestCase
 
         $this->assertSame('4', $byLabel['Total Perusahaan']);
         $this->assertSame('3', $byLabel['Total Kontak']);
-        $this->assertSame('2', $byLabel['Terverifikasi']);
-        $this->assertSame('1', $byLabel['Perlu Dicek']);
+        $this->assertSame('3', $byLabel['Nomor HP Valid']);
         $this->assertSame('2', $byLabel['Total Kegiatan']);
 
         Livewire::test(KontakStatsOverview::class)->assertOk();
@@ -151,7 +150,7 @@ class DashboardWidgetTest extends TestCase
     }
 
     #[Test]
-    public function tabel_perlu_dicek_menampilkan_5_terbaru(): void
+    public function tabel_kontak_terbaru_menampilkan_pic_terbaru(): void
     {
         $admin = User::factory()->admin()->create();
         $this->actingAs($admin);
@@ -159,19 +158,17 @@ class DashboardWidgetTest extends TestCase
         $perusahaan = Perusahaan::factory()->create();
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
-            'nama' => 'PIC Perlu Dicek',
-            'status_verifikasi' => 'perlu_dicek',
+            'nama' => 'PIC Pertama',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
-            'nama' => 'PIC Terverifikasi',
-            'status_verifikasi' => 'terverifikasi',
+            'nama' => 'PIC Kedua',
         ]);
 
         Livewire::test(KontakPerluDicekWidget::class)
             ->assertOk()
-            ->assertSee('PIC Perlu Dicek')
-            ->assertSee('1 Menunggu Dicek')
-            ->assertDontSee('PIC Terverifikasi');
+            ->assertSee('Kontak PIC Terbaru')
+            ->assertSee('PIC Pertama')
+            ->assertSee('PIC Kedua');
     }
 }

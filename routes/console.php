@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('kontak:normalisasi-nomor')->weeklyOn(0, '03:00');
+Schedule::command('activitylog:clean')->dailyAt('02:00');

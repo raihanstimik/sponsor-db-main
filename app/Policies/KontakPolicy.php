@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\Kontak;
 use App\Models\User;
+use App\Policies\Concerns\HandlesResourcePermissions;
 
 class KontakPolicy
 {
@@ -12,10 +15,14 @@ class KontakPolicy
         return $user->can('kontak.view_any');
     }
 
+    use HandlesResourcePermissions;
+
     public function view(User $user, Kontak $kontak): bool
     {
         return $user->can('kontak.view');
     }
+
+    protected string $permissionPrefix = 'kontak';
 
     public function create(User $user): bool
     {

@@ -58,11 +58,59 @@ class KlasifikasiTabel
     /**
      * Warna kategori berdasarkan nama kategorinya (kebalikan KATEGORI).
      */
-    public static function warnaKategori(string $namaKategori): ?string
+    public static function warnaKategori(string $namaKategori): string
     {
         $key = array_search($namaKategori, self::KATEGORI, true);
 
-        return $key === false ? null : (self::WARNA_KATEGORI[$key] ?? null);
+        if ($key !== false && isset(self::WARNA_KATEGORI[$key])) {
+            return self::WARNA_KATEGORI[$key];
+        }
+
+        // Palet cerah & profesional untuk kategori non-kanonik/kustom
+        $palet = [
+            '#0EA5E9', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899',
+            '#3B82F6', '#14B8A6', '#F97316', '#6366F1', '#84CC16',
+            '#06B6D4', '#D946EF', '#E11D48', '#4F46E5', '#059669',
+        ];
+
+        $index = abs(crc32($namaKategori)) % count($palet);
+
+        return $palet[$index];
+    }
+
+    /**
+     * Warna badge Filament untuk peran/role pengguna.
+     */
+    public static function warnaRole(string $role): string
+    {
+        return match (strtolower(trim($role))) {
+            'admin' => 'primary',
+            'karyawan' => 'gray',
+            default => 'warning',
+        };
+    }
+
+    /**
+     * Extra attributes kelas border aksen kiri untuk Stat kartu Filament.
+     *
+     * @return array{class: string}
+     */
+    public static function statBorderExtraAttributes(string $color, ?string $additionalClass = null): array
+    {
+        $map = [
+            'primary' => 'border-s-4 border-s-primary-500/80 dark:border-s-primary-400/70',
+            'warning' => 'border-s-4 border-s-orange-500/80 dark:border-s-orange-400/70',
+            'orange' => 'border-s-4 border-s-orange-500/80 dark:border-s-orange-400/70',
+            'info' => 'border-s-4 border-s-sky-500/80 dark:border-s-sky-400/70',
+            'sky' => 'border-s-4 border-s-sky-500/80 dark:border-s-sky-400/70',
+            'success' => 'border-s-4 border-s-emerald-500/80 dark:border-s-emerald-400/70',
+            'emerald' => 'border-s-4 border-s-emerald-500/80 dark:border-s-emerald-400/70',
+            'danger' => 'border-s-4 border-s-danger-500/80 dark:border-s-danger-400/70',
+        ];
+
+        $base = $map[$color] ?? 'border-s-4 border-s-primary-500/80 dark:border-s-primary-400/70';
+
+        return ['class' => $additionalClass ? "{$base} {$additionalClass}" : $base];
     }
 
     /**

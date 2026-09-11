@@ -19,9 +19,9 @@ class MasterDataSeeder extends Seeder
         $kategoriCache = [];
 
         foreach (KlasifikasiTabel::KATEGORI as $key => $nama) {
-            $kategoriCache[$nama] = KategoriKegiatan::firstOrCreate(
+            $kategoriCache[$nama] = KategoriKegiatan::updateOrCreate(
                 ['nama_kategori' => $nama],
-                ['warna' => KlasifikasiTabel::WARNA_KATEGORI[$key] ?? null],
+                ['warna' => KlasifikasiTabel::WARNA_KATEGORI[$key] ?? '#64748B'],
             );
         }
 
@@ -30,7 +30,7 @@ class MasterDataSeeder extends Seeder
             $namaKategori = KlasifikasiTabel::kategoriNama($kategoriKey);
 
             if (! isset($kategoriCache[$namaKategori])) {
-                $kategoriCache[$namaKategori] = KategoriKegiatan::firstOrCreate(
+                $kategoriCache[$namaKategori] = KategoriKegiatan::updateOrCreate(
                     ['nama_kategori' => $namaKategori],
                     ['warna' => KlasifikasiTabel::warnaKategori($namaKategori)],
                 );

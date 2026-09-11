@@ -154,16 +154,16 @@
     display: none !important;
 }
 
-/* NProgress ICM — pakai bawaan Livewire, tint brand #1E2A4A */
+/* NProgress ICM — pakai bawaan Livewire, gradasi navy-oranye dinamis */
 :root {
-    --livewire-progress-bar-color: #1E2A4A;
+    --livewire-progress-bar-color: #ea7c1a;
 }
 #nprogress .bar {
-    background: #1E2A4A !important;
+    background: linear-gradient(90deg, #18225e 0%, #ea7c1a 100%) !important;
     height: 3px !important;
 }
 #nprogress .peg {
-    box-shadow: 0 0 10px #1E2A4A, 0 0 5px #1E2A4A !important;
+    box-shadow: 0 0 10px #ea7c1a, 0 0 5px #ea7c1a !important;
 }
 
 /* Mode C — Fully Collapsible Off-Canvas (overlay, tidak ada rail) */
@@ -209,3 +209,358 @@
 .fi-simple-layout .fi-simple-header img.fi-logo {
     height: 3rem !important;
 }
+
+/* ==========================================================================
+   ICM ENTERPRISE THEME ENHANCEMENTS (DESIGN-ICM SPECIFICATION)
+   ========================================================================== */
+
+/* 1. MIKRO-ANIMASI MURNI CSS (GPU ACCELERATED, 0 JS OVERHEAD, 60 FPS) */
+@keyframes fiFadeInScale {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .fi-page {
+        animation: fiFadeInScale 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fi-section:not(.fi-section-not-contained),
+    .fi-wi-stats-overview-stat,
+    .fi-ta-kontak-summary > div {
+        transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease !important;
+    }
+
+    .fi-section:not(.fi-section-not-contained):hover,
+    .fi-wi-stats-overview-stat:hover {
+        transform: translateY(-2px);
+    }
+
+    .fi-btn {
+        transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .fi-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .fi-btn:active {
+        transform: translateY(0) scale(0.98);
+    }
+}
+
+/* 2. GRADASI WARNA DINAMIS & PERMUKAAN ELEGAN (LIGHT & DARK MODE) */
+:root:not(.dark) .fi-main {
+    background-color: #f8fafc !important;
+}
+
+.dark .fi-main {
+    background-color: #080e21 !important;
+}
+
+/* Hilangkan nesting box ganda pada container widget & section uncontained */
+.fi-wi-stats-overview,
+.fi-wi-stats-overview > div,
+.fi-wi-stats-overview .fi-section,
+.fi-wi-stats-overview .fi-sc-section,
+.fi-wi-table > div,
+.fi-section.fi-section-not-contained {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.fi-wi-stats-overview > div:hover,
+.fi-wi-stats-overview .fi-section:hover,
+.fi-section.fi-section-not-contained:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.fi-section.fi-section-not-contained > .fi-section-header {
+    padding-inline: 0 !important;
+    padding-block: 0 0.5rem !important;
+    border-bottom: none !important;
+}
+
+.fi-section.fi-section-not-contained > .fi-section-content-ctn {
+    border-top: none !important;
+    padding: 0 !important;
+}
+
+/* Light Mode: Kartu Bergradasi Halus & Border Presisi (Hanya kartu stat mandiri & section terkandung) */
+:root:not(.dark) .fi-section:not(.fi-section-not-contained),
+:root:not(.dark) .fi-wi-stats-overview-stat {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px 0 rgba(24, 34, 94, 0.04), 0 1px 2px -1px rgba(24, 34, 94, 0.03) !important;
+    border-radius: 0.75rem !important;
+}
+
+:root:not(.dark) .fi-section:not(.fi-section-not-contained):hover,
+:root:not(.dark) .fi-wi-stats-overview-stat:hover {
+    box-shadow: 0 6px 16px -2px rgba(24, 34, 94, 0.07), 0 2px 6px -2px rgba(24, 34, 94, 0.04) !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* Dark Mode: Deep Navy Command Center dengan Hairline Border */
+.dark .fi-section:not(.fi-section-not-contained),
+.dark .fi-wi-stats-overview-stat {
+    background: linear-gradient(180deg, #101935 0%, #0c1228 100%) !important;
+    border: 1px solid #1e294b !important;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.35) !important;
+    border-radius: 0.75rem !important;
+}
+
+.dark .fi-section:not(.fi-section-not-contained):hover,
+.dark .fi-wi-stats-overview-stat:hover {
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.5), 0 0 12px -2px rgba(234, 124, 26, 0.12) !important;
+    border-color: #2e3d6d !important;
+}
+
+/* Hero Banner Sambutan: Selalu Aurora Corporate Navy dengan Kontras Tinggi & Tajam */
+.fi-wi-sambutan {
+    background: linear-gradient(135deg, #101935 0%, #18225E 55%, #1E294B 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 10px 25px -5px rgba(24, 34, 94, 0.25), 0 8px 10px -6px rgba(24, 34, 94, 0.2) !important;
+}
+
+.fi-wi-sambutan h1 {
+    color: #ffffff !important;
+}
+
+.fi-wi-sambutan p {
+    color: #cbd5e1 !important;
+}
+
+/* 3. SIDEBAR DINAMIS DENGAN BILAH AKSEN ORANYE AKTIF */
+:root:not(.dark) .fi-sidebar {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+    border-right: 1px solid #e2e8f0 !important;
+}
+
+.dark .fi-sidebar {
+    background: linear-gradient(180deg, #0d152f 0%, #080e21 100%) !important;
+    border-right: 1px solid #182245 !important;
+}
+
+.fi-sidebar-item-btn {
+    position: relative;
+    border-radius: 0.5rem !important;
+    transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Item Navigasi Aktif - Light Mode */
+:root:not(.dark) .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+:root:not(.dark) .fi-sidebar-item-btn[aria-current="page"] {
+    background: #eef2ff !important;
+    color: #18225e !important;
+    font-weight: 600 !important;
+}
+
+/* Item Navigasi Aktif - Dark Mode */
+.dark .fi-sidebar-item.fi-active > .fi-sidebar-item-btn,
+.dark .fi-sidebar-item-btn[aria-current="page"] {
+    background: rgba(234, 124, 26, 0.14) !important;
+    color: #f8fafc !important;
+    font-weight: 600 !important;
+}
+
+/* Bilah Aksen Vertikal Oranye Pada Menu Aktif */
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn::before,
+.fi-sidebar-item-btn[aria-current="page"]::before {
+    content: '';
+    position: absolute;
+    left: -0.25rem;
+    top: 18%;
+    height: 64%;
+    width: 3.5px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, #ea7c1a 0%, #f59e0b 100%);
+    box-shadow: 0 0 8px rgba(234, 124, 26, 0.4);
+}
+
+/* Hover Menu Non-Aktif */
+:root:not(.dark) .fi-sidebar-item-btn:not([aria-current="page"]):hover {
+    background: rgba(24, 34, 94, 0.04) !important;
+    transform: translateX(2px);
+}
+
+.dark .fi-sidebar-item-btn:not([aria-current="page"]):hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    transform: translateX(2px);
+}
+
+/* 4. OPTIMASI TATA LETAK & DENSITAS RUANG ENTERPRISE (HEMAT SPACE) */
+.fi-page-header {
+    padding-block: 0.75rem 1rem !important;
+}
+
+.fi-page-header-heading {
+    font-size: 1.5rem !important;
+    line-height: 1.3 !important;
+}
+
+/* Header Tabel Kompak & Rapi */
+.fi-ta-header-cell {
+    padding-block: 0.625rem !important;
+    padding-inline: 0.75rem !important;
+    font-size: 0.6875rem !important;
+    letter-spacing: 0.05em !important;
+    text-transform: uppercase !important;
+    font-weight: 600 !important;
+}
+
+:root:not(.dark) .fi-ta-header-cell {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.dark .fi-ta-header-cell {
+    background-color: #0b1126 !important;
+    color: #94a3b8 !important;
+    border-bottom: 2px solid #1e294b !important;
+}
+
+/* Baris Tabel Ramping & Nyaman (44px - 48px) */
+.fi-ta-row td {
+    padding-block: 0.5rem !important;
+    padding-inline: 0.75rem !important;
+}
+
+:root:not(.dark) .fi-ta-row:hover td {
+    background-color: #f8fafc !important;
+}
+
+.dark .fi-ta-row:hover td {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Input Form Ramping dengan Ring Fokus Oranye Kongres */
+.fi-input-wrp {
+    border-radius: 0.5rem !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease !important;
+}
+
+:root:not(.dark) .fi-input-wrp:focus-within {
+    border-color: #ea7c1a !important;
+    box-shadow: 0 0 0 3px rgba(234, 124, 26, 0.15) !important;
+}
+
+.dark .fi-input-wrp:focus-within {
+    border-color: #ea7c1a !important;
+    box-shadow: 0 0 0 3px rgba(234, 124, 26, 0.25) !important;
+}
+
+/* Drawer Detail Kontak (Slide-Over) Ramping & Bersih */
+.fi-modal-slide-over .fi-modal-content {
+    padding: 1.25rem 1.5rem !important;
+}
+/* Topbar Global Search - Ramping, Lebih Panjang & Nyaman */
+.fi-topbar .fi-global-search-ctn {
+    width: 100% !important;
+    max-width: 28rem !important;
+}
+
+.fi-topbar .fi-global-search {
+    width: 100% !important;
+}
+
+.fi-topbar .fi-global-search-field,
+.fi-topbar .fi-global-search-field .fi-input-wrp {
+    width: 100% !important;
+    min-width: 16rem !important;
+}
+
+@media (min-width: 640px) {
+    .fi-topbar .fi-global-search-ctn {
+        max-width: 34rem !important;
+    }
+    .fi-topbar .fi-global-search-field,
+    .fi-topbar .fi-global-search-field .fi-input-wrp {
+        min-width: 24rem !important;
+    }
+}
+
+@media (min-width: 1024px) {
+    .fi-topbar .fi-global-search-ctn {
+        max-width: 42rem !important;
+    }
+    .fi-topbar .fi-global-search-field,
+    .fi-topbar .fi-global-search-field .fi-input-wrp {
+        min-width: 32rem !important;
+    }
+}
+
+/* Hasil dropdown pencarian global ikut melebar sesuai kotak input */
+.fi-topbar .fi-global-search-results-ctn {
+    width: 100% !important;
+    max-width: 42rem !important;
+}
+
+/* ==========================================================================
+   5. INFOLIST DETAIL KONTAK (TELEPON, EMAIL & AFFIX ACTIONS)
+   Menjaga ikon telepon Heroicon, teks/link nomor, dan tombol WhatsApp
+   selalu sejajar presisi horizontal (inline-flex) tanpa terpecah vertikal.
+   ========================================================================== */
+.fi-in-text.fi-in-text-affixed {
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+}
+
+.fi-in-text.fi-in-text-affixed .fi-in-text-affix {
+    flex-shrink: 0 !important;
+}
+
+.fi-in-text-affixed-content ul,
+.fi-in-text-affixed-content li {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 0.375rem !important;
+    white-space: nowrap !important;
+}
+
+.fi-in-text-item > .fi-copyable,
+.fi-in-text-phone .fi-in-text-item,
+.fi-in-text-phone .fi-in-text-item > span,
+.fi-in-text-item:has(> .fi-icon),
+.fi-in-text-item:has(> span > .fi-icon) {
+    display: inline-flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 0.375rem !important;
+    white-space: nowrap !important;
+}
+
+.fi-in-text-item > .fi-copyable a,
+.fi-in-text-item a {
+    white-space: nowrap !important;
+}
+
+.fi-in-text-item .fi-icon,
+.fi-in-text-item > span:not(.fi-badge) > .fi-icon {
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    vertical-align: middle !important;
+}
+
+/* Accessible color contrast for table descriptions (WCAG AA > 4.5:1) */
+.fi-ta-text-description {
+    color: #475569 !important;
+}
+
+.dark .fi-ta-text-description {
+    color: #94a3b8 !important;
+}
+
+

@@ -5,15 +5,17 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kontaks\Tables;
 
 use App\Filament\Pages\ImportKontaks;
+use App\Models\Kegiatan;
 use App\Models\Kontak;
+use App\Models\Perusahaan;
 use App\Services\KontakSmartSearch;
 use App\Services\PetaNomorPerusahaan;
+use App\Support\FilamentTableHelper;
+use App\Support\KlasifikasiTabel;
 use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
@@ -36,6 +38,8 @@ class KontaksTable
 {
     public static function configure(Table $table): Table
     {
+        FilamentTableHelper::applyDefaultPresets($table, [25, 50, 100, 250, 500], 50);
+
         return $table
             // Eager load anti N+1, withCount siap jika perlu agregat
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['perusahaan', 'kegiatan', 'kategoriKegiatan', 'updatedBy']))
@@ -54,15 +58,8 @@ class KontaksTable
                 if (auth()->user()?->isAdmin() && PetaNomorPerusahaan::untukKontak($record, $livewire->petaNomorDipakai()) !== []) {
                     return 'bg-danger-500/10 dark:bg-danger-500/20';
                 }
-                $pastel = match ($record->status_verifikasi) {
-                    'perlu_dicek' => 'bg-amber-50/60 dark:bg-amber-950/20',
-                    'tidak_aktif' => 'bg-rose-50/60 dark:bg-rose-950/20',
-                    'terverifikasi' => 'bg-emerald-50/40 dark:bg-emerald-950/10',
-                    default => null,
-                };
-                $warna = self::kelasWarnaBaris(self::warnaEfektifBaris($record));
 
-                return trim(($pastel ?? '').' '.($warna ?? ''));
+                return self::kelasWarnaBaris(self::warnaEfektifBaris($record));
             })
             ->emptyStateHeading('Belum ada kontak')
             ->emptyStateDescription('Mulai dengan mengimpor file kontak sponsor (Excel/CSV) atau membuat kontak baru satu per satu.')
@@ -92,6 +89,7 @@ class KontaksTable
                     ->sortable()
                     ->limit(32)
                     ->tooltip(fn (Kontak $record): string => $record->perusahaan?->nama_standar ?? '')
+                    ->placeholder('-')
                     ->toggleable(),
                 TextColumn::make('nama')
                     ->label('PIC')
@@ -102,6 +100,7 @@ class KontaksTable
                     ->limit(28)
                     ->tooltip(fn (Kontak $record): string => $record->nama ?? '')
                     ->description(fn (Kontak $record): ?string => $record->kategoriKegiatan?->nama_kategori)
+                    ->placeholder('(Tanpa Nama)')
                     ->toggleable(),
                 TextColumn::make('no_telepon')
                     ->label('No. Telepon')
@@ -121,8 +120,6 @@ class KontaksTable
                     ->badge()
                     ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna)
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        // Sortir menurut warna lewat JOIN 1:1 (jauh lebih murah
-                        // daripada correlated subquery per baris); arah di-whitelist.
                         $arah = $direction === 'desc' ? 'desc' : 'asc';
 
                         return $query
@@ -143,7 +140,6 @@ class KontaksTable
                     ->badge()
                     ->color(fn (Kontak $record): ?string => $record->kategoriKegiatan?->warna ?? 'primary')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
-                        // Sortir menurut warna kategori, nama kategori sebagai tie-breaker.
                         $arah = $direction === 'desc' ? 'desc' : 'asc';
 
                         return $query
@@ -173,16 +169,6 @@ class KontaksTable
                     })
                     ->visible(fn (HasTable $livewire): bool => filled(trim((string) ($livewire->getTableFilterState('cari')['q'] ?? ''))))
                     ->toggleable(),
-                TextColumn::make('status_verifikasi')
-                    ->label('Status')
-                    ->badge()
-                    ->size(TextSize::ExtraSmall)
-                    ->color(fn (string $state): string => match ($state) {
-                        'terverifikasi' => 'success',
-                        'perlu_dicek' => 'warning',
-                        'tidak_aktif' => 'danger',
-                    })
-                    ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('updatedBy.name')
                     ->label('Diperbarui oleh')
                     ->size(TextSize::ExtraSmall)
@@ -255,40 +241,38 @@ class KontaksTable
 
                         return ['Kategori: '.count($vals).' terpilih'];
                     }),
-                SelectFilter::make('status_verifikasi')
-                    ->label('Status')
-                    ->multiple()
-                    ->options([
-                        'terverifikasi' => 'Terverifikasi',
-                        'perlu_dicek' => 'Perlu dicek',
-                        'tidak_aktif' => 'Tidak aktif',
-                    ])
-                    ->indicateUsing(function (array $data, array $state): ?array {
-                        $vals = $state['values'] ?? $state['value'] ?? $data['values'] ?? $data['value'] ?? [];
-                        $vals = is_array($vals) ? array_filter($vals) : array_filter([$vals]);
-                        if (blank($vals)) {
-                            return null;
-                        }
-
-                        return ['Status: '.count($vals).' terpilih'];
-                    }),
             ])
             ->filtersLayout(FiltersLayout::AboveContent)
             ->deferFilters(false)
-            ->filtersFormColumns(['sm' => 1, 'md' => 2, 'lg' => 4, 'xl' => 4, '2xl' => 4])
+            ->filtersFormColumns(['sm' => 1, 'md' => 3, 'lg' => 3, 'xl' => 3, '2xl' => 3])
             ->paginated([25, 50, 100, 250, 500])
             ->defaultPaginationPageOption(50)
             ->recordActions([
                 Action::make('quick_whatsapp')
-                    ->label('')
+                    ->label('Kirim WhatsApp')
+                    ->hiddenLabel()
                     ->tooltip('Kirim WhatsApp')
                     ->icon(Heroicon::OutlinedChatBubbleLeftRight)
                     ->color('success')
                     ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                     ->openUrlInNewTab()
+                    ->extraAttributes(fn (Kontak $record): array => [
+                        'aria-label' => 'Kirim WhatsApp ke '.(filled($record->nama) ? $record->nama : 'kontak'),
+                    ])
                     ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
                 ActionGroup::make([
-                    ViewAction::make()->slideOver(),
+                    ViewAction::make()
+                        ->slideOver()
+                        ->modalWidth('3xl')
+                        ->extraModalFooterActions([
+                            Action::make('slideover_whatsapp')
+                                ->label('Kirim WhatsApp')
+                                ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                                ->color('success')
+                                ->url(fn (Kontak $record): string => self::whatsappUrl($record))
+                                ->openUrlInNewTab()
+                                ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                        ]),
                     EditAction::make(),
                     Action::make('whatsapp')
                         ->label('Kirim WhatsApp')
@@ -301,9 +285,6 @@ class KontaksTable
                 ])->icon(Heroicon::OutlinedEllipsisHorizontal)->color('gray')->tooltip('Aksi'),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
                 Action::make('export')
                     ->label('Ekspor CSV')
                     ->icon(Heroicon::OutlinedArrowDownTray)
@@ -322,7 +303,9 @@ class KontaksTable
      */
     public static function warnaEfektifBaris(Kontak $record): ?string
     {
-        return $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna;
+        return $record->kegiatan?->warna
+            ?? $record->kategoriKegiatan?->warna
+            ?? ($record->kategoriKegiatan ? KlasifikasiTabel::warnaKategori($record->kategoriKegiatan->nama_kategori) : null);
     }
 
     /**
@@ -374,55 +357,46 @@ class KontaksTable
         }
 
         // Satu query agregat menggantikan lima COUNT terpisah.
+        // Satu query agregat kontak untuk total dan validitas nomor.
         $ringkas = (clone $query)
-            ->selectRaw(implode(', ', [
-                'count(*) as total',
-                'sum(case when status_format_valid = 1 then 1 else 0 end) as valid',
-                "sum(case when status_verifikasi = 'terverifikasi' then 1 else 0 end) as terverifikasi",
-                "sum(case when status_verifikasi = 'perlu_dicek' then 1 else 0 end) as perlu_dicek",
-                "sum(case when status_verifikasi = 'tidak_aktif' then 1 else 0 end) as tidak_aktif",
-            ]))
+            ->selectRaw('count(*) as total, sum(case when status_format_valid = 1 then 1 else 0 end) as valid')
             ->first();
 
         if ($ringkas === null) {
             return [];
         }
 
+        $totalPerusahaan = Perusahaan::count();
+        $totalKegiatan = Kegiatan::count();
+
         return [
             [
                 'key' => 'total',
                 'label' => 'Total kontak',
-                'icon' => 'heroicon-o-user-group',
-                'color' => '#1E2A4A',
+                'icon' => 'heroicon-o-users',
+                'color' => '#18225E',
                 'count' => (int) $ringkas->total,
             ],
             [
                 'key' => 'valid',
-                'label' => 'Nomor valid',
-                'icon' => 'heroicon-o-check-badge',
-                'color' => '#1F8A70',
+                'label' => 'Nomor HP valid',
+                'icon' => 'heroicon-o-phone',
+                'color' => '#10B981',
                 'count' => (int) $ringkas->valid,
             ],
             [
-                'key' => 'terverifikasi',
-                'label' => 'Terverifikasi',
-                'icon' => 'heroicon-o-check-circle',
-                'color' => '#2E7D32',
-                'count' => (int) $ringkas->terverifikasi,
+                'key' => 'perusahaan',
+                'label' => 'Perusahaan',
+                'icon' => 'heroicon-o-building-office-2',
+                'color' => '#EA7C1A',
+                'count' => $totalPerusahaan,
             ],
             [
-                'key' => 'perlu_dicek',
-                'label' => 'Perlu dicek',
-                'icon' => 'heroicon-o-clock',
-                'color' => '#D98E04',
-                'count' => (int) $ringkas->perlu_dicek,
-            ],
-            [
-                'key' => 'tidak_aktif',
-                'label' => 'Tidak aktif',
-                'icon' => 'heroicon-o-x-circle',
-                'color' => '#C0392B',
-                'count' => (int) $ringkas->tidak_aktif,
+                'key' => 'kegiatan',
+                'label' => 'Kegiatan / Event',
+                'icon' => 'heroicon-o-calendar-days',
+                'color' => '#0284C7',
+                'count' => $totalKegiatan,
             ],
         ];
     }
@@ -437,7 +411,6 @@ class KontaksTable
         }
 
         foreach ([
-            'status' => 'status_verifikasi',
             'kegiatan_id' => 'kegiatan_id',
             'kategori_kegiatan_id' => 'kategori_kegiatan_id',
         ] as $queryKey => $filterName) {
@@ -458,10 +431,13 @@ class KontaksTable
         return $params;
     }
 
-    protected static function whatsappUrl(Kontak $record): string
+    public static function whatsappUrl(Kontak $record): string
     {
-        $phone = PhoneNormalizer::normalize((string) $record->no_telepon);
+        $nama = trim((string) ($record->nama ?? ''));
+        $sapaan = $nama !== '' ? "Halo Bapak/Ibu {$nama}, " : 'Halo Bapak/Ibu, ';
+        $event = $record->kegiatan?->nama_event;
+        $pesan = $sapaan.($event ? "saya dari tim sponsorship terkait kegiatan {$event}." : 'saya dari tim sponsorship.');
 
-        return $phone === '' ? '#' : 'https://wa.me/'.$phone;
+        return PhoneNormalizer::whatsappUrl($record->no_telepon, $pesan);
     }
 }

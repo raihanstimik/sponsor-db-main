@@ -39,11 +39,10 @@ class KontakEnhancementsTest extends TestCase
         $this->assertStringContainsString('Budi Santoso', $csv);
         $this->assertStringContainsString('PT Alfa Medika', $csv);
         $this->assertStringContainsString('628111465133', $csv);
-        $this->assertStringContainsString('terverifikasi', $csv);
     }
 
     #[Test]
-    public function ekspor_csv_menghormati_filter_pencarian_dan_status(): void
+    public function ekspor_csv_menghormati_filter_pencarian(): void
     {
         $user = User::factory()->admin()->create();
 
@@ -54,17 +53,15 @@ class KontakEnhancementsTest extends TestCase
             'perusahaan_id' => $perusahaanA->id,
             'nama' => 'Budi Santoso',
             'no_telepon' => '08111465133',
-            'status_verifikasi' => 'terverifikasi',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaanB->id,
             'nama' => 'Siti Aminah',
             'no_telepon' => '08120918231',
-            'status_verifikasi' => 'perlu_dicek',
         ]);
 
         $csv = $this->actingAs($user)
-            ->get(route('kontaks.export', ['status' => 'perlu_dicek', 'q' => 'Aminah']))
+            ->get(route('kontaks.export', ['q' => 'Aminah']))
             ->assertOk()
             ->streamedContent();
 
@@ -111,25 +108,21 @@ class KontakEnhancementsTest extends TestCase
             'perusahaan_id' => $perusahaan->id,
             'no_telepon' => '08111465133',
             'status_format_valid' => true,
-            'status_verifikasi' => 'terverifikasi',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
             'no_telepon' => '08120918231',
             'status_format_valid' => true,
-            'status_verifikasi' => 'terverifikasi',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
             'no_telepon' => '08137788990',
             'status_format_valid' => true,
-            'status_verifikasi' => 'perlu_dicek',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
             'no_telepon' => 'bukan-nomor',
             'status_format_valid' => false,
-            'status_verifikasi' => 'tidak_aktif',
         ]);
 
         $this->actingAs($user);
@@ -138,35 +131,32 @@ class KontakEnhancementsTest extends TestCase
         $cards = collect(KontaksTable::summaryCards($component->instance()))->keyBy('key');
         $this->assertSame(4, $cards['total']['count']);
         $this->assertSame(3, $cards['valid']['count']);
-        $this->assertSame(2, $cards['terverifikasi']['count']);
-        $this->assertSame(1, $cards['perlu_dicek']['count']);
-        $this->assertSame(1, $cards['tidak_aktif']['count']);
+        $this->assertSame(1, $cards['perusahaan']['count']);
 
-        $component->assertSee('Total kontak')->assertSee('Nomor valid');
+        $component->assertSee('Total kontak')->assertSee('Nomor HP valid');
     }
 
     #[Test]
-    public function ringkasan_mengikuti_filter_status_yang_aktif(): void
+    public function ringkasan_mengikuti_filter_pencarian_yang_aktif(): void
     {
         $user = User::factory()->admin()->create();
 
         $perusahaan = Perusahaan::factory()->create();
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
-            'status_verifikasi' => 'terverifikasi',
+            'nama' => 'Budi Sudarsono',
         ]);
         Kontak::factory()->create([
             'perusahaan_id' => $perusahaan->id,
-            'status_verifikasi' => 'perlu_dicek',
+            'nama' => 'Siti Aminah',
         ]);
 
         $this->actingAs($user);
         $component = Livewire::test(ListKontaks::class)
-            ->filterTable('status_verifikasi', 'perlu_dicek');
+            ->filterTable('cari', ['q' => 'Aminah']);
 
         $cards = collect(KontaksTable::summaryCards($component->instance()))->keyBy('key');
         $this->assertSame(1, $cards['total']['count']);
-        $this->assertSame(1, $cards['perlu_dicek']['count']);
     }
 
     #[Test]
@@ -188,7 +178,6 @@ class KontakEnhancementsTest extends TestCase
             'no_telepon',
             'kegiatan.nama_event',
             'kategoriKegiatan.nama_kategori',
-            'status_verifikasi',
             'updatedBy.name',
         ] as $columnName) {
             $this->assertTrue(
@@ -258,7 +247,6 @@ class KontakEnhancementsTest extends TestCase
                 'no_telepon' => '081234567890',
                 'email' => 'dewi@example.com',
                 'catatan' => 'Tertarik paket Platinum. Follow-up hari Jumat.',
-                'status_verifikasi' => 'terverifikasi',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -291,7 +279,6 @@ class KontakEnhancementsTest extends TestCase
                 'perusahaan_id' => $perusahaanB->id,
                 'nama' => 'Rudi Cabang',
                 'no_telepon' => '081234567899',
-                'status_verifikasi' => 'perlu_dicek',
             ])
             ->call('create')
             ->assertHasNoFormErrors();
@@ -338,4 +325,3 @@ class KontakEnhancementsTest extends TestCase
         );
     }
 }
-

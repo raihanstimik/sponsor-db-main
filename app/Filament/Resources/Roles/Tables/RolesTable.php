@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Roles\Tables;
 
+use App\Support\FilamentTableHelper;
+use App\Support\KlasifikasiTabel;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -14,6 +17,8 @@ class RolesTable
 {
     public static function configure(Table $table): Table
     {
+        FilamentTableHelper::applyDefaultPresets($table);
+
         return $table
             ->columns([
                 TextColumn::make('name')
@@ -21,11 +26,7 @@ class RolesTable
                     ->searchable()
                     ->weight('medium')
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'admin' => 'primary',
-                        'karyawan' => 'gray',
-                        default => 'warning',
-                    }),
+                    ->color(fn (string $state): string => KlasifikasiTabel::warnaRole($state)),
                 TextColumn::make('permissions_count')
                     ->label('Jumlah Hak')
                     ->counts('permissions')
@@ -39,6 +40,7 @@ class RolesTable
             ])
             ->filters([])
             ->recordActions([
+                ViewAction::make()->slideOver(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->visible(fn ($record) => ! in_array($record->name, ['admin', 'karyawan'])),

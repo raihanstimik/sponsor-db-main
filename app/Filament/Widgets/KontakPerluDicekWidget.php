@@ -3,9 +3,12 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Kontaks\KontakResource;
+use App\Filament\Resources\Kontaks\Schemas\KontakInfolist;
 use App\Models\Kontak;
 use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
@@ -23,12 +26,10 @@ class KontakPerluDicekWidget extends TableWidget
     public function table(Table $table): Table
     {
         return $table
-            ->heading(fn (): string => 'Kontak Baru & Menunggu Verifikasi ('.self::jumlahMenunggu().' Menunggu Dicek)')
-            ->description('PIC terbaru hasil impor yang perlu dicek manual')
-            // Eager load anti N+1; 5 baris terbaru, tanpa paginasi ala Stitch
+            ->heading('Kontak PIC Terbaru')
+            ->description('5 kontak PIC terbaru yang terdaftar dalam sistem')
             ->query(fn (): Builder => Kontak::query()
                 ->with(['perusahaan', 'kegiatan', 'kategoriKegiatan'])
-                ->where('status_verifikasi', 'perlu_dicek')
                 ->orderByDesc('id')
                 ->limit(5))
             ->paginated(false)
@@ -44,6 +45,7 @@ class KontakPerluDicekWidget extends TableWidget
                     ->label('PIC')
                     ->size(TextSize::Small)
                     ->weight('medium')
+                    ->placeholder('(Tanpa Nama)')
                     ->limit(24),
                 TextColumn::make('no_telepon')
                     ->label('No. Telepon')
@@ -58,11 +60,6 @@ class KontakPerluDicekWidget extends TableWidget
                     ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna)
                     ->placeholder('-')
                     ->limit(22),
-                TextColumn::make('status_verifikasi')
-                    ->label('Status')
-                    ->badge()
-                    ->size(TextSize::ExtraSmall)
-                    ->color('warning'),
             ])
             ->headerActions([
                 Action::make('lihatSemua')
@@ -71,7 +68,13 @@ class KontakPerluDicekWidget extends TableWidget
                     ->color('gray')
                     ->url(KontakResource::getUrl()),
             ])
+            ->recordUrl(null)
+            ->recordAction(ViewAction::class)
             ->recordActions([
+                ViewAction::make()
+                    ->slideOver()
+                    ->modalWidth('3xl')
+                    ->schema(fn (Schema $schema): Schema => KontakInfolist::configure($schema)),
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon(Heroicon::OutlinedChatBubbleLeftRight)
@@ -80,20 +83,13 @@ class KontakPerluDicekWidget extends TableWidget
                     ->openUrlInNewTab()
                     ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
             ])
-            ->emptyStateHeading('Tidak ada kontak menunggu verifikasi')
-            ->emptyStateDescription('Semua kontak sudah terverifikasi atau non-aktif.')
-            ->emptyStateIcon(Heroicon::OutlinedCheckBadge);
-    }
-
-    protected static function jumlahMenunggu(): int
-    {
-        return Kontak::query()->where('status_verifikasi', 'perlu_dicek')->count();
+            ->emptyStateHeading('Belum ada kontak')
+            ->emptyStateDescription('Kontak PIC yang baru ditambahkan akan muncul di sini.')
+            ->emptyStateIcon(Heroicon::OutlinedUsers);
     }
 
     protected static function whatsappUrl(Kontak $record): string
     {
-        $phone = PhoneNormalizer::normalize((string) $record->no_telepon);
-
-        return $phone === '' ? '#' : 'https://wa.me/'.$phone;
+        return PhoneNormalizer::whatsappUrl($record->no_telepon);
     }
 }

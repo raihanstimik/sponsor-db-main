@@ -17,9 +17,23 @@ class KegiatanForm
             ->components([
                 Select::make('kategori_kegiatan_id')
                     ->label('Kategori Kegiatan')
+                    ->label('Kategori Medis')
                     ->relationship('kategoriKegiatan', 'nama_kategori')
                     ->searchable()
                     ->preload()
+                    ->createOptionForm([
+                        TextInput::make('nama_kategori')
+                            ->label('Nama Kategori')
+                            ->required()
+                            ->unique('kategori_kegiatans', 'nama_kategori')
+                            ->maxLength(255),
+                        ColorPicker::make('warna')
+                            ->label('Warna Indikator')
+                            ->helperText('Warna khas untuk badge dan grafik.'),
+                        Textarea::make('deskripsi')
+                            ->label('Deskripsi')
+                            ->rows(3),
+                    ])
                     ->required(),
                 TextInput::make('nama_event')
                     ->label('Nama Event')

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\ActivityLogs;
 
 use App\Filament\Resources\ActivityLogs\Pages\ListActivityLogs;
+use App\Support\FilamentTableHelper;
 use BackedEnum;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
@@ -44,6 +45,8 @@ class ActivityLogResource extends Resource
 
     public static function table(Table $table): Table
     {
+        FilamentTableHelper::applyDefaultPresets($table);
+
         return $table
             ->columns([
                 TextColumn::make('created_at')
@@ -143,6 +146,8 @@ class ActivityLogResource extends Resource
                             ->when($data['until'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date));
                     }),
             ])
+            ->recordUrl(null)
+            ->recordAction(ViewAction::class)
             ->recordActions([
                 ViewAction::make()
                     ->label('Lihat')
@@ -198,6 +203,10 @@ class ActivityLogResource extends Resource
 
     private static function labelModel(?string $type, ?Activity $record = null): string
     {
+        if ($record && $record->log_name === 'import') {
+            return 'Import Data';
+        }
+
         $base = $type ? class_basename($type) : '-';
 
         return match ($base) {
@@ -206,12 +215,16 @@ class ActivityLogResource extends Resource
             'Kegiatan' => 'Kegiatan',
             'KategoriKegiatan' => 'Kategori',
             'User' => 'Pengguna',
-            default => $base,
+            default => $record?->log_name ? ucfirst($record->log_name) : $base,
         };
     }
 
     private static function judulModal(Activity $record): string
     {
+        if ($record->log_name === 'import') {
+            return 'Aktivitas Impor Data Massal';
+        }
+
         $aksi = match ($record->event) {
             'created' => 'Menambahkan',
             'updated' => 'Memperbarui',
@@ -220,12 +233,19 @@ class ActivityLogResource extends Resource
         };
 
         $model = self::labelModel($record->subject_type);
+        $model = self::labelModel($record->subject_type, $record);
 
         return $aksi.' '.$model.' #'.$record->subject_id;
+
+        return $aksi.' '.$model.' #'.($record->subject_id ?? '-');
     }
 
     private static function ringkasanPerubahan(Activity $record): string
     {
+        if ($record->log_name === 'import' || (empty($record->properties?->toArray()['old'] ?? []) && empty($record->properties?->toArray()['attributes'] ?? []) && filled($record->description))) {
+            return '<span class="text-primary-600 dark:text-primary-400 font-medium">'.e((string) $record->description).'</span>';
+        }
+
         $props = $record->properties?->toArray() ?? [];
         $old = $props['old'] ?? [];
         $attributes = $props['attributes'] ?? [];
@@ -272,6 +292,9 @@ class ActivityLogResource extends Resource
             'venue' => 'Lokasi',
             'email' => 'Email',
             'role' => 'Peran',
+            'perusahaan_dibuat' => 'Perusahaan Dibuat',
+            'kontak_dibuat' => 'Kontak Dibuat',
+            'dilewati' => 'Baris Dilewati',
             default => str_replace('_', ' ', ucfirst($key)),
         };
     }

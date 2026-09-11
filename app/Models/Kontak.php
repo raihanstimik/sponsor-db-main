@@ -6,6 +6,7 @@ namespace App\Models;
 
 use App\Services\PetaNomorPerusahaan;
 use App\Support\PhoneNormalizer;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,11 +40,27 @@ class Kontak extends Model
         ];
     }
 
+    /**
+     * Ringkasan agregat statistik kontak: total dan nomor valid.
+     *
+     * @return object{total: int|string, valid: int|string|null}
+     */
+    public static function agregatStatistik(?Builder $query = null): object
+    {
+        $targetQuery = $query ?? static::query();
+
+        return $targetQuery
+            ->selectRaw('count(*) as total, sum(case when status_format_valid = 1 then 1 else 0 end) as valid')
+            ->first() ?? (object) [
+                'total' => 0,
+                'valid' => 0,
+            ];
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['perusahaan_id', 'kegiatan_id', 'kategori_kegiatan_id', 'nama', 'no_telepon', 'status_verifikasi'])
-            ->logOnly(['perusahaan_id', 'kegiatan_id', 'kategori_kegiatan_id', 'nama', 'no_telepon', 'email', 'catatan', 'status_verifikasi'])
+            ->logOnly(['perusahaan_id', 'kegiatan_id', 'kategori_kegiatan_id', 'nama', 'no_telepon', 'email', 'catatan'])
             ->logOnlyDirty()
             ->useLogName('kontak')
             ->dontSubmitEmptyLogs();

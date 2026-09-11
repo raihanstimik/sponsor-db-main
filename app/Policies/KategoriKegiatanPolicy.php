@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
 use App\Models\KategoriKegiatan;
 use App\Models\User;
+use App\Policies\Concerns\HandlesResourcePermissions;
 
 class KategoriKegiatanPolicy
 {
@@ -11,6 +14,8 @@ class KategoriKegiatanPolicy
     {
         return $user->can('kategori_kegiatan.view_any');
     }
+
+    use HandlesResourcePermissions;
 
     public function view(User $user, KategoriKegiatan $kategoriKegiatan): bool
     {
@@ -36,4 +41,6 @@ class KategoriKegiatanPolicy
     {
         return $user->can('kategori_kegiatan.delete');
     }
+
+    protected string $permissionPrefix = 'kategori_kegiatan';
 }

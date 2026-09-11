@@ -1,59 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Indonesia Congress Management (ICM) — Sponsor & PIC Digital Archive
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Platform Manajemen Database Sponsor, Kontak PIC, dan Arsip Kegiatan Kongres Medis**  
+> Dibangun dengan standar enterprise untuk performa tinggi, keandalan data (*Single Source of Truth*), dan kemudahan operasional staf sponsorship.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📑 Dokumentasi Resmi & Panduan Migrasi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- 📘 **[Panduan Migrasi Arsitektur & Sistem Antar-Bahasa Pemrograman (docs/PANDUAN_MIGRASI_ARSITEKTUR_DAN_SISTEM.md)](docs/PANDUAN_MIGRASI_ARSITEKTUR_DAN_SISTEM.md)**  
+  *Dokumentasi teknis lengkap dan independen terhadap bahasa pemrograman (language-agnostic blueprint). Berisi spesifikasi domain bisnis, topologi arsitektur, ERD & DDL skema database lengkap, pseudocode algoritma inti (Phone Normalizer, Canonical Company Naming, Smart Import Multi-Sheet, Multi-Token Smart Search, Audit Trail), matriks RBAC, kontrak REST API, spesifikasi UI/UX tokens, 122 acceptance criteria test cases, serta 7-fase roadmap migrasi ke Node.js/NestJS, Go, Python/FastAPI, atau .NET Core.*
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 🎨 **[Desain Sistem & Standar Antarmuka UI/UX (DESIGN-ICM.md)](DESIGN-ICM.md)**  
+  *Panduan identitas visual ICM: Palet warna Royal Navy & Congress Orange, dual mode (Light / Deep Navy Command Center), tipografi, kepadatan data enterprise, dan mikro-animasi CSS 60 FPS.*
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🚀 Fitur Utama Sistem
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Smart Search Multi-Token**: Pencarian kontak secepat kilat melintasi nama PIC, perusahaan sponsor, kegiatan, kategori medis, dan nomor telepon.
+2. **Normalisasi Otomatis Nomor WhatsApp**: Membersihkan karakter non-digit, mengonversi format lokal (`08...`, `+62...`, `6208...`) menjadi standar E.164 Indonesia (`628...`), memvalidasi panjang 10–13 digit, dan menyediakan tautan langsung direct-to-WhatsApp.
+3. **Canonical Company Resolver & Deteksi Duplikat**: Pencegahan duplikasi nama perusahaan dengan kanonisasi nama dan penanganan aman *soft-deleted records* (mencegah error MySQL 1062).
+4. **Smart Multi-Sheet Excel/CSV Importer**: Ekstraksi multi-sheet otomatis, deteksi header cerdas (Indonesia & Inggris), pembersih baris sampah (*junk rows*), serta preview 2-fase sebelum disimpan ke database.
+5. **Role-Based Access Control (RBAC)**: Pemisahan peran Administrator dan Karyawan, proteksi akun baru (*pending approval*), serta fitur penyamaran akun (*impersonation*) untuk troubleshooting.
+6. **Differential Audit Trail**: Pencatatan riwayat perubahan data (perbedaan nilai sebelum dan sesudah) dengan isolasi privasi (karyawan hanya dapat melihat aktivitas miliknya).
+7. **Ekspor CSV Kompatibel Excel**: Ekspor data berkecepatan tinggi dengan UTF-8 Byte Order Mark (`\xEF\xBB\xBF`) agar tidak rusak saat dibuka di Microsoft Excel.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Tech Stack Saat Ini
 
-### Premium Partners
+- **Framework**: PHP 8.2+ / Laravel 12
+- **Admin Engine**: Filament v3 & Livewire 3
+- **Database**: MySQL 8.0+ / MariaDB 10.5+
+- **Styling**: Tailwind CSS & Custom CSS Themes (`resources/css/theme.css`)
+- **Excel Engine**: PhpSpreadsheet / Maatwebsite Excel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## ⚡ Petunjuk Instalasi & Menjalankan Aplikasi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Kloning & Dependensi
+```bash
+git clone <repository_url>
+cd sponsor-db-main
+composer install
+npm install && npm run build
+```
 
-## Code of Conduct
+### 2. Konfigurasi Lingkungan (.env)
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+Sesuaikan konfigurasi database pada `.env`:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sponsor_db
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 3. Migrasi & Seeder Database
+```bash
+php artisan migrate --seed
+```
 
-## Security Vulnerabilities
+### 4. Menjalankan Server Pengembangan
+```bash
+php artisan serve
+```
+Buka browser pada `http://127.0.0.1:8000/admin`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🧪 Pengujian Unit & Integrasi (Test Suite)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Seluruh logika bisnis dan keamanan dilindungi oleh 122 automated test cases (487 assertions):
+```bash
+php artisan test
+```
+
+---
+
+## 📄 Lisensi
+Hak Cipta © 2024–2026 Indonesia Congress Management (ICM). Seluruh hak dilindungi undang-undang.
+

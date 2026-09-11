@@ -190,7 +190,7 @@ class MuatDataPelatihan extends Command
                 'nama' => $nama,
                 'no_telepon' => $phone !== '' ? $phone : $rawPhone,
                 'status_format_valid' => PhoneNormalizer::isValid($phone),
-                'status_verifikasi' => 'perlu_dicek',
+                'status_verifikasi' => 'terverifikasi',
             ]);
             $kontakDibuat++;
         }

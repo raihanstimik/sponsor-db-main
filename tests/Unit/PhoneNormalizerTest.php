@@ -43,4 +43,13 @@ class PhoneNormalizerTest extends TestCase
             'ada teks sisa' => ['0811 (kantor)', false],
         ];
     }
+
+    public function test_whatsapp_url_menghasilkan_link_wa_me(): void
+    {
+        $this->assertSame('https://wa.me/628111465133', PhoneNormalizer::whatsappUrl('0811-1465-133'));
+        $this->assertSame('https://wa.me/6281212345678', PhoneNormalizer::whatsappUrl('+62 812-1234-5678'));
+        $this->assertSame('https://wa.me/628111465133?text=Halo%20PIC', PhoneNormalizer::whatsappUrl('0811-1465-133', 'Halo PIC'));
+        $this->assertSame('#', PhoneNormalizer::whatsappUrl(''));
+        $this->assertSame('#', PhoneNormalizer::whatsappUrl(null));
+    }
 }

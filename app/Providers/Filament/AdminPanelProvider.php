@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\CustomLogin;
@@ -34,13 +36,24 @@ class AdminPanelProvider extends PanelProvider
             ->registration(CustomRegister::class)
             ->brandName('ICM Sponsor')
             ->brandLogo(asset('images/logo-icm.png'))
+            ->brandLogo(asset('images/logo-icm.webp'))
             ->brandLogoHeight('2.25rem')
             ->darkModeBrandLogo(asset('images/logo-icm.png'))
+            ->darkModeBrandLogo(asset('images/logo-icm.webp'))
             ->colors([
-                'primary' => Color::hex('#1E2A4A'),
+                'primary' => Color::hex('#18225E'),
+                'secondary' => Color::hex('#EA7C1A'),
+                'info' => Color::hex('#0284C7'),
+                'success' => Color::hex('#10B981'),
+                'warning' => Color::hex('#F59E0B'),
+                'danger' => Color::hex('#F43F5E'),
+                'gray' => Color::Slate,
             ])
             ->font('Fira Sans')
             ->spa()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchFieldKeyBindingSuffix()
+            ->globalSearchDebounce('400ms')
             ->simplePageMaxContentWidth(Width::Medium)
             ->viteTheme(['resources/css/filament/admin/theme.css', 'resources/js/app.js'])
             ->sidebarFullyCollapsibleOnDesktop()
@@ -53,13 +66,13 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-user-circle')
                     ->visible(fn (): bool => auth()->check()),
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 Dashboard::class,
                 ProfilSaya::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([])
             ->middleware([
                 EncryptCookies::class,
@@ -71,6 +84,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                'throttle:panel-user',
             ])
             ->authMiddleware([
                 Authenticate::class,

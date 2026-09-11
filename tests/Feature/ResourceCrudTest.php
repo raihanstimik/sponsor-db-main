@@ -7,13 +7,19 @@ use App\Filament\Resources\KategoriKegiatans\Pages\CreateKategoriKegiatan;
 use App\Filament\Resources\KategoriKegiatans\Pages\ListKategoriKegiatans;
 use App\Filament\Resources\Kegiatans\Pages\ListKegiatans;
 use App\Filament\Resources\Kontaks\Pages\CreateKontak;
+use App\Filament\Resources\Kontaks\Pages\ListKontaks;
 use App\Filament\Resources\Perusahaans\Pages\CreatePerusahaan;
+use App\Filament\Resources\Perusahaans\Pages\ListPerusahaans;
+use App\Filament\Resources\Roles\Pages\ListRoles;
+use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ResourceCrudTest extends TestCase
@@ -124,5 +130,76 @@ class ResourceCrudTest extends TestCase
         $this->actingAs(User::factory()->karyawan()->create());
 
         Livewire::test(ListKegiatans::class)->assertSuccessful();
+    }
+
+    public function test_perusahaan_infolist_dan_list_page_dapat_dirender(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $perusahaan = Perusahaan::factory()->create([
+            'nama_standar' => 'PT Bio Farma Persero',
+            'industri' => 'Farmasi & Suplemen',
+            'alamat' => 'Jl. Pasteur No. 28, Bandung',
+            'website' => 'https://biofarma.co.id',
+            'catatan' => 'Mitra strategis vaksinasi',
+        ]);
+
+        Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'Dr. Rina Gunawan',
+            'no_telepon' => '0811-1465-133',
+            'email' => 'rina@biofarma.co.id',
+            'status_verifikasi' => 'terverifikasi',
+        ]);
+
+        Livewire::test(ListPerusahaans::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $perusahaan)
+            ->assertHasNoTableActionErrors();
+
+        $modalHtml = view('filament.modals.perusahaan-pic-modal', ['record' => $perusahaan])->render();
+        $this->assertStringContainsString('wa.me/628111465133', $modalHtml);
+        $this->assertStringContainsString('Dr. Rina Gunawan', $modalHtml);
+    }
+
+    public function test_semua_tabel_klik_baris_membuka_detail_bukan_edit(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $perusahaan = Perusahaan::factory()->create();
+        $kategori = KategoriKegiatan::factory()->create();
+        $kegiatan = Kegiatan::factory()->create(['kategori_kegiatan_id' => $kategori->id]);
+        $kontak = Kontak::factory()->create(['perusahaan_id' => $perusahaan->id, 'kegiatan_id' => $kegiatan->id]);
+        $role = Role::firstOrCreate(['name' => 'editor_test', 'guard_name' => 'web']);
+
+        // Verifikasi Kontak Table
+        Livewire::test(ListKontaks::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $kontak)
+            ->assertHasNoTableActionErrors();
+
+        // Verifikasi Kegiatan Table
+        Livewire::test(ListKegiatans::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $kegiatan)
+            ->assertHasNoTableActionErrors();
+
+        // Verifikasi Kategori Table
+        Livewire::test(ListKategoriKegiatans::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $kategori)
+            ->assertHasNoTableActionErrors();
+
+        // Verifikasi User Table
+        Livewire::test(ListUsers::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $admin)
+            ->assertHasNoTableActionErrors();
+
+        // Verifikasi Role Table
+        Livewire::test(ListRoles::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $role)
+            ->assertHasNoTableActionErrors();
     }
 }

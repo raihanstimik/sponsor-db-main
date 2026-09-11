@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\KategoriKegiatans\Schemas;
 
+use App\Support\KlasifikasiTabel;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -20,7 +23,8 @@ class KategoriKegiatanForm
                     ->maxLength(255),
                 ColorPicker::make('warna')
                     ->label('Warna')
-                    ->helperText('Dipakai untuk badge & sortir menurut warna pada daftar kontak.'),
+                    ->helperText('Dipakai untuk badge & sortir menurut warna. Otomatis diisi jika dikosongkan.')
+                    ->default(fn () => KlasifikasiTabel::warnaKategori('')),
                 Textarea::make('deskripsi')
                     ->label('Deskripsi')
                     ->rows(3)

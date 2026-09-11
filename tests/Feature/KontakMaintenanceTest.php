@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Resources\Kontaks\Pages\ListKontaks;
+use App\Filament\Resources\Kontaks\Tables\KontaksTable;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Models\User;
@@ -93,5 +94,29 @@ class KontakMaintenanceTest extends TestCase
         $karyawan = User::factory()->karyawan()->create();
         $this->actingAs($karyawan);
         Livewire::test(ListKontaks::class)->assertSuccessful();
+    }
+
+    #[Test]
+    public function reset_filter_melalui_kartu_ringkasan(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $kontak = Kontak::factory()->create(['nama' => 'Budi Santoso']);
+
+        Livewire::test(ListKontaks::class)
+            ->call('resetFilters')
+            ->assertCanSeeTableRecords([$kontak]);
+    }
+
+    #[Test]
+    public function smart_whatsapp_url_menyertakan_sapaan_dan_nama_event(): void
+    {
+        $kontak = Kontak::factory()->create([
+            'nama' => 'Budi Santoso',
+            'no_telepon' => '081234567890',
+        ]);
+
+        $url = KontaksTable::whatsappUrl($kontak);
+        $this->assertStringContainsString('https://wa.me/6281234567890', $url);
+        $this->assertStringContainsString('Halo%20Bapak%2FIbu%20Budi%20Santoso', $url);
     }
 }

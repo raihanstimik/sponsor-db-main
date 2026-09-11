@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\KategoriKegiatans\Tables;
 
 use App\Models\KategoriKegiatan;
+use App\Support\FilamentTableHelper;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -14,6 +16,8 @@ class KategoriKegiatansTable
 {
     public static function configure(Table $table): Table
     {
+        FilamentTableHelper::applyDefaultPresets($table, [10, 25, 50], 25);
+
         return $table
             ->columns([
                 TextColumn::make('nama_kategori')
@@ -47,7 +51,10 @@ class KategoriKegiatansTable
             ])
             ->paginated([10, 25, 50])
             ->defaultPaginationPageOption(25)
+            ->recordUrl(null)
+            ->recordAction(ViewAction::class)
             ->recordActions([
+                ViewAction::make()->slideOver(),
                 EditAction::make()
                     ->visible(fn (KategoriKegiatan $record) => auth()->user()?->can('update', $record) ?? false),
             ])

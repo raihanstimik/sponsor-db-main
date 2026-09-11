@@ -39,4 +39,25 @@ class PhoneNormalizer
     {
         return preg_match('/^628\d{7,10}$/', $normalized) === 1;
     }
+
+    /**
+     * Format URL WhatsApp resmi (https://wa.me/628...).
+     * Mengembalikan '#' jika nomor kosong atau tidak memiliki digit valid.
+     */
+    public static function whatsappUrl(?string $value, ?string $message = null): string
+    {
+        $phone = self::normalize($value);
+
+        if ($phone === '') {
+            return '#';
+        }
+
+        $url = 'https://wa.me/'.$phone;
+
+        if (filled($message)) {
+            $url .= '?text='.rawurlencode($message);
+        }
+
+        return $url;
+    }
 }

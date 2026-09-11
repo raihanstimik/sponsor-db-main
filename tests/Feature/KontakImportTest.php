@@ -163,7 +163,6 @@ class KontakImportTest extends TestCase
             'nama' => 'Rina',
             'no_telepon' => '6281291018454',
             'status_format_valid' => true,
-            'status_verifikasi' => 'perlu_dicek',
         ]);
         $this->assertDatabaseHas('kontaks', [
             'nama' => 'Andi',
