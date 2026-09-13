@@ -445,12 +445,17 @@
 }
 
 /* ── Table Header: shadcn style — lowercase, font-medium, muted ── */
+/* ── Table Header: compact, clean, muted ── */
 .fi-ta-header-cell {
     padding-block: 0.625rem !important;
     padding-inline: 0.75rem !important;
     font-size: 0.6875rem !important;
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
+    height: 2.125rem !important;          /* ~34px compact header */
+    padding-block: 0.3125rem !important;  /* ~5px */
+    padding-inline: 0.5rem !important;    /* ~8px tight column spacing */
+    font-size: 0.75rem !important;        /* text-xs */
     font-weight: 600 !important;
     height: 2.75rem !important;           /* ~44px — shadcn h-11 */
     padding-block: 0.75rem !important;
@@ -459,6 +464,7 @@
     font-weight: 500 !important;          /* font-medium */
     letter-spacing: 0 !important;         /* hapus letter-spacing lebar */
     text-transform: none !important;      /* ← kunci: BUKAN uppercase */
+    letter-spacing: 0.01em !important;
     white-space: nowrap !important;
     vertical-align: middle !important;
 }
@@ -482,15 +488,41 @@
 
 /* Baris Tabel Ramping & Nyaman (44px - 48px) */
 /* ── Table Rows: border-b antar baris (shadcn style) ── */
+/* ── Table Rows: compact density, reduced row height & tighter column gaps ── */
 .fi-ta-row td {
     padding-block: 0.5rem !important;
     padding-inline: 0.75rem !important;
     padding-block: 0.75rem !important;      /* p-3 — lebih lega */
     padding-inline: 1rem !important;        /* px-4 */
     font-size: 0.875rem !important;         /* text-sm */
+    padding-block: 0.3125rem !important;  /* ~5px — sleek row height (~38px) */
+    padding-inline: 0.5rem !important;    /* ~8px — tight column spacing */
+    font-size: 0.8125rem !important;      /* text-[13px] */
+    line-height: 1.35 !important;
     vertical-align: middle !important;
     border-bottom: 1px solid transparent !important;
     transition: background-color 120ms ease !important;
+}
+
+.fi-ta-header-cell:first-child,
+.fi-ta-row td:first-child {
+    padding-inline-start: 0.875rem !important;
+}
+
+.fi-ta-header-cell:last-child,
+.fi-ta-row td:last-child {
+    padding-inline-end: 0.875rem !important;
+}
+
+/* Compact action buttons in table rows */
+.fi-ta-actions {
+    gap: 0.25rem !important;
+}
+
+.fi-ta-actions .fi-icon-btn {
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    padding: 0.25rem !important;
 }
 
 /* Garis pembatas horizontal antar baris — subtle */

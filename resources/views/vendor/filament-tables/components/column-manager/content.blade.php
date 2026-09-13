@@ -15,6 +15,7 @@
         data-sortable-animation-duration="{{ $reorderAnimationDuration }}"
     @endif
     class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 fi-ta-col-manager-items"
+    class="grid grid-cols-1 sm:grid-cols-2 gap-2 fi-ta-col-manager-items"
 >
     <template
         x-for="(column, index) in columns.filter((column) => ! column.isHidden && column.label)"
@@ -29,9 +30,12 @@
             <template x-if="column.type === 'group'">
                 <div class="fi-ta-col-manager-group flex flex-col gap-2 p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40">
                     <div class="fi-ta-col-manager-item flex items-center justify-between gap-3 p-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 shadow-xs">
+                <div class="fi-ta-col-manager-group flex flex-col gap-1.5 p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40">
+                    <div class="fi-ta-col-manager-item flex items-center justify-between gap-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 shadow-xs">
                         <label
                             @if ($hasToggleableColumns) x-bind:for="$id('fi-ta-col-manager-group-checkbox', column.name)" @endif
                             class="fi-ta-col-manager-label flex flex-1 items-center gap-2.5 cursor-pointer min-w-0"
+                            class="fi-ta-col-manager-label flex flex-1 items-center gap-2 cursor-pointer min-w-0"
                         >
                             @if ($hasToggleableColumns)
                                 <input
@@ -68,6 +72,7 @@
                             data-sortable-animation-duration="{{ $reorderAnimationDuration }}"
                         @endif
                         class="fi-ta-col-manager-group-items flex flex-col gap-1.5 ps-4"
+                        class="fi-ta-col-manager-group-items flex flex-col gap-1 ps-3"
                     >
                         <template
                             x-for="
@@ -82,9 +87,11 @@
                                 @endif
                             >
                                 <div class="fi-ta-col-manager-item flex items-center justify-between gap-3 p-2 rounded-md bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 shadow-xs">
+                                <div class="fi-ta-col-manager-item flex items-center justify-between gap-2 p-1.5 rounded-md bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 shadow-xs">
                                     <label
                                         @if ($hasToggleableColumns) x-bind:for="$id('fi-ta-col-manager-column-checkbox', groupColumn.name)" @endif
                                         class="fi-ta-col-manager-label flex flex-1 items-center gap-2.5 cursor-pointer min-w-0"
+                                        class="fi-ta-col-manager-label flex flex-1 items-center gap-2 cursor-pointer min-w-0"
                                     >
                                         @if ($hasToggleableColumns)
                                             <input
@@ -121,11 +128,13 @@
             <template x-if="column.type !== 'group'">
                 <div
                     class="fi-ta-col-manager-item group flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg border border-gray-200/90 dark:border-gray-700/80 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-xs transition-all select-none"
+                    class="fi-ta-col-manager-item group flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg border border-gray-200/90 dark:border-gray-700/80 bg-white dark:bg-gray-800/90 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-xs transition-all select-none"
                     x-bind:class="{ 'border-primary-500/50 bg-primary-50/25 dark:bg-primary-950/25 dark:border-primary-500/40 shadow-xs': (getColumn(column.name, null) || {}).isToggled }"
                 >
                     <label
                         @if ($hasToggleableColumns) x-bind:for="$id('fi-ta-col-manager-column-checkbox', column.name)" @endif
                         class="fi-ta-col-manager-label flex flex-1 items-center gap-3 cursor-pointer min-w-0"
+                        class="fi-ta-col-manager-label flex flex-1 items-center gap-2.5 cursor-pointer min-w-0"
                     >
                         @if ($hasToggleableColumns)
                             <input
