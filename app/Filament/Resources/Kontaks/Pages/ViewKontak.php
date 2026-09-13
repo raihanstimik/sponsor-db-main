@@ -25,7 +25,7 @@ class ViewKontak extends ViewRecord
                 ->color('success')
                 ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                 ->openUrlInNewTab()
-                ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
             EditAction::make(),
         ];
     }

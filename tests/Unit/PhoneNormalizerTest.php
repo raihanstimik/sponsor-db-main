@@ -51,5 +51,29 @@ class PhoneNormalizerTest extends TestCase
         $this->assertSame('https://wa.me/628111465133?text=Halo%20PIC', PhoneNormalizer::whatsappUrl('0811-1465-133', 'Halo PIC'));
         $this->assertSame('#', PhoneNormalizer::whatsappUrl(''));
         $this->assertSame('#', PhoneNormalizer::whatsappUrl(null));
+        // Nomor kantor tidak didukung WhatsApp
+        $this->assertSame('#', PhoneNormalizer::whatsappUrl('+62 21 8710311'));
+        $this->assertSame('#', PhoneNormalizer::whatsappUrl('021)65311234'));
+    }
+
+    public function test_deteksi_telepon_kantor_landline(): void
+    {
+        $this->assertTrue(PhoneNormalizer::isLandline('+62 21 8710311'));
+        $this->assertTrue(PhoneNormalizer::isLandline('021)65311234'));
+        $this->assertTrue(PhoneNormalizer::isLandline('+6221-806 04223'));
+        $this->assertTrue(PhoneNormalizer::isLandline('021) 578-97000'));
+        $this->assertTrue(PhoneNormalizer::isLandline('05) 443-3800'));
+        $this->assertFalse(PhoneNormalizer::isLandline('081212345678'));
+        $this->assertFalse(PhoneNormalizer::isLandline('62818990762'));
+    }
+
+    public function test_format_tampilan_telepon_kantor(): void
+    {
+        $this->assertSame('(021) 871-0311', PhoneNormalizer::formatDisplay('+62 21 8710311'));
+        $this->assertSame('(021) 6531-1234', PhoneNormalizer::formatDisplay('021)65311234'));
+        $this->assertSame('(021) 8060-4223', PhoneNormalizer::formatDisplay('+6221-806 04223'));
+        $this->assertSame('(021) 5789-7000', PhoneNormalizer::formatDisplay('021) 578-97000'));
+        $this->assertSame('62818990762', PhoneNormalizer::formatDisplay('62818990762'));
+        $this->assertSame('-', PhoneNormalizer::formatDisplay(''));
     }
 }

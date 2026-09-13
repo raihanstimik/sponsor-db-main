@@ -59,6 +59,8 @@ class KontakInfolist
                             ->label('No. Telepon')
                             ->copyable()
                             ->copyMessage('Nomor telepon disalin')
+                            ->formatStateUsing(fn (?string $state): ?string => PhoneNormalizer::formatDisplay($state))
+                            ->hint(fn (Kontak $record): ?string => PhoneNormalizer::isLandline($record->no_telepon) ? 'Telepon Kantor' : null)
                             ->icon(Heroicon::OutlinedPhone)
                             ->placeholder('-'),
 

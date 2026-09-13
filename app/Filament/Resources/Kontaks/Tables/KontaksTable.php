@@ -131,6 +131,8 @@ class KontaksTable
                     ->sortable()
                     ->copyable()
                     ->copyMessage('Nomor telepon disalin')
+                    ->formatStateUsing(fn (?string $state): ?string => PhoneNormalizer::formatDisplay($state))
+                    ->description(fn (Kontak $record): ?string => PhoneNormalizer::isLandline($record->no_telepon) ? 'Telepon Kantor' : null)
                     ->icon(Heroicon::OutlinedPhone)
                     ->iconPosition(IconPosition::After)
                     ->extraAttributes(['style' => 'white-space: nowrap'])
@@ -288,11 +290,10 @@ class KontaksTable
                     ->extraAttributes(fn (Kontak $record): array => [
                         'aria-label' => 'Kirim WhatsApp ke '.(filled($record->nama) ? $record->nama : 'kontak'),
                     ])
-                    ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                    ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
                 ActionGroup::make([
                     ViewAction::make()
                         ->slideOver()
-                        ->modalWidth('3xl')
                         ->modalWidth('xl')
                         ->modalHeading('Detail Kontak Sponsor')
                         ->extraModalFooterActions([
@@ -302,7 +303,7 @@ class KontaksTable
                                 ->color('success')
                                 ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                                 ->openUrlInNewTab()
-                                ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                                ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
                         ]),
                     EditAction::make(),
                     Action::make('whatsapp')
@@ -311,7 +312,7 @@ class KontaksTable
                         ->color('success')
                         ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                         ->openUrlInNewTab()
-                        ->visible(fn (Kontak $record): bool => filled($record->no_telepon)),
+                        ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
                     DeleteAction::make(),
                 ])->icon(Heroicon::OutlinedEllipsisHorizontal)->color('gray')->tooltip('Aksi'),
             ])

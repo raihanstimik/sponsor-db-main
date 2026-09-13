@@ -79,7 +79,7 @@ class Kontak extends Model
         $normalized = PhoneNormalizer::normalize($raw);
         $this->attributes['no_telepon'] = PhoneNormalizer::isValid($normalized)
             ? $normalized
-            : preg_replace('/\s+/', ' ', $raw);
+            : PhoneNormalizer::cleanRawNumber($raw);
         $this->attributes['status_format_valid'] = PhoneNormalizer::isValid($normalized);
     }
 

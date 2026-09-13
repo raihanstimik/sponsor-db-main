@@ -619,7 +619,7 @@ class KontakImportService
                 && (KlasifikasiTabel::isJunk($namaPerusahaan) || KlasifikasiTabel::isJunk($canonicalCompany));
             $phone = PhoneNormalizer::normalize($raw);
             $phoneValid = PhoneNormalizer::isValid($phone);
-            $phoneFinal = $phoneValid || $raw === '' ? $phone : $raw;
+            $phoneFinal = $phoneValid || $raw === '' ? $phone : PhoneNormalizer::cleanRawNumber($raw);
 
             // --- Perusahaan ---
             $perusahaanStatus = 'baru';
