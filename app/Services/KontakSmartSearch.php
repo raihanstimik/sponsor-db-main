@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\KategoriKegiatan;
+use App\Models\Kegiatan;
 use App\Models\Kontak;
+use App\Models\Perusahaan;
 use App\Support\PhoneNormalizer;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -22,6 +25,8 @@ class KontakSmartSearch
      *   (AND antar kata, OR antar kolom) sehingga pencarian multi-kata presisi.
      * - Token ber-digit >= MIN_PHONE_DIGITS ikut dicocokkan ke no_telepon
      *   setelah dinormalisasi (mendukung "0811...", "62811...", "8xx...").
+     * - Menggunakan pre-filtered IDs untuk perusahaan, kegiatan, dan kategori
+     *   menghindari overhead subquery `whereHas` berulang di MySQL.
      *
      * @return Builder<Kontak>
      */
@@ -56,6 +61,7 @@ class KontakSmartSearch
                                 ->orWhere('kontaks.nama', 'like', $needle)
                                 ->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
                                 ->orWhereHas('kategoriKegiatan', fn (Builder $k): Builder => $k->where('nama_kategori', 'like', $needle));
+                            $this->applyTextMatch($sub, $needle);
                         })->orWhere('kontaks.no_telepon', 'like', $phoneNeedle);
                     } elseif ($hasText) {
                         $needle = $this->textNeedle($token);
@@ -63,10 +69,40 @@ class KontakSmartSearch
                             ->orWhere('kontaks.nama', 'like', $needle)
                             ->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
                             ->orWhereHas('kategoriKegiatan', fn (Builder $k): Builder => $k->where('nama_kategori', 'like', $needle));
+                        $inner->where(function (Builder $sub) use ($needle): void {
+                            $this->applyTextMatch($sub, $needle);
+                        });
                     } else {
                         $inner->where('kontaks.no_telepon', 'like', $phoneNeedle);
                     }
                 });
+            }
+        });
+    }
+
+    /**
+     * Pencocokan teks berkecepatan tinggi menggunakan pre-filtered IDs
+     * memanfaatkan indeks foreign key langsung pada tabel kontaks.
+     */
+    protected function applyTextMatch(Builder $sub, string $needle): void
+    {
+        $perusahaanIds = Perusahaan::query()->where('nama_standar', 'like', $needle)->pluck('id')->all();
+        $kegiatanIds = Kegiatan::query()->where('nama_event', 'like', $needle)->pluck('id')->all();
+        $kategoriIds = KategoriKegiatan::query()->where('nama_kategori', 'like', $needle)->pluck('id')->all();
+
+        $sub->where(function (Builder $q) use ($needle, $perusahaanIds, $kegiatanIds, $kategoriIds): void {
+            $q->where('kontaks.nama', 'like', $needle);
+
+            if ($perusahaanIds !== []) {
+                $q->orWhereIn('kontaks.perusahaan_id', $perusahaanIds);
+            }
+
+            if ($kegiatanIds !== []) {
+                $q->orWhereIn('kontaks.kegiatan_id', $kegiatanIds);
+            }
+
+            if ($kategoriIds !== []) {
+                $q->orWhereIn('kontaks.kategori_kegiatan_id', $kategoriIds);
             }
         });
     }

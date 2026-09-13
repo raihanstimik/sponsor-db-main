@@ -32,18 +32,6 @@ class ViewKontak extends ViewRecord
 
     protected static function whatsappUrl(Kontak $record): string
     {
-        $nomor = PhoneNormalizer::normalize($record->no_telepon);
-        if ($nomor === null) {
-            return '#';
-        }
-
-        $namaPic = trim((string) $record->nama);
-        $sapaan = $namaPic !== '' ? 'Halo Bapak/Ibu '.$namaPic : 'Halo Bapak/Ibu';
-        $namaEvent = trim((string) $record->kegiatan?->nama_event);
-        $pesan = $namaEvent !== ''
-            ? "{$sapaan}, perkenalkan kami dari tim sponsorship {$namaEvent}. Ada yang bisa kami bantu terkait kerja sama sponsorship?"
-            : "{$sapaan}, perkenalkan kami dari tim sponsorship. Ada yang bisa kami bantu terkait kerja sama sponsorship?";
-
-        return 'https://wa.me/'.$nomor.'?text='.rawurlencode($pesan);
+        return PhoneNormalizer::whatsappUrl($record->no_telepon);
     }
 }

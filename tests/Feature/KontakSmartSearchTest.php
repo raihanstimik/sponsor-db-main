@@ -129,4 +129,22 @@ class KontakSmartSearchTest extends TestCase
             ->filterTable('cari', ['q' => 'XYZ Tidak Ada'])
             ->assertCanNotSeeTableRecords([$this->kontakA, $this->kontakB]);
     }
+
+    #[Test]
+    public function filter_kegiatan_id_menyaring_kontak_secara_akurat(): void
+    {
+        Livewire::test(ListKontaks::class)
+            ->filterTable('kegiatan_id', ['values' => [$this->kontakA->kegiatan_id]])
+            ->assertCanSeeTableRecords([$this->kontakA])
+            ->assertCanNotSeeTableRecords([$this->kontakB]);
+    }
+
+    #[Test]
+    public function filter_kategori_kegiatan_id_menyaring_kontak_secara_akurat(): void
+    {
+        Livewire::test(ListKontaks::class)
+            ->filterTable('kategori_kegiatan_id', ['values' => [$this->kontakB->kategori_kegiatan_id]])
+            ->assertCanSeeTableRecords([$this->kontakB])
+            ->assertCanNotSeeTableRecords([$this->kontakA]);
+    }
 }

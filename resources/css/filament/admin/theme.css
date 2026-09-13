@@ -3,6 +3,7 @@
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/livewire/**/*';
+@source '../../../../resources/views/vendor/**/*';
 
 /*
  * Self-hosted typefaces.
@@ -400,6 +401,16 @@
 }
 
 /* 4. OPTIMASI TATA LETAK & DENSITAS RUANG ENTERPRISE (HEMAT SPACE) */
+/* 4. SHADCN/UI TABLE DESIGN — LAYOUT & DENSITY
+   Meniru estetika shadcn/ui Data Table:
+   - Container rounded dengan border tipis (bukan shadow tebal)
+   - Header lowercase, font-medium, muted — bukan uppercase all-caps
+   - Divider horizontal antar baris (bukan garis vertical)
+   - Hover subtle muted/50
+   - Padding lebih lega (px-4 py-3) agar mudah dibaca
+   ========================================================================== */
+
+/* Page header tetap rapi */
 .fi-page-header {
     padding-block: 0.75rem 1rem !important;
 }
@@ -410,6 +421,30 @@
 }
 
 /* Header Tabel Kompak & Rapi */
+/* ── Table Container: rounded border seperti shadcn/ui ── */
+.fi-ta-table {
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+/* Wrapper tabel ─ rounded + border seperti shadcn Card */
+:root:not(.dark) .fi-ta-ctn,
+:root:not(.dark) .fi-ta-wrp {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04) !important;
+}
+
+.dark .fi-ta-ctn,
+.dark .fi-ta-wrp {
+    border: 1px solid #1e294b !important;
+    border-radius: 0.75rem !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+}
+
+/* ── Table Header: shadcn style — lowercase, font-medium, muted ── */
 .fi-ta-header-cell {
     padding-block: 0.625rem !important;
     padding-inline: 0.75rem !important;
@@ -417,32 +452,90 @@
     letter-spacing: 0.05em !important;
     text-transform: uppercase !important;
     font-weight: 600 !important;
+    height: 2.75rem !important;           /* ~44px — shadcn h-11 */
+    padding-block: 0.75rem !important;
+    padding-inline: 1rem !important;
+    font-size: 0.75rem !important;        /* text-xs */
+    font-weight: 500 !important;          /* font-medium */
+    letter-spacing: 0 !important;         /* hapus letter-spacing lebar */
+    text-transform: none !important;      /* ← kunci: BUKAN uppercase */
+    white-space: nowrap !important;
+    vertical-align: middle !important;
 }
 
 :root:not(.dark) .fi-ta-header-cell {
     background-color: #f8fafc !important;
     color: #64748b !important;
     border-bottom: 2px solid #e2e8f0 !important;
+    background-color: #f8fafc !important;  /* muted/50 */
+    color: #64748b !important;             /* muted-foreground */
+    border-bottom: 1px solid #e2e8f0 !important;
 }
 
 .dark .fi-ta-header-cell {
     background-color: #0b1126 !important;
+    background-color: rgba(15, 23, 42, 0.6) !important;
     color: #94a3b8 !important;
     border-bottom: 2px solid #1e294b !important;
+    border-bottom: 1px solid #1e294b !important;
 }
 
 /* Baris Tabel Ramping & Nyaman (44px - 48px) */
+/* ── Table Rows: border-b antar baris (shadcn style) ── */
 .fi-ta-row td {
     padding-block: 0.5rem !important;
     padding-inline: 0.75rem !important;
+    padding-block: 0.75rem !important;      /* p-3 — lebih lega */
+    padding-inline: 1rem !important;        /* px-4 */
+    font-size: 0.875rem !important;         /* text-sm */
+    vertical-align: middle !important;
+    border-bottom: 1px solid transparent !important;
+    transition: background-color 120ms ease !important;
 }
 
+/* Garis pembatas horizontal antar baris — subtle */
+:root:not(.dark) .fi-ta-row:not(:last-child) td {
+    border-bottom-color: #f1f5f9 !important;
+}
+
+.dark .fi-ta-row:not(:last-child) td {
+    border-bottom-color: #16213a !important;
+}
+
+/* Baris terakhir — hapus border bawah agar rata dengan container */
+.fi-ta-row:last-child td {
+    border-bottom: none !important;
+}
+
+/* ── Row Hover: subtle muted/50 (shadcn standard) ── */
 :root:not(.dark) .fi-ta-row:hover td {
     background-color: #f8fafc !important;
+    background-color: #f8fafc !important;  /* zinc-50/slate-50 */
 }
 
 .dark .fi-ta-row:hover td {
     background-color: rgba(255, 255, 255, 0.03) !important;
+    background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+/* ── Selected Row (klik aktif) ── */
+:root:not(.dark) .fi-ta-row[aria-selected="true"] td,
+:root:not(.dark) .fi-ta-row.selected td {
+    background-color: #eff6ff !important;  /* blue-50 */
+}
+
+.dark .fi-ta-row[aria-selected="true"] td,
+.dark .fi-ta-row.selected td {
+    background-color: rgba(37, 99, 235, 0.08) !important;
+}
+
+/* ── Tbody background ── */
+:root:not(.dark) .fi-ta-table tbody {
+    background-color: #ffffff !important;
+}
+
+.dark .fi-ta-table tbody {
+    background-color: #090f1e !important;
 }
 
 /* Input Form Ramping dengan Ring Fokus Oranye Kongres */
@@ -561,6 +654,306 @@
 
 .dark .fi-ta-text-description {
     color: #94a3b8 !important;
+}
+
+/* ==========================================================================
+   6. SHADCN/UI BADGE & PILL STYLE
+   Badge tabel: pill rounded-full, font-medium, text-xs
+   ========================================================================== */
+
+/* Badge/Status pill — shadcn <Badge> style */
+.fi-badge {
+    border-radius: 9999px !important;        /* rounded-full */
+    padding-block: 0.125rem !important;      /* py-0.5 */
+    padding-inline: 0.625rem !important;     /* px-2.5 */
+    font-size: 0.6875rem !important;         /* text-[11px] */
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    letter-spacing: 0.01em !important;
+    border: 1px solid transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+}
+
+/* Hapus border-radius persegi dari badge bawaan Filament */
+.fi-badge.fi-color-custom,
+.fi-badge.fi-badge-size-sm,
+.fi-badge.fi-badge-size-md {
+    border-radius: 9999px !important;
+}
+
+/* ==========================================================================
+   7. SHADCN/UI PAGINATION STYLE
+   Navigasi halaman: border tipis, rounded, ghost hover
+   ========================================================================== */
+
+/* Kontainer pagination */
+.fi-ta-pagination {
+    padding-block: 0.75rem !important;
+    padding-inline: 1rem !important;
+    border-top: 1px solid #f1f5f9 !important;
+}
+
+.dark .fi-ta-pagination {
+    border-top-color: #1e294b !important;
+}
+
+/* Tombol paginasi: ghost style shadcn/ui */
+.fi-pagination-item-btn {
+    height: 2rem !important;
+    min-width: 2rem !important;
+    padding-inline: 0.5rem !important;
+    font-size: 0.8125rem !important;
+    border-radius: 0.375rem !important;    /* rounded-md */
+    border: 1px solid transparent !important;
+    transition: background-color 120ms ease, border-color 120ms ease !important;
+}
+
+:root:not(.dark) .fi-pagination-item-btn:hover {
+    background-color: #f1f5f9 !important;
+}
+
+.dark .fi-pagination-item-btn:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Tombol halaman aktif */
+:root:not(.dark) .fi-pagination-item-btn[aria-current="page"],
+:root:not(.dark) .fi-active .fi-pagination-item-btn {
+    background-color: #18225e !important;
+    color: #ffffff !important;
+    border-color: #18225e !important;
+}
+
+.dark .fi-pagination-item-btn[aria-current="page"],
+.dark .fi-active .fi-pagination-item-btn {
+    background-color: #ea7c1a !important;
+    color: #ffffff !important;
+    border-color: #ea7c1a !important;
+}
+
+/* ==========================================================================
+   8. SHADCN/UI TABLE TOOLBAR STYLE
+   Area filter/search di atas tabel: clean, minimal
+   ========================================================================== */
+
+/* Baris toolbar atas tabel */
+.fi-ta-header-toolbar {
+    padding-block: 0.75rem !important;
+    padding-inline: 0 !important;
+    gap: 0.5rem !important;
+}
+
+/* Search input di toolbar: outlined dengan border, bukan filled */
+:root:not(.dark) .fi-ta-search-field .fi-input-wrp {
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.5rem !important;
+    box-shadow: none !important;
+}
+
+.dark .fi-ta-search-field .fi-input-wrp {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid #1e294b !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Tombol Filter: ghost outlined shadcn */
+:root:not(.dark) .fi-ta-filters-form-btn {
+    border: 1px solid #e2e8f0 !important;
+    background-color: #ffffff !important;
+    border-radius: 0.5rem !important;
+}
+
+.dark .fi-ta-filters-form-btn {
+    border: 1px solid #1e294b !important;
+    background-color: transparent !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Empty state container */
+:root:not(.dark) .fi-ta-empty-state {
+    padding: 3rem 1rem !important;
+    color: #94a3b8 !important;
+}
+
+.dark .fi-ta-empty-state {
+    padding: 3rem 1rem !important;
+    color: #475569 !important;
+}
+
+/* ==========================================================================
+   9. COMPACT SLIDE-OVER DRAWER (VIEW KONTAK / PROFIL)
+   Panel samping ramping, padat, tanpa margin & padding berlebih
+   ========================================================================== */
+
+/* Konten dalam slideover modal */
+.fi-modal-slide-over .fi-modal-content {
+    padding: 1rem 1.25rem !important;
+}
+
+/* Header drawer */
+.fi-modal-slide-over .fi-modal-header {
+    padding-block: 0.875rem !important;
+    padding-inline: 1.25rem !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.dark .fi-modal-slide-over .fi-modal-header {
+    border-bottom-color: #1e294b !important;
+}
+
+/* Rampingkan kartu section dalam slideover */
+.fi-modal-slide-over .fi-section {
+    margin-bottom: 0.625rem !important;
+    border-radius: 0.625rem !important;
+    box-shadow: none !important;
+}
+
+.fi-modal-slide-over .fi-section-header {
+    padding-block: 0.375rem 0.25rem !important;
+    padding-inline: 0.75rem !important;
+}
+
+.fi-modal-slide-over .fi-section-header-heading {
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+}
+
+.fi-modal-slide-over .fi-section-content {
+    padding: 0.625rem 0.75rem !important;
+}
+
+/* Jarak vertikal field lebih rapat */
+.fi-modal-slide-over .fi-in-entry-wrp {
+    margin-bottom: 0.25rem !important;
+}
+
+.fi-modal-slide-over .fi-in-entry-wrp-label {
+    font-size: 0.6875rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.03em !important;
+    text-transform: uppercase !important;
+    color: #64748b !important;
+    margin-bottom: 0.125rem !important;
+}
+
+.dark .fi-modal-slide-over .fi-in-entry-wrp-label {
+    color: #94a3b8 !important;
+}
+
+/* Footer drawer */
+.fi-modal-slide-over .fi-modal-footer {
+    padding-block: 0.75rem !important;
+    padding-inline: 1.25rem !important;
+    border-top: 1px solid #f1f5f9 !important;
+}
+
+.dark .fi-modal-slide-over .fi-modal-footer {
+    border-top-color: #1e294b !important;
+}
+
+/* ============================================================ */
+/* SPINNING COUNTER (ODOMETER REEL ANIMATION - transitions.dev) */
+/* ============================================================ */
+.t-reel-container {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+.t-reel-container.is-ready > .t-reel-fallback,
+.t-reel-container:has(.t-reel[data-ready="true"]) > .t-reel-fallback {
+    display: none !important;
+}
+
+.t-reel {
+    display: inline-flex;
+    align-items: center;
+    height: var(--reel-cell, 1.25em);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    line-height: 1;
+}
+
+.t-reel-col {
+    position: relative;
+    display: inline-block;
+    height: var(--reel-cell, 1.25em);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, #000 18%, #000 82%, transparent 100%);
+}
+
+.t-reel-strip {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+}
+
+.t-reel-digit,
+.t-reel-sep {
+    height: var(--reel-cell, 1.25em);
+    min-width: 0.6em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.t-reel-sep {
+    min-width: 0.25em;
+    padding: 0 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .t-reel-strip {
+        transition: none !important;
+    }
+    .t-reel-col {
+        -webkit-mask-image: none !important;
+        mask-image: none !important;
+    }
+}
+
+/* ============================================================ */
+/* RESET FILTER BUTTON                                          */
+/* ============================================================ */
+.fi-btn-reset-filter svg {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fi-btn-reset-filter:hover svg {
+    transform: rotate(180deg);
+}
+
+/* ============================================================ */
+/* COLUMN MANAGER (ENHANCED CARDS & ZERO OVERFLOW)              */
+/* ============================================================ */
+.fi-ta-col-manager-items {
+    margin-top: 0 !important;
+    gap: 0.625rem !important;
+    columns: auto !important;
+}
+
+.fi-ta-col-manager-item {
+    padding-top: 0 !important;
+    transition: all 0.15s ease-in-out;
+}
+
+.fi-ta-col-manager-reorder-handle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: grab !important;
+}
+
+.fi-ta-col-manager-reorder-handle:active {
+    cursor: grabbing !important;
 }
 
 

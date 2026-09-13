@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kontaks\Tables;
 
 use App\Filament\Pages\ImportKontaks;
+use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
@@ -22,6 +23,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\TextSize;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
@@ -53,6 +55,20 @@ class KontaksTable
             ->deferColumnManager(false)
             ->columnManagerColumns(2)
             ->reorderableColumns()
+            ->columnManagerTriggerAction(fn (Action $action): Action => $action
+                ->modalHeading('Pengelola Kolom Tabel')
+                ->modalDescription('Centang kolom yang ingin ditampilkan dan seret ikon untuk mengatur urutan.')
+                ->modalWidth(Width::TwoExtraLarge)
+                ->modalCancelActionLabel('Tutup')
+                ->extraModalFooterActions([
+                    Action::make('resetColumnManager')
+                        ->label('Reset Urutan')
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('gray')
+                        ->alpineClickHandler("\$dispatch('reset-table-column-manager'); \$wire.resetTableColumnManager()")
+                        ->button(),
+                ])
+            )
             ->recordClasses(function (Kontak $record, HasTable $livewire): ?string {
                 // Duplikat prioritas danger (admin)
                 if (auth()->user()?->isAdmin() && PetaNomorPerusahaan::untukKontak($record, $livewire->petaNomorDipakai()) !== []) {
@@ -108,9 +124,9 @@ class KontaksTable
                     ->searchable()
                     ->sortable()
                     ->copyable()
+                    ->copyMessage('Nomor telepon disalin')
                     ->icon(Heroicon::OutlinedPhone)
                     ->iconPosition(IconPosition::After)
-                    ->url(fn (Kontak $record): ?string => filled($record->no_telepon) ? 'tel:'.$record->no_telepon : null)
                     ->extraAttributes(['style' => 'white-space: nowrap'])
                     ->toggleable(),
                 TextColumn::make('kegiatan.nama_event')
@@ -202,16 +218,21 @@ class KontaksTable
                     ->schema([
                         TextInput::make('q')
                             ->label('Kata kunci')
-                            ->placeholder('Cari perusahaan, PIC, nomor, kegiatan, kategori...')
+                            ->placeholder('Cari perusahaan, PIC, no. HP...')
+                            ->prefixIcon(Heroicon::OutlinedMagnifyingGlass)
+                            ->type('search')
                             ->live()
-                            ->debounce(600),
+                            ->debounce(300)
+                            ->extraAttributes([
+                                'wire:target' => 'tableFilters.cari.q',
+                            ]),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => filled(trim((string) ($data['q'] ?? '')))
                         ? app(KontakSmartSearch::class)->applyTo($query, trim((string) $data['q']))
                         : $query),
                 SelectFilter::make('kegiatan_id')
                     ->label('Kegiatan')
-                    ->relationship('kegiatan', 'nama_event')
+                    ->options(fn (): array => Kegiatan::query()->orderBy('nama_event')->pluck('nama_event', 'id')->all())
                     ->multiple()
                     ->preload()
                     ->searchable()
@@ -227,7 +248,7 @@ class KontaksTable
                     }),
                 SelectFilter::make('kategori_kegiatan_id')
                     ->label('Kategori')
-                    ->relationship('kategoriKegiatan', 'nama_kategori')
+                    ->options(fn (): array => KategoriKegiatan::query()->orderBy('nama_kategori')->pluck('nama_kategori', 'id')->all())
                     ->multiple()
                     ->preload()
                     ->searchable()
@@ -264,6 +285,8 @@ class KontaksTable
                     ViewAction::make()
                         ->slideOver()
                         ->modalWidth('3xl')
+                        ->modalWidth('xl')
+                        ->modalHeading('Detail Kontak Sponsor')
                         ->extraModalFooterActions([
                             Action::make('slideover_whatsapp')
                                 ->label('Kirim WhatsApp')
@@ -433,11 +456,6 @@ class KontaksTable
 
     public static function whatsappUrl(Kontak $record): string
     {
-        $nama = trim((string) ($record->nama ?? ''));
-        $sapaan = $nama !== '' ? "Halo Bapak/Ibu {$nama}, " : 'Halo Bapak/Ibu, ';
-        $event = $record->kegiatan?->nama_event;
-        $pesan = $sapaan.($event ? "saya dari tim sponsorship terkait kegiatan {$event}." : 'saya dari tim sponsorship.');
-
-        return PhoneNormalizer::whatsappUrl($record->no_telepon, $pesan);
+        return PhoneNormalizer::whatsappUrl($record->no_telepon);
     }
 }

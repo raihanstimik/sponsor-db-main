@@ -19,6 +19,7 @@
 <div class="fi-ta-kontak-summary grid gap-2 sm:gap-3 grid-cols-2 lg:grid-cols-4">
     @foreach ($cards as $card)
         <div
+            wire:key="summary-card-{{ $card['key'] }}"
             @if ($card['key'] === 'total')
                 wire:click="resetFilters"
                 role="button"
@@ -37,7 +38,10 @@
             <div class="min-w-0 flex-1">
                 <div class="flex items-center justify-between">
                     <div class="text-lg sm:text-xl font-semibold leading-none tabular-nums text-gray-950 dark:text-white">
-                        {{ number_format($card['count'], 0, ',', '.') }}
+                        <x-spinning-counter
+                            wire:key="counter-{{ $card['key'] }}-{{ $card['count'] }}"
+                            :value="number_format($card['count'], 0, ',', '.')"
+                        />
                     </div>
                 </div>
                 <div class="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">

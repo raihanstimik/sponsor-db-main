@@ -108,7 +108,7 @@ class KontakMaintenanceTest extends TestCase
     }
 
     #[Test]
-    public function smart_whatsapp_url_menyertakan_sapaan_dan_nama_event(): void
+    public function whatsapp_url_menghubungkan_langsung_ke_nomor_tanpa_teks_otomatis(): void
     {
         $kontak = Kontak::factory()->create([
             'nama' => 'Budi Santoso',
@@ -116,7 +116,24 @@ class KontakMaintenanceTest extends TestCase
         ]);
 
         $url = KontaksTable::whatsappUrl($kontak);
-        $this->assertStringContainsString('https://wa.me/6281234567890', $url);
-        $this->assertStringContainsString('Halo%20Bapak%2FIbu%20Budi%20Santoso', $url);
+        $this->assertSame('https://wa.me/6281234567890', $url);
+    }
+
+    #[Test]
+    public function nomor_telepon_hanya_salin_dan_tidak_mengarahkan_ke_tel(): void
+    {
+        $this->actingAs(User::factory()->admin()->create());
+        $kontak = Kontak::factory()->create([
+            'nama' => 'Budi Santoso',
+            'no_telepon' => '081234567890',
+        ]);
+
+        $component = Livewire::test(ListKontaks::class);
+        $table = $component->instance()->getTable();
+        $kolom = $table->getColumn('no_telepon');
+
+        $this->assertNotNull($kolom);
+        $this->assertTrue($kolom->isCopyable($kontak));
+        $this->assertNull($kolom->getUrl($kontak), 'Kolom no_telepon tidak boleh mengarahkan ke link tel:');
     }
 }

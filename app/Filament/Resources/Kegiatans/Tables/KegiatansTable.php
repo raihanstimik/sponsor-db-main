@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kegiatans\Tables;
 
 use App\Filament\Resources\Kontaks\KontakResource;
+use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Support\FilamentTableHelper;
 use Filament\Actions\Action;
@@ -77,6 +78,7 @@ class KegiatansTable
                 SelectFilter::make('kategori_kegiatan_id')
                     ->label('Kategori Medis')
                     ->relationship('kategoriKegiatan', 'nama_kategori')
+                    ->options(fn (): array => KategoriKegiatan::query()->orderBy('nama_kategori')->pluck('nama_kategori', 'id')->all())
                     ->preload()
                     ->searchable(),
 
