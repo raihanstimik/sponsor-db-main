@@ -988,4 +988,45 @@
     cursor: grabbing !important;
 }
 
+/* ============================================================ */
+/* IMPORT KONTAKS & PERUSAHAAN (MODERN STEPPER & DROPZONE)     */
+/* ============================================================ */
+[x-cloak] {
+    display: none !important;
+}
+
+.import-dropzone {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.import-dropzone:hover {
+    border-color: var(--primary-500, #3b82f6);
+    background-color: rgb(59 130 246 / 0.02);
+}
+
+.import-dropzone.is-dropping {
+    border-color: var(--primary-600, #2563eb) !important;
+    background-color: rgb(59 130 246 / 0.06) !important;
+    transform: scale(1.008);
+}
+
+.import-stat-card {
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.import-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px -2px rgb(0 0 0 / 0.05);
+}
+
+.import-stepper-line {
+    height: 2px;
+    background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
+.dark .import-stepper-line {
+    background: linear-gradient(90deg, #334155 0%, #1e293b 100%);
+}
+
+
 

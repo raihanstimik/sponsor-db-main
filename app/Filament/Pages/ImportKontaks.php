@@ -300,10 +300,17 @@ class ImportKontaks extends Page
         }
 
         if ($this->statusFilterPreviews !== '') {
-            $previews = array_filter(
-                $previews,
-                fn (array $p): bool => ($p['status_kontak'] ?? '') === $this->statusFilterPreviews
-            );
+            if ($this->statusFilterPreviews === 'duplikat') {
+                $previews = array_filter(
+                    $previews,
+                    fn (array $p): bool => in_array($p['status_kontak'] ?? '', ['duplikat_telepon', 'duplikat_nama', 'duplikat_batch'], true)
+                );
+            } else {
+                $previews = array_filter(
+                    $previews,
+                    fn (array $p): bool => ($p['status_kontak'] ?? '') === $this->statusFilterPreviews
+                );
+            }
         }
 
         if ($this->companyFilterPreviews !== '') {
@@ -322,6 +329,12 @@ class ImportKontaks extends Page
         }
 
         return $previews;
+    }
+
+    public function setQuickFilter(string $status = '', string $company = ''): void
+    {
+        $this->statusFilterPreviews = $status;
+        $this->companyFilterPreviews = $company;
     }
 
     protected function previewSearchText(array $p): string
@@ -384,6 +397,7 @@ class ImportKontaks extends Page
     {
         return [
             'dibuat' => 'Disimpan',
+            'duplikat' => 'Semua duplikat',
             'duplikat_telepon' => 'Duplikat nomor',
             'duplikat_nama' => 'Duplikat nama',
             'duplikat_batch' => 'Duplikat dlm file',
