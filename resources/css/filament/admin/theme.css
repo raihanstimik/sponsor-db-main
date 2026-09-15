@@ -454,6 +454,8 @@
     text-transform: uppercase !important;
     height: 2.125rem !important;          /* ~34px compact header */
     padding-block: 0.3125rem !important;  /* ~5px */
+    height: 2.25rem !important;          /* ~36px compact header */
+    padding-block: 0.375rem !important;  /* ~6px */
     padding-inline: 0.5rem !important;    /* ~8px tight column spacing */
     font-size: 0.75rem !important;        /* text-xs */
     font-weight: 600 !important;
@@ -465,6 +467,8 @@
     letter-spacing: 0 !important;         /* hapus letter-spacing lebar */
     text-transform: none !important;      /* ← kunci: BUKAN uppercase */
     letter-spacing: 0.01em !important;
+    letter-spacing: 0.02em !important;
+    text-transform: uppercase !important;
     white-space: nowrap !important;
     vertical-align: middle !important;
 }
@@ -497,6 +501,8 @@
     font-size: 0.875rem !important;         /* text-sm */
     padding-block: 0.3125rem !important;  /* ~5px — sleek row height (~38px) */
     padding-inline: 0.5rem !important;    /* ~8px — tight column spacing */
+    padding-block: 0.375rem !important;  /* ~6px sleek row height */
+    padding-inline: 0.5rem !important;    /* ~8px tight column spacing */
     font-size: 0.8125rem !important;      /* text-[13px] */
     line-height: 1.35 !important;
     vertical-align: middle !important;
@@ -1028,5 +1034,308 @@
     background: linear-gradient(90deg, #334155 0%, #1e293b 100%);
 }
 
+/* ==========================================================================
+   10. ICM ENTERPRISE BUTTON DESIGN (HIGH CONTRAST & CORPORATE PALETTE)
+   ========================================================================== */
+
+/* Primary Button: Solid Executive Navy with Crisp White Text & Icons */
+.fi-btn.fi-color-primary:not(.fi-outlined) {
+    background-color: #18225e !important;
+    background-image: linear-gradient(180deg, #1f2c7a 0%, #18225e 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    box-shadow: 0 1px 3px 0 rgba(24, 34, 94, 0.28), 0 1px 2px -1px rgba(24, 34, 94, 0.18) !important;
+    font-weight: 500 !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background-color: #213088 !important;
+    background-image: linear-gradient(180deg, #27389c 0%, #1c276e 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px -2px rgba(24, 34, 94, 0.42), 0 2px 4px -2px rgba(24, 34, 94, 0.22) !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined):active {
+    background-color: #141b4b !important;
+    background-image: none !important;
+    box-shadow: 0 1px 2px 0 rgba(24, 34, 94, 0.2) !important;
+}
+
+.fi-btn.fi-color-primary:not(.fi-outlined) .fi-btn-label,
+.fi-btn.fi-color-primary:not(.fi-outlined) .fi-icon,
+.fi-btn.fi-color-primary:not(.fi-outlined) svg,
+.fi-btn.fi-color-primary:not(.fi-outlined) span {
+    color: #ffffff !important;
+}
+
+/* Primary Button in Dark Mode */
+.dark .fi-btn.fi-color-primary:not(.fi-outlined) {
+    background-color: #1c2854 !important;
+    background-image: linear-gradient(180deg, #283770 0%, #1a2550 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark .fi-btn.fi-color-primary:not(.fi-outlined):hover {
+    background-color: #263673 !important;
+    background-image: linear-gradient(180deg, #32458c 0%, #202e63 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.6), 0 0 10px -2px rgba(234, 124, 26, 0.25) !important;
+}
+
+/* Secondary Button / Action Gray (e.g. Ekspor Master, Import Data) */
+.fi-btn.fi-color-gray:not(.fi-outlined) {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    font-weight: 500 !important;
+}
+
+.fi-btn.fi-color-gray:not(.fi-outlined):hover {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.08) !important;
+}
+
+.fi-btn.fi-color-gray:not(.fi-outlined) .fi-btn-label,
+.fi-btn.fi-color-gray:not(.fi-outlined) .fi-icon,
+.fi-btn.fi-color-gray:not(.fi-outlined) svg,
+.fi-btn.fi-color-gray:not(.fi-outlined) span {
+    color: #334155 !important;
+}
+
+.dark .fi-btn.fi-color-gray:not(.fi-outlined) {
+    background: #111a33 !important;
+    color: #cbd5e1 !important;
+    border: 1px solid #1e294b !important;
+}
+
+.dark .fi-btn.fi-color-gray:not(.fi-outlined):hover {
+    background: #182447 !important;
+    color: #ffffff !important;
+    border-color: #2e3d6d !important;
+}
+
+.dark .fi-btn.fi-color-gray:not(.fi-outlined) .fi-btn-label,
+.dark .fi-btn.fi-color-gray:not(.fi-outlined) .fi-icon,
+.dark .fi-btn.fi-color-gray:not(.fi-outlined) svg,
+.dark .fi-btn.fi-color-gray:not(.fi-outlined) span {
+    color: #cbd5e1 !important;
+}
+
+/* ==========================================================================
+   DASHBOARD PERFORMANCE & ENTERPRISE CLEAN STYLES
+   ========================================================================== */
+
+/* 1. Containment for Fast Rendering & INP Optimization (Modern Web Guidance) */
+.dashboard-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 250px;
+}
+
+/* Ensure table widgets never trap fixed-position modals/overlays in a sub-viewport containing block */
+.fi-wi-table {
+    content-visibility: visible !important;
+    contain: none !important;
+}
+
+/* 2. Keyframe Animations */
+@keyframes dashboardFadeUp {
+    0% {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes auroraSlow {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(15px, 8px) scale(1.08);
+    }
+    100% {
+        transform: translate(-10px, 12px) scale(0.95);
+    }
+}
+
+@keyframes auroraReverse {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(-18px, -10px) scale(1.1);
+    }
+    100% {
+        transform: translate(12px, -6px) scale(0.92);
+    }
+}
+
+.animate-aurora-slow {
+    animation: auroraSlow 12s ease-in-out infinite alternate;
+}
+
+.animate-aurora-reverse {
+    animation: auroraReverse 10s ease-in-out infinite alternate;
+}
+
+/* 3. Hero Sambutan Entrance */
+.fi-wi-sambutan {
+    animation: dashboardFadeUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* 4. Stats Overview KPI Cards: Crisp Hover without Scale Jitter */
+.fi-wi-stats-overview-stat {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease !important;
+    animation: dashboardFadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.fi-wi-stats-overview-stat:nth-child(1) { animation-delay: 0.05s; }
+.fi-wi-stats-overview-stat:nth-child(2) { animation-delay: 0.10s; }
+.fi-wi-stats-overview-stat:nth-child(3) { animation-delay: 0.15s; }
+.fi-wi-stats-overview-stat:nth-child(4) { animation-delay: 0.20s; }
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-2px);
+}
+
+.fi-wi-stats-overview-stat .fi-wi-stats-overview-stat-chart {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+}
+
+.fi-wi-stats-overview-stat:hover .fi-wi-stats-overview-stat-chart {
+    transform: scale(1.05);
+    filter: drop-shadow(0 2px 5px rgba(24, 34, 94, 0.15));
+}
+
+/* 5. Dashboard Cards: Clean Border & Elevation Hover */
+.dashboard-card {
+    animation: dashboardFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* 6. Table Rows Smooth Hover */
+.fi-ta-row {
+    transition: background-color 0.15s ease;
+}
+
+/* 7. Respect User Preference for Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .animate-aurora-slow,
+    .animate-aurora-reverse,
+    .fi-wi-sambutan,
+    .fi-wi-stats-overview-stat,
+    .dashboard-card {
+        animation: none !important;
+        transition: none !important;
+        transform: none !important;
+    }
+}
+
+/* ==========================================================================
+   STABILO HIGHLIGHT FOR SEARCH MATCHES
+   ========================================================================== */
+mark.fi-stabilo-highlight,
+.fi-stabilo-highlight {
+    background-color: #fde047 !important;
+    color: inherit !important;
+    padding: 0 0.15em !important;
+    margin: 0 !important;
+    border-radius: 2px !important;
+    font-weight: inherit !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    display: inline !important;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
+
+.dark mark.fi-stabilo-highlight,
+.dark .fi-stabilo-highlight {
+    background-color: rgba(234, 179, 8, 0.4) !important;
+    color: inherit !important;
+    box-shadow: none !important;
+}
+
+/* ==========================================================================
+   MODAL SCROLL & VIEWPORT FIX (Anti-Stuck Modal Dialog)
+   ========================================================================== */
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 1.5rem 1rem !important;
+    justify-content: flex-start !important;
+    padding: 2rem 1rem !important;
+    overflow-y: auto !important;
+}
+
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window {
+    max-height: calc(100dvh - 3rem) !important;
+    margin: auto !important;
+    max-height: calc(100dvh - 4rem) !important;
+    margin-block: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-header {
+    flex-shrink: 0 !important;
+}
+
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-content {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+    max-height: calc(100dvh - 12rem) !important;
+    padding-bottom: 1.25rem !important;
+}
+
+.fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
+    flex-shrink: 0 !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
+.dark .fi-modal:not(.fi-modal-slide-over) > .fi-modal-window-ctn > .fi-modal-window > .fi-modal-footer {
+    border-top: 1px solid rgba(51, 65, 85, 0.8) !important;
+}
+
+/* ==========================================================================
+   SLIDE-OVER DRAWER ENHANCEMENTS (Sticky Action Footer & 100dvh Safety)
+   ========================================================================== */
+.fi-modal.fi-modal-slide-over > .fi-modal-window-ctn > .fi-modal-window {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.fi-modal.fi-modal-slide-over .fi-modal-header {
+    flex-shrink: 0 !important;
+}
+
+.fi-modal.fi-modal-slide-over .fi-modal-content {
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+.fi-modal.fi-modal-slide-over .fi-modal-footer {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 10 !important;
+}
 
 

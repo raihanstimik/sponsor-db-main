@@ -14,7 +14,10 @@ class DistribusiKategoriWidget extends Widget
 
     protected static ?int $sort = -98;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 'full',
+        'xl' => 1,
+    ];
 
     /**
      * @return array{total: int, rows: array<int, array{nama: string, count: int, share: float, width: float, hex: string}>}

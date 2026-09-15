@@ -4,12 +4,14 @@ namespace App\Providers;
 
 use App\Filament\Pages\Auth\CustomLogin;
 use App\Filament\Pages\Auth\CustomRegister;
+use App\Models\Divisi;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
+use App\Policies\DivisiPolicy;
 use App\Policies\KategoriKegiatanPolicy;
 use App\Policies\KegiatanPolicy;
 use App\Policies\KontakPolicy;
@@ -69,13 +71,27 @@ class AppServiceProvider extends ServiceProvider
         );
         Gate::policy(Activity::class, ActivityPolicy::class);
         Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Divisi::class, DivisiPolicy::class);
         Gate::policy(KategoriKegiatan::class, KategoriKegiatanPolicy::class);
         Gate::policy(Kegiatan::class, KegiatanPolicy::class);
         Gate::policy(Kontak::class, KontakPolicy::class);
         Gate::policy(Perusahaan::class, PerusahaanPolicy::class);
 
-        // Admin super-bypass: kalau sudah isAdmin, lewati permission check granular
-        Gate::before(fn (User $user, string $ability) => $user->isAdmin() ? true : null);
+        // Admin super-bypass: kalau sudah isAdmin, lewati permission check granular (kecuali hapus akun sendiri atau divisi yang masih ada anggota)
+        Gate::before(function (User $user, string $ability, array $arguments = []): ?bool {
+            if (in_array($ability, ['delete', 'forceDelete'], true)) {
+                if (isset($arguments[0]) && $arguments[0] instanceof User && $arguments[0]->id === $user->id) {
+                    return false;
+                }
+                if (isset($arguments[0]) && $arguments[0] instanceof Divisi) {
+                    if (strtolower($arguments[0]->name) === 'umum' || strtolower($arguments[0]->slug) === 'umum' || $arguments[0]->users()->count() > 0) {
+                        return false;
+                    }
+                }
+            }
+
+            return $user->isAdmin() ? true : null;
+        });
 
         // Invalidate cache 60 detik untuk 50 reader — stale max 60s masih aman
         $forgetIcm = fn (): \Closure => function (): void {

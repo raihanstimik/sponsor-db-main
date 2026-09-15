@@ -13,7 +13,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Hash;
 
-// app/Filament/Resources/Users/Schemas/UserForm.php
 class UserForm
 {
     public static function configure(Schema $schema): Schema
@@ -38,11 +37,19 @@ class UserForm
 
                         Toggle::make('is_active')
                             ->label('Akun Aktif')
-                            ->helperText(fn () => auth()->user()?->isAdmin() ? 'Nonaktifkan untuk mencegah login tanpa menghapus data' : 'Hanya Admin yang bisa mengubah status')
+                            ->helperText(function ($record): string {
+                                if ($record && $record->id === auth()->id()) {
+                                    return 'Anda tidak dapat menonaktifkan akun sendiri demi keamanan sistem';
+                                }
+
+                                return auth()->user()?->isAdmin()
+                                    ? 'Nonaktifkan untuk mencegah login tanpa menghapus data karyawan'
+                                    : 'Hanya Admin yang berhak mengubah status keaktifan akun';
+                            })
                             ->default(true)
                             ->inline(false)
-                            ->disabled(fn () => ! (bool) auth()->user()?->isAdmin())
-                            ->dehydrated(fn () => (bool) auth()->user()?->isAdmin())
+                            ->disabled(fn ($record): bool => ! (bool) auth()->user()?->isAdmin() || ($record && $record->id === auth()->id()))
+                            ->dehydrated(fn ($record): bool => (bool) auth()->user()?->isAdmin() && ! ($record && $record->id === auth()->id()))
                             ->columnSpan(1),
                     ]),
 
@@ -62,21 +69,14 @@ class UserForm
                             ->email()
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('budi@icm.test'),
 
                         TextInput::make('phone')
                             ->label('No. Telepon')
                             ->tel()
                             ->maxLength(20)
                             ->placeholder('0812-3456-7890'),
-
-                        DatePicker::make('joined_at')
-                            ->label('Tanggal Bergabung')
-                            ->native(false)
-                            ->displayFormat('d M Y')
-                            ->placeholder('Pilih tanggal')
-                            ->disabled(fn () => ! (bool) auth()->user()?->isAdmin())
-                            ->dehydrated(fn () => (bool) auth()->user()?->isAdmin()),
 
                         Select::make('divisi_id')
                             ->label('Divisi')
@@ -91,6 +91,14 @@ class UserForm
                                 TextInput::make('name')->label('Nama Divisi')->required()->maxLength(255),
                                 TextInput::make('description')->label('Deskripsi')->maxLength(255),
                             ]),
+
+                        DatePicker::make('joined_at')
+                            ->label('Tanggal Bergabung')
+                            ->native(false)
+                            ->displayFormat('d M Y')
+                            ->placeholder('Pilih tanggal')
+                            ->disabled(fn () => ! (bool) auth()->user()?->isAdmin())
+                            ->dehydrated(fn () => (bool) auth()->user()?->isAdmin()),
                     ]),
 
                 Section::make('Autentikasi & Akses')
@@ -105,7 +113,10 @@ class UserForm
                             ->dehydrated(fn (?string $state): bool => filled($state))
                             ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                             ->required(fn (string $operation): bool => $operation === 'create')
-                            ->helperText('Kosongkan jika tidak ingin mengubah password')
+                            ->minLength(8)
+                            ->helperText(fn (string $operation): string => $operation === 'create'
+                                ? 'Wajib diisi, minimal 8 karakter.'
+                                : 'Kosongkan jika tidak ingin mengubah password (minimal 8 karakter jika diisi).')
                             ->maxLength(255),
 
                         Select::make('roles')
@@ -115,9 +126,15 @@ class UserForm
                             ->preload()
                             ->searchable()
                             ->native(false)
-                            ->helperText('Admin = semua akses. Karyawan = hanya lihat & export (atur detail di menu Peran & Hak Akses).')
-                            ->disabled(fn () => ! (bool) auth()->user()?->isAdmin())
-                            ->dehydrated(fn () => (bool) auth()->user()?->isAdmin())
+                            ->helperText(function ($record): string {
+                                if ($record && $record->id === auth()->id()) {
+                                    return 'Peran Admin Anda diproteksi dan tidak dapat dicabut sendiri demi keamanan sistem.';
+                                }
+
+                                return 'Admin = semua akses. Karyawan = hanya lihat & export (atur detail di menu Peran & Hak Akses).';
+                            })
+                            ->disabled(fn ($record): bool => ! (bool) auth()->user()?->isAdmin() || ($record && $record->id === auth()->id()))
+                            ->dehydrated(fn ($record): bool => (bool) auth()->user()?->isAdmin() && ! ($record && $record->id === auth()->id()))
                             ->columnSpanFull(),
                     ]),
             ]);

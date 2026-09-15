@@ -16,7 +16,9 @@ use App\Support\KlasifikasiTabel;
 use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
@@ -313,7 +315,13 @@ class KontaksTable
                         ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                         ->openUrlInNewTab()
                         ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading('Hapus Kontak Sponsor')
+                        ->modalDescription('Apakah Anda yakin ingin menghapus kontak ini? Tindakan ini tidak dapat dibatalkan.')
+                        ->modalSubmitActionLabel('Ya, Hapus')
+                        ->modalCancelActionLabel('Batal')
+                        ->successNotificationTitle('Kontak berhasil dihapus')
+                        ->visible(fn (Kontak $record): bool => (bool) auth()->user()?->isAdmin()),
                 ])->icon(Heroicon::OutlinedEllipsisHorizontal)->color('gray')->tooltip('Aksi'),
             ])
             ->toolbarActions([
@@ -324,6 +332,16 @@ class KontaksTable
                     ->openUrlInNewTab()
                     ->visible(fn () => auth()->user()?->can('export', Kontak::class) ?? false)
                     ->url(fn (HasTable $livewire): string => route('kontaks.export', self::exportParams($livewire))),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->label('Hapus Kontak Terpilih')
+                        ->modalHeading('Hapus Kontak Sponsor Terpilih')
+                        ->modalDescription('Apakah Anda yakin ingin menghapus semua kontak sponsor yang dipilih? Tindakan ini tidak dapat dibatalkan.')
+                        ->modalSubmitActionLabel('Ya, Hapus Data Terpilih')
+                        ->modalCancelActionLabel('Batal')
+                        ->successNotificationTitle('Kontak terpilih berhasil dihapus')
+                        ->visible(fn (): bool => (bool) auth()->user()?->isAdmin()),
+                ]),
             ])
             ->defaultSort('nama');
     }

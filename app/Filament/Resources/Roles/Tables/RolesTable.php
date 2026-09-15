@@ -12,7 +12,6 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-// app/Filament/Resources/Roles/Tables/RolesTable.php
 class RolesTable
 {
     public static function configure(Table $table): Table

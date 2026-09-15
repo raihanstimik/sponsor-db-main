@@ -29,6 +29,7 @@ class PerusahaansTable
 
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['updatedBy']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['updatedBy', 'latestKontakWithKegiatan.kegiatan']))
             ->columns([
                 TextColumn::make('nama_standar')
                     ->label('Perusahaan Sponsor Baku')
@@ -91,6 +92,7 @@ class PerusahaansTable
 
                         return $latest?->kegiatan?->nama_event;
                     })
+                    ->state(fn (Perusahaan $record): ?string => $record->latestKontakWithKegiatan?->kegiatan?->nama_event)
                     ->placeholder('-')
                     ->limit(24)
                     ->badge()
@@ -141,7 +143,11 @@ class PerusahaansTable
                 ViewAction::make()
                     ->label('')
                     ->tooltip('Lihat Overview Perusahaan')
+                    ->tooltip('Lihat Profil Perusahaan')
                     ->slideOver()
+                    ->modalWidth('2xl')
+                    ->modalHeading(fn (Perusahaan $record): string => 'Profil Perusahaan: '.$record->nama_standar)
+                    ->modalCancelActionLabel('Tutup')
                     ->color('primary'),
 
                 ActionGroup::make([

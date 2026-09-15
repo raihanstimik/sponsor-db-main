@@ -10,7 +10,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Spatie\Permission\Models\Permission;
 
-// app/Filament/Resources/Roles/Schemas/RoleForm.php
 class RoleForm
 {
     public static function configure(Schema $schema): Schema

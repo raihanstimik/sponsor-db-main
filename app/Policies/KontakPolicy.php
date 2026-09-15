@@ -36,12 +36,12 @@ class KontakPolicy
 
     public function delete(User $user, Kontak $kontak): bool
     {
-        return $user->can('kontak.delete');
+        return $user->isAdmin() && $user->can('kontak.delete');
     }
 
     public function deleteAny(User $user): bool
     {
-        return $user->can('kontak.delete');
+        return $user->isAdmin() && $user->can('kontak.delete');
     }
 
     public function export(User $user): bool

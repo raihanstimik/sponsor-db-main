@@ -21,7 +21,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Spatie\Activitylog\Models\Activity;
 
-// app/Filament/Resources/ActivityLogs/ActivityLogResource.php
 class ActivityLogResource extends Resource
 {
     protected static ?string $model = Activity::class;
@@ -232,10 +231,7 @@ class ActivityLogResource extends Resource
             default => 'Aktivitas',
         };
 
-        $model = self::labelModel($record->subject_type);
         $model = self::labelModel($record->subject_type, $record);
-
-        return $aksi.' '.$model.' #'.$record->subject_id;
 
         return $aksi.' '.$model.' #'.($record->subject_id ?? '-');
     }

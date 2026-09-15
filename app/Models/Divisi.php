@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-// app/Models/Divisi.php
 class Divisi extends Model
 {
     use HasFactory;

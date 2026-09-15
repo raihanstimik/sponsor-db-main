@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Perusahaans\Pages;
 
 use App\Filament\Resources\Perusahaans\PerusahaanResource;
@@ -17,7 +19,6 @@ class ListPerusahaans extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
             Action::make('exportMaster')
                 ->label('Ekspor Master')
                 ->icon(Heroicon::OutlinedArrowDownTray)
@@ -44,7 +45,7 @@ class ListPerusahaans extends ListRecords
                 }),
             CreateAction::make()
                 ->label('Tambah Perusahaan Baku')
-                ->icon(Heroicon::OutlinedBuildingOffice),
+                ->icon(Heroicon::OutlinedBuildingOffice2),
         ];
     }
 

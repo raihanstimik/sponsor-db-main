@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Filament\Resources\Kegiatans\Pages\ListKegiatans;
+use App\Filament\Resources\Kegiatans\Widgets\KategoriKegiatanTableWidget;
 use App\Filament\Resources\Kegiatans\Widgets\KegiatanStatsOverview;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
@@ -59,9 +60,14 @@ class KegiatanEnhancementsTest extends TestCase
         $this->actingAs($admin);
 
         // Uji HTTP get render halaman sukses
+        // Uji HTTP get render halaman sukses untuk kedua tab
         $this->get('/admin/kegiatans')
             ->assertOk()
             ->assertSee('PIT HOGSI 2026');
+
+        $this->get('/admin/kegiatans?tab=kategori')
+            ->assertOk()
+            ->assertSee('Obgyn');
 
         // Uji komponen widget langsung
         Livewire::test(KegiatanStatsOverview::class)
@@ -157,5 +163,107 @@ class KegiatanEnhancementsTest extends TestCase
             ->assertSet('tab', 'kategori')
             ->assertSee('Kelola Kategori Spesialisasi')
             ->assertSee('Pulmonologi & Paru');
+    }
+
+    #[Test]
+    public function tombol_header_kontekstual_sesuai_tab_kegiatan_dan_kategori(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        Livewire::test(ListKegiatans::class)
+            ->assertActionVisible('create')
+            ->assertActionHidden('createKategori')
+            ->call('setTab', 'kategori')
+            ->assertActionHidden('create')
+            ->assertActionVisible('createKategori')
+            ->callAction('createKategori', [
+                'nama_kategori' => 'Kategori Baru via Header',
+                'warna' => '#10b981',
+                'deskripsi' => 'Kategori hasil uji coba tombol kontekstual',
+            ])
+            ->assertHasNoActionErrors();
+
+        $this->assertDatabaseHas('kategori_kegiatans', [
+            'nama_kategori' => 'Kategori Baru via Header',
+        ]);
+    }
+
+    #[Test]
+    public function admin_dapat_melihat_data_terisi_saat_klik_edit_kategori_dan_berhasil_memperbarui(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $kategori = KategoriKegiatan::factory()->create([
+            'nama_kategori' => 'Neurologi Klinis',
+            'warna' => '#6366f1',
+            'deskripsi' => 'Spesialisasi saraf dan otak',
+        ]);
+
+        Livewire::test(KategoriKegiatanTableWidget::class)
+            ->mountTableAction('edit', $kategori)
+            ->assertTableActionDataSet([
+                'nama_kategori' => 'Neurologi Klinis',
+                'warna' => '#6366f1',
+                'deskripsi' => 'Spesialisasi saraf dan otak',
+            ])
+            ->setTableActionData([
+                'nama_kategori' => 'Neurologi & Bedah Saraf',
+                'warna' => '#4f46e5',
+                'deskripsi' => 'Spesialisasi saraf terpadu',
+            ])
+            ->callMountedTableAction()
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseHas('kategori_kegiatans', [
+            'id' => $kategori->id,
+            'nama_kategori' => 'Neurologi & Bedah Saraf',
+            'warna' => '#4f46e5',
+            'deskripsi' => 'Spesialisasi saraf terpadu',
+        ]);
+    }
+
+    #[Test]
+    public function admin_dapat_menghapus_kategori_yang_tidak_memiliki_kegiatan(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $kategori = KategoriKegiatan::factory()->create([
+            'nama_kategori' => 'Kategori Tanpa Event',
+        ]);
+
+        Livewire::test(KategoriKegiatanTableWidget::class)
+            ->callTableAction('delete', $kategori)
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('kategori_kegiatans', [
+            'id' => $kategori->id,
+        ]);
+    }
+
+    #[Test]
+    public function kategori_yang_masih_memiliki_kegiatan_dilarang_dihapus(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $kategori = KategoriKegiatan::factory()->create([
+            'nama_kategori' => 'Kardiologi Penting',
+        ]);
+
+        Kegiatan::factory()->for($kategori, 'kategoriKegiatan')->create([
+            'nama_event' => 'Kongres Jantung 2026',
+        ]);
+
+        Livewire::test(KategoriKegiatanTableWidget::class)
+            ->callTableAction('delete', $kategori);
+
+        // Kategori harus tetap ada di database
+        $this->assertDatabaseHas('kategori_kegiatans', [
+            'id' => $kategori->id,
+            'nama_kategori' => 'Kardiologi Penting',
+        ]);
     }
 }

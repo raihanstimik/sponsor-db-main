@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Perusahaans\Widgets;
 
+use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Support\KlasifikasiTabel;
 use Filament\Support\Icons\Heroicon;
@@ -13,39 +14,41 @@ use Illuminate\Support\Facades\Cache;
 
 class PerusahaanStatsOverview extends StatsOverviewWidget
 {
-    protected ?string $heading = 'Ringkasan Master Perusahaan';
+    protected ?string $heading = null;
 
     protected function getStats(): array
     {
         $data = Cache::remember('icm:perusahaan_stats', 60, function (): array {
             $total = Perusahaan::count();
 
-            $farmasi = Perusahaan::where('industri', 'like', '%farmasi%')->count();
-            $alkes = Perusahaan::where(function ($q) {
-                $q->where('industri', 'like', '%alat%')
-                    ->orWhere('industri', 'like', '%alkes%')
-                    ->orWhere('industri', 'like', '%diagnostik%')
-                    ->orWhere('industri', 'like', '%laser%')
-                    ->orWhere('industri', 'like', '%estetik%');
+            // Total PIC kontak yang terafiliasi dengan perusahaan baku
+            $totalPic = Kontak::whereNotNull('perusahaan_id')->count();
+
+            // Mitra multi-event: perusahaan yang berpartisipasi di >= 2 kegiatan kongres
+            $multiEvent = Perusahaan::whereHas('kontaks', function ($q) {
+                $q->select('perusahaan_id')
+                    ->groupBy('perusahaan_id')
+                    ->havingRaw('COUNT(DISTINCT kegiatan_id) >= 2');
             })->count();
 
-            // Mitra utama: memiliki >= 3 PIC terdaftar
+            // Mitra utama: perusahaan dengan relasi kuat (>= 3 PIC terdaftar)
             $mitraUtama = Perusahaan::has('kontaks', '>=', 3)->count();
 
             return [
                 'total' => $total,
-                'farmasi' => $farmasi,
-                'alkes' => $alkes,
+                'totalPic' => $totalPic,
+                'multiEvent' => $multiEvent,
                 'mitraUtama' => $mitraUtama,
             ];
         });
 
         $total = (int) $data['total'];
-        $farmasi = (int) $data['farmasi'];
-        $alkes = (int) $data['alkes'];
+        $totalPic = (int) $data['totalPic'];
+        $multiEvent = (int) $data['multiEvent'];
         $mitraUtama = (int) $data['mitraUtama'];
 
         $pct = fn (int $v): int => $total > 0 ? (int) round($v / $total * 100) : 0;
+        $avgPic = $total > 0 ? number_format($totalPic / $total, 1, ',', '.') : '0';
 
         return [
             Stat::make('Total Korporasi', number_format($total, 0, ',', '.'))
@@ -53,31 +56,27 @@ class PerusahaanStatsOverview extends StatsOverviewWidget
                 ->descriptionIcon(Heroicon::CheckCircle)
                 ->icon(Heroicon::OutlinedBuildingOffice2)
                 ->color('primary')
-                ->chart([3, 5, 4, 6, 7, 8, 9])
                 ->extraAttributes(KlasifikasiTabel::statBorderExtraAttributes('primary')),
 
-            Stat::make('Farmasi & Suplemen', number_format($farmasi, 0, ',', '.'))
-                ->description($pct($farmasi).'% pangsa sektor industri')
-                ->descriptionIcon(Heroicon::ChartPie)
-                ->icon(Heroicon::OutlinedSparkles)
-                ->color('warning')
-                ->chart([2, 4, 5, 4, 6, 5, 7])
-                ->extraAttributes(KlasifikasiTabel::statBorderExtraAttributes('warning')),
-
-            Stat::make('Alat Medis & Diagnostik', number_format($alkes, 0, ',', '.'))
-                ->description($pct($alkes).'% kontribusi alkes & laser')
-                ->descriptionIcon(Heroicon::CpuChip)
-                ->icon(Heroicon::OutlinedWrenchScrewdriver)
+            Stat::make('Total PIC Terhubung', number_format($totalPic, 0, ',', '.'))
+                ->description("Rata-rata {$avgPic} PIC per entitas")
+                ->descriptionIcon(Heroicon::Identification)
+                ->icon(Heroicon::OutlinedIdentification)
                 ->color('info')
-                ->chart([1, 3, 2, 4, 5, 4, 6])
                 ->extraAttributes(KlasifikasiTabel::statBorderExtraAttributes('info')),
 
+            Stat::make('Mitra Multi-Event', number_format($multiEvent, 0, ',', '.'))
+                ->description('Sponsor aktif di ≥ 2 kegiatan')
+                ->descriptionIcon(Heroicon::CalendarDays)
+                ->icon(Heroicon::OutlinedCalendarDays)
+                ->color('warning')
+                ->extraAttributes(KlasifikasiTabel::statBorderExtraAttributes('warning')),
+
             Stat::make('Mitra Utama (≥3 PIC)', number_format($mitraUtama, 0, ',', '.'))
-                ->description($pct($mitraUtama).'% jaringan PIC luas')
+                ->description($pct($mitraUtama).'% relasi korporasi luas')
                 ->descriptionIcon(Heroicon::UserGroup)
                 ->icon(Heroicon::OutlinedUserGroup)
                 ->color('success')
-                ->chart([2, 3, 4, 5, 6, 7, 8])
                 ->extraAttributes(KlasifikasiTabel::statBorderExtraAttributes('success')),
         ];
     }

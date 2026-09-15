@@ -17,7 +17,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Spatie\Permission\Models\Role;
 
-// app/Filament/Resources/Roles/RoleResource.php
 class RoleResource extends Resource
 {
     protected static ?string $model = Role::class;
@@ -32,7 +31,7 @@ class RoleResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Sistem';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function canAccess(): bool
     {

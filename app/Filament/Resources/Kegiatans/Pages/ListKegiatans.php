@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kegiatans\Pages;
 
 use App\Actions\KategoriKegiatan\CreateKategoriKegiatanAction;
-use App\Filament\Resources\KategoriKegiatans\KategoriKegiatanResource;
 use App\Filament\Resources\Kegiatans\KegiatanResource;
 use App\Filament\Resources\Kegiatans\Widgets\KegiatanStatsOverview;
 use App\Models\KategoriKegiatan;
@@ -51,23 +50,21 @@ class ListKegiatans extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        if ($this->tab === 'kategori') {
-            return [];
-        }
-
         return [
             CreateAction::make()
                 ->label('Tambah Kegiatan')
-                ->icon(Heroicon::OutlinedPlusCircle),
+                ->icon(Heroicon::OutlinedPlusCircle)
+                ->visible(fn (): bool => $this->tab === 'kegiatan'),
 
             Action::make('createKategori')
                 ->label('Tambah Kategori')
-                ->icon(Heroicon::OutlinedFolderPlus)
-                ->color('gray')
+                ->icon(Heroicon::OutlinedPlusCircle)
+                ->color('primary')
                 ->modalHeading('Tambah Kategori Medis Baru')
                 ->modalDescription('Buat kategori spesialisasi kedokteran baru secara instan.')
                 ->modalWidth('md')
-                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin())
+                ->slideOver()
+                ->visible(fn (): bool => $this->tab === 'kategori' && (bool) auth()->user()?->isAdmin())
                 ->schema([
                     TextInput::make('nama_kategori')
                         ->label('Nama Kategori')
@@ -82,21 +79,14 @@ class ListKegiatans extends ListRecords
                         ->label('Deskripsi')
                         ->rows(3),
                 ])
-                ->action(function (array $data, CreateKategoriKegiatanAction $action): void {
-                    $action->execute($data);
+                ->action(function (array $data): void {
+                    app(CreateKategoriKegiatanAction::class)->execute($data);
 
                     Notification::make()
                         ->title('Kategori Medis Berhasil Ditambahkan')
                         ->success()
                         ->send();
                 }),
-
-            Action::make('kelolaKategori')
-                ->label('Kelola Kategori & Warna')
-                ->icon(Heroicon::OutlinedPaintBrush)
-                ->color('gray')
-                ->url(fn (): string => KategoriKegiatanResource::getUrl('index'))
-                ->visible(fn (): bool => (bool) auth()->user()?->isAdmin()),
         ];
     }
 

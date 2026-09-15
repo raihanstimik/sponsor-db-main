@@ -4,31 +4,39 @@
         title="Distribusi Event per Kategori Medis"
         subtitle="Pemetaan kegiatan kongres menurut spesialisasi kedokteran"
         :badge="$data['total'].' Total Event'"
-        badge-class="bg-slate-100 font-semibold text-slate-600 dark:bg-white/5 dark:text-gray-300"
-        dot-class="bg-primary-950 dark:bg-primary-400"
-        footer-text="Klik kategori untuk menyaring data kontak"
+        badge-class="bg-slate-100 font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+        footer-text="Klik kelola untuk konfigurasi taksonomi spesialisasi"
         :footer-url="\App\Filament\Resources\KategoriKegiatans\KategoriKegiatanResource::getUrl()"
-        footer-label="Kelola Kategori →"
-        footer-action-class="text-primary-800 hover:underline dark:text-primary-300"
+        footer-label="Kelola Kategori &rarr;"
+        footer-action-class="text-[#18225E] hover:underline dark:text-sky-400"
     >
         @if ($data['rows'] === [])
-            <p class="py-6 text-center text-sm text-slate-500 dark:text-gray-400">Belum ada kategori kegiatan.</p>
+            <div class="py-8 text-center text-sm text-slate-400 dark:text-gray-500">
+                Belum ada kategori kegiatan.
+            </div>
         @else
-            <div class="flex flex-col gap-3.5">
+            <div class="flex flex-col gap-2">
                 @foreach ($data['rows'] as $row)
-                    <div class="group flex cursor-default flex-col gap-1">
-                        <div class="flex items-center justify-between gap-2 text-sm">
-                            <span class="flex min-w-0 items-center gap-2 text-slate-800 dark:text-gray-100">
+                    <div class="flex flex-col gap-1 p-1.5 rounded-lg transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                        <div class="flex items-center justify-between gap-2">
+                            <div class="flex min-w-0 items-center gap-2">
                                 <span class="h-2 w-2 shrink-0 rounded-full" style="background-color: {{ $row['hex'] }}"></span>
-                                <span class="truncate" title="{{ $row['nama'] }}">{{ $row['nama'] }}</span>
-                            </span>
-                            <span class="flex shrink-0 items-center gap-2">
-                                <span class="text-xs text-slate-500 dark:text-gray-400">{{ number_format($row['share'], 1, ',', '.') }}%</span>
-                                <span class="rounded-md px-2 py-0.5 text-xs font-bold" style="color: {{ $row['hex'] }}; background-color: {{ $row['hex'] }}1A">{{ $row['count'] }} Event</span>
-                            </span>
+                                <span class="truncate text-xs sm:text-sm font-medium text-slate-800 dark:text-slate-200" title="{{ $row['nama'] }}">
+                                    {{ $row['nama'] }}
+                                </span>
+                            </div>
+                            <div class="flex shrink-0 items-center gap-2.5">
+                                <span class="text-xs text-slate-500 dark:text-slate-400 tabular-nums">
+                                    {{ number_format($row['share'], 1, ',', '.') }}%
+                                </span>
+                                <span class="rounded px-1.5 py-0.5 text-xs font-semibold tabular-nums" style="color: {{ $row['hex'] }}; background-color: {{ $row['hex'] }}18">
+                                    {{ $row['count'] }} Event
+                                </span>
+                            </div>
                         </div>
-                        <div class="h-3 w-full overflow-hidden rounded-full bg-slate-200/70 dark:bg-white/10">
-                            <div class="h-full rounded-full transition-all duration-500 group-hover:opacity-90" style="width: {{ $row['width'] }}%; background-color: {{ $row['hex'] }}"></div>
+                        <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                            <div class="h-full rounded-full transition-all duration-300" 
+                                 style="width: {{ $row['width'] }}%; background-color: {{ $row['hex'] }}"></div>
                         </div>
                     </div>
                 @endforeach

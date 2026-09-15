@@ -28,6 +28,14 @@ class KegiatansTable
         FilamentTableHelper::applyDefaultPresets($table);
 
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query
+                ->with('kategoriKegiatan')
+                ->select('kegiatans.*')
+                ->selectSub(
+                    'select count(distinct perusahaan_id) from kontaks where kontaks.kegiatan_id = kegiatans.id and kontaks.perusahaan_id is not null',
+                    'sponsors_count'
+                )
+            )
             ->columns([
                 TextColumn::make('nama_event')
                     ->label('Kegiatan & Venue')
@@ -64,9 +72,22 @@ class KegiatansTable
                     ->counts('kontaks')
                     ->sortable()
                     ->formatStateUsing(fn ($state): string => (int) $state.' PIC')
-                    ->description(fn (Kegiatan $record): string => $record->jumlahSponsor().' Sponsor')
+                    ->description(fn (Kegiatan $record): string => ($record->sponsors_count ?? $record->jumlahSponsor()).' Sponsor')
                     ->icon(Heroicon::OutlinedUserGroup)
-                    ->color('info'),
+                    ->color('info')
+                    ->tooltip(fn (Kegiatan $record): string => "Buka daftar PIC untuk {$record->nama_event}")
+                    ->url(fn (Kegiatan $record): string => KontakResource::getUrl('index', [
+                        'filters' => [
+                            'kegiatan_id' => [
+                                'values' => [(string) $record->id],
+                            ],
+                        ],
+                        'tableFilters' => [
+                            'kegiatan_id' => [
+                                'values' => [(string) $record->id],
+                            ],
+                        ],
+                    ])),
 
                 ColorColumn::make('warna')
                     ->label('Hex Warna')
@@ -129,9 +150,14 @@ class KegiatansTable
                     ->icon(Heroicon::OutlinedUsers)
                     ->color('primary')
                     ->url(fn (Kegiatan $record): string => KontakResource::getUrl('index', [
+                        'filters' => [
+                            'kegiatan_id' => [
+                                'values' => [(string) $record->id],
+                            ],
+                        ],
                         'tableFilters' => [
                             'kegiatan_id' => [
-                                'values' => [$record->id],
+                                'values' => [(string) $record->id],
                             ],
                         ],
                     ])),

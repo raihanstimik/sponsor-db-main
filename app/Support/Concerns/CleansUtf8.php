@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Support\Concerns;
 
-// app/Support/Concerns/CleansUtf8.php
 trait CleansUtf8
 {
     protected function cleanUtf8(string $value): string

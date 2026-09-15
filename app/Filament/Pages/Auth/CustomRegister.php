@@ -18,7 +18,6 @@ use Illuminate\Database\Eloquent\Model;
 use SensitiveParameter;
 use Spatie\Permission\Models\Role;
 
-// app/Filament/Pages/Auth/CustomRegister.php
 class CustomRegister extends Register
 {
     public function getHeading(): string|Htmlable|null

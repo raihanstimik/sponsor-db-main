@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -31,7 +32,6 @@ class Perusahaan extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['nama_standar', 'industri', 'catatan'])
             ->logOnly(['nama_standar', 'industri', 'alamat', 'website', 'catatan'])
             ->logOnlyDirty()
             ->useLogName('perusahaan')
@@ -54,6 +54,11 @@ class Perusahaan extends Model
     public function kontaks(): HasMany
     {
         return $this->hasMany(Kontak::class);
+    }
+
+    public function latestKontakWithKegiatan(): HasOne
+    {
+        return $this->hasOne(Kontak::class)->whereNotNull('kegiatan_id')->latestOfMany('id');
     }
 
     public function updatedBy(): BelongsTo

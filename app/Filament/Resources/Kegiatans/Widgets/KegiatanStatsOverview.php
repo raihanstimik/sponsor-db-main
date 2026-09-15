@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Cache;
 
 class KegiatanStatsOverview extends StatsOverviewWidget
 {
-    protected ?string $heading = 'Statistik Kongres & Kategori Medis';
+    protected ?string $heading = null;
 
     protected function getStats(): array
     {

@@ -17,6 +17,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\Width;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -42,6 +43,19 @@ class AdminPanelProvider extends PanelProvider
             ->darkModeBrandLogo(asset('images/logo-icm.webp'))
             ->colors([
                 'primary' => Color::hex('#18225E'),
+                'primary' => [
+                    50 => '#f0f4ff',
+                    100 => '#e0e7ff',
+                    200 => '#c7d2fe',
+                    300 => '#a5b4fc',
+                    400 => '#818cf8',
+                    500 => '#3b49b8',
+                    600 => '#18225e',
+                    700 => '#131b4b',
+                    800 => '#0e1438',
+                    900 => '#0a0e28',
+                    950 => '#050714',
+                ],
                 'secondary' => Color::hex('#EA7C1A'),
                 'info' => Color::hex('#0284C7'),
                 'success' => Color::hex('#10B981'),
@@ -52,10 +66,13 @@ class AdminPanelProvider extends PanelProvider
             ->font('Fira Sans')
             ->spa()
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
-            ->globalSearchFieldKeyBindingSuffix()
             ->globalSearchDebounce('400ms')
             ->simplePageMaxContentWidth(Width::Medium)
             ->viteTheme(['resources/css/filament/admin/theme.css', 'resources/js/app.js'])
+            ->renderHook(
+                PanelsRenderHook::BODY_START,
+                fn (): string => view('filament.hooks.impersonation-banner')->render()
+            )
             ->sidebarFullyCollapsibleOnDesktop()
             ->sidebarWidth('16.5rem')
             ->collapsedSidebarWidth('4rem')

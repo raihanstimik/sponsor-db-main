@@ -18,7 +18,6 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
-// app/Filament/Resources/Users/UserResource.php
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -27,7 +26,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Manajemen Akun';
 
-    protected static ?string $pluralModelLabel = 'Akun Karyawan';
+    protected static ?string $pluralModelLabel = 'Manajemen Akun';
 
     protected static ?string $modelLabel = 'Akun';
 

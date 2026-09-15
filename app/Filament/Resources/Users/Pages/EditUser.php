@@ -8,7 +8,6 @@ use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
-// app/Filament/Resources/Users/Pages/EditUser.php
 class EditUser extends EditRecord
 {
     protected static string $resource = UserResource::class;
@@ -16,7 +15,8 @@ class EditUser extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->hidden(fn ($record) => $record->id === auth()->id()),
         ];
     }
 }

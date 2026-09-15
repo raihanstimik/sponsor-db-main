@@ -31,6 +31,13 @@ class KategoriKegiatanTableWidget extends TableWidget
                     ->label('Tambah Kategori')
                     ->icon(Heroicon::OutlinedPlusCircle)
                     ->model(KategoriKegiatan::class)
+                    ->modalHeading('Tambah Kategori Spesialisasi')
+                    ->modalDescription('Buat kategori spesialisasi medis baru beserta palet warna indikatornya.')
+                    ->modalWidth('md')
+                    ->slideOver()
+                    ->modalSubmitActionLabel('Simpan Kategori')
+                    ->modalCancelActionLabel('Batal')
+                    ->successNotificationTitle('Kategori medis berhasil ditambahkan')
                     ->schema(fn (Schema $schema): Schema => KategoriKegiatanForm::configure($schema))
                     ->visible(fn (): bool => (bool) auth()->user()?->isAdmin()),
             ]);

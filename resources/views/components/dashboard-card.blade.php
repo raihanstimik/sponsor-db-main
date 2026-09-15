@@ -2,41 +2,41 @@
     'title',
     'subtitle' => null,
     'badge' => null,
-    'badgeClass' => 'bg-slate-100 font-semibold text-slate-600 dark:bg-white/5 dark:text-gray-300',
-    'dotClass' => 'bg-primary-950 dark:bg-primary-400',
+    'badgeClass' => 'bg-slate-100 font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+    'icon' => null,
     'footerText' => null,
     'footerUrl' => null,
     'footerLabel' => null,
-    'footerActionClass' => 'text-primary-800 hover:underline dark:text-primary-300',
+    'footerActionClass' => 'text-[#18225E] hover:underline dark:text-sky-400',
 ])
 
-<div {{ $attributes->merge(['class' => 'rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-950/5 dark:bg-gray-900 dark:ring-white/10 sm:p-6']) }}>
-    <div class="mb-4 flex items-start justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="h-2.5 w-2.5 rounded {{ $dotClass }}"></span>
-                <h2 class="font-display text-base font-bold text-slate-900 dark:text-white">{{ $title }}</h2>
+<div {{ $attributes->merge(['class' => 'dashboard-card flex flex-col justify-between rounded-xl bg-white p-5 border border-slate-200/90 shadow-xs transition-colors duration-150 hover:border-slate-300 dark:bg-gray-900 dark:border-slate-800 dark:hover:border-slate-700 sm:p-6']) }}>
+    <div>
+        <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+                <h2 class="text-sm sm:text-base font-semibold text-slate-900 dark:text-white tracking-tight">{{ $title }}</h2>
+                @if ($subtitle)
+                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ $subtitle }}</p>
+                @endif
             </div>
-            @if ($subtitle)
-                <p class="mt-0.5 text-sm text-slate-500 dark:text-gray-400">{{ $subtitle }}</p>
+            @if ($badge)
+                <span class="shrink-0 rounded px-2 py-0.5 text-xs font-medium {{ $badgeClass }}">{{ $badge }}</span>
             @endif
         </div>
-        @if ($badge)
-            <span class="shrink-0 rounded px-2 py-1 text-xs {{ $badgeClass }}">{{ $badge }}</span>
-        @endif
+
+        {{ $slot }}
     </div>
 
-    {{ $slot }}
-
     @if ($footerText || $footerUrl || isset($footer))
-        <div class="mt-4 flex items-center justify-between gap-2 rounded-lg bg-slate-100/70 p-2 text-sm dark:bg-white/5">
-        <div class="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs dark:border-white/5">
+        <div class="mt-5 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs dark:border-slate-800">
             @if (isset($footer))
                 {{ $footer }}
             @else
-                <span class="text-slate-500 dark:text-gray-400">{{ $footerText }}</span>
+                <span class="text-slate-500 dark:text-slate-400">{{ $footerText }}</span>
                 @if ($footerUrl && $footerLabel)
-                    <a href="{{ $footerUrl }}" wire:navigate class="shrink-0 font-semibold {{ $footerActionClass }}">{{ $footerLabel }}</a>
+                    <a href="{{ $footerUrl }}" wire:navigate class="inline-flex items-center gap-1 shrink-0 font-medium {{ $footerActionClass }} transition-colors">
+                        <span>{{ $footerLabel }}</span>
+                    </a>
                 @endif
             @endif
         </div>

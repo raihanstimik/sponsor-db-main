@@ -12,8 +12,11 @@
             <div class="relative group">
                 <span class="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-white dark:ring-slate-900 {{ $loop->first ? 'bg-orange-500' : 'bg-slate-400' }}"></span>
                 <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <span class="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full ring-4 ring-white dark:ring-slate-900 {{ $loop->first ? 'bg-[#18225E] ring-blue-100 dark:ring-blue-950' : 'bg-slate-400' }}"></span>
+                <div class="p-3 rounded-xl bg-slate-50/80 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-800 flex items-center justify-between gap-2">
                     <div>
                         <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $event->nama_event }}</h4>
+                        <h4 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ $event->nama_event }}</h4>
                         <p class="text-xs text-slate-500 dark:text-slate-400">
                             {{ $event->kategoriKegiatan?->nama_kategori ?? 'Umum' }}
                             @if($event->tanggal_mulai)
@@ -23,6 +26,7 @@
                     </div>
                     @if($loop->first)
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-orange-100 text-orange-800 dark:bg-orange-950/40 dark:text-orange-400">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#18225E] border border-blue-200/60 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-900/50">
                             Terbaru
                         </span>
                     @endif

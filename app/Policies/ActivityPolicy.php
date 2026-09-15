@@ -7,7 +7,6 @@ namespace App\Policies;
 use App\Models\User;
 use Spatie\Activitylog\Models\Activity;
 
-// app/Policies/ActivityPolicy.php
 class ActivityPolicy
 {
     public function viewAny(User $user): bool

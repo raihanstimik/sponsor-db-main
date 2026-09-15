@@ -6,7 +6,6 @@ namespace App\Policies;
 
 use App\Models\User;
 
-// app/Policies/UserPolicy.php
 class UserPolicy
 {
     public function viewAny(User $user): bool
@@ -39,6 +38,10 @@ class UserPolicy
 
     public function delete(User $user, User $model): bool
     {
+        if ($user->getKey() === $model->getKey()) {
+            return false;
+        }
+
         return $user->isAdmin();
     }
 
@@ -49,6 +52,10 @@ class UserPolicy
 
     public function forceDelete(User $user, User $model): bool
     {
+        if ($user->getKey() === $model->getKey()) {
+            return false;
+        }
+
         return $user->isAdmin();
     }
 }

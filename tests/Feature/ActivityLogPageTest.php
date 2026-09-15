@@ -42,4 +42,28 @@ class ActivityLogPageTest extends TestCase
             ->test(ListActivityLogs::class)
             ->assertActionHidden('cleanLogs');
     }
+
+    public function test_admin_dapat_membersihkan_log_dengan_opsi_hari_dan_minggu(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        // Buat log aktivitas lama (10 hari lalu)
+        $oldActivity = activity()->causedBy($admin)->log('Log lama 10 hari');
+        $oldActivity->created_at = now()->subDays(10);
+        $oldActivity->save();
+
+        // Buat log aktivitas baru (1 jam lalu)
+        $recentActivity = activity()->causedBy($admin)->log('Log baru 1 jam');
+
+        // Jalankan aksi bersihkan log dengan opsi 7 hari (1 minggu)
+        Livewire::actingAs($admin)
+            ->test(ListActivityLogs::class)
+            ->callAction('cleanLogs', ['days' => 7])
+            ->assertHasNoActionErrors();
+
+        // Log 10 hari lalu harus sudah terhapus, log 1 jam lalu tetap ada
+        $this->assertDatabaseMissing('activity_log', ['id' => $oldActivity->id]);
+        $this->assertDatabaseHas('activity_log', ['id' => $recentActivity->id]);
+    }
 }

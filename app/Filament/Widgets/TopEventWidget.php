@@ -16,7 +16,10 @@ class TopEventWidget extends Widget
 
     protected static ?int $sort = -97;
 
-    protected int|string|array $columnSpan = 'full';
+    protected int|string|array $columnSpan = [
+        'default' => 'full',
+        'xl' => 1,
+    ];
 
     /**
      * @return array{totalTop: int, dominasi: float, rows: array<int, array{rank: int, nama: string, nama_pendek: string, sub: string, count: int, width: float, hex: string}>}

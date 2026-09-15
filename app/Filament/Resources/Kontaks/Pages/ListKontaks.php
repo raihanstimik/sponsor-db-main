@@ -32,7 +32,9 @@ class ListKontaks extends ListRecords
                 ->color('gray')
                 ->url(ImportKontaks::getUrl())
                 ->visible(fn () => auth()->user()?->can('import', Kontak::class) ?? false),
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Kontak')
+                ->icon(Heroicon::OutlinedUserPlus),
         ];
     }
 

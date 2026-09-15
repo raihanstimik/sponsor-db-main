@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\Storage;
 use Lab404\Impersonate\Models\Impersonate;
 use Spatie\Permission\Traits\HasRoles;
 
-// app/Models/User.php
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     /** @use HasFactory<UserFactory> */

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Divisis\Pages\ListDivisis;
 use App\Filament\Resources\KategoriKegiatans\KategoriKegiatanResource;
 use App\Filament\Resources\KategoriKegiatans\Pages\CreateKategoriKegiatan;
 use App\Filament\Resources\KategoriKegiatans\Pages\ListKategoriKegiatans;
@@ -12,12 +13,14 @@ use App\Filament\Resources\Perusahaans\Pages\CreatePerusahaan;
 use App\Filament\Resources\Perusahaans\Pages\ListPerusahaans;
 use App\Filament\Resources\Roles\Pages\ListRoles;
 use App\Filament\Resources\Users\Pages\ListUsers;
+use App\Models\Divisi;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
@@ -201,5 +204,61 @@ class ResourceCrudTest extends TestCase
             ->assertSuccessful()
             ->mountTableAction('view', $role)
             ->assertHasNoTableActionErrors();
+
+        // Verifikasi Divisi Table
+        $divisi = Divisi::firstOrCreate(['name' => 'Divisi Test']);
+        Livewire::test(ListDivisis::class)
+            ->assertSuccessful()
+            ->mountTableAction('view', $divisi)
+            ->assertHasNoTableActionErrors();
+    }
+
+    public function test_admin_dapat_melakukan_bulk_delete_kontak(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $perusahaan = Perusahaan::factory()->create();
+        $kontaks = Kontak::factory()->count(3)->create([
+            'perusahaan_id' => $perusahaan->id,
+        ]);
+
+        Livewire::test(ListKontaks::class)
+            ->assertSuccessful()
+            ->assertTableBulkActionVisible('delete')
+            ->callTableBulkAction('delete', [$kontaks[0], $kontaks[1]])
+            ->assertHasNoTableBulkActionErrors();
+
+        $this->assertSoftDeleted('kontaks', ['id' => $kontaks[0]->id]);
+        $this->assertSoftDeleted('kontaks', ['id' => $kontaks[1]->id]);
+        $this->assertNotSoftDeleted('kontaks', ['id' => $kontaks[2]->id]);
+
+        // Hapus sisa data
+        Livewire::test(ListKontaks::class)
+            ->callTableBulkAction('delete', [$kontaks[2]])
+            ->assertHasNoTableBulkActionErrors();
+
+        $this->assertSoftDeleted('kontaks', ['id' => $kontaks[2]->id]);
+    }
+
+    public function test_karyawan_tidak_dapat_melakukan_bulk_delete_atau_hapus_kontak(): void
+    {
+        $karyawan = User::factory()->karyawan()->create();
+        $this->actingAs($karyawan);
+
+        $perusahaan = Perusahaan::factory()->create();
+        $kontak = Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+        ]);
+
+        // Bulk action & row action delete disembunyikan untuk karyawan
+        Livewire::test(ListKontaks::class)
+            ->assertSuccessful()
+            ->assertTableBulkActionHidden('delete')
+            ->assertTableActionHidden('delete', $kontak);
+
+        // Policy authorization layer menolak karyawan
+        $this->assertFalse(Gate::forUser($karyawan)->allows('delete', $kontak));
+        $this->assertFalse(Gate::forUser($karyawan)->allows('deleteAny', Kontak::class));
     }
 }

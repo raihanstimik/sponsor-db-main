@@ -3,12 +3,9 @@
 namespace App\Filament\Widgets;
 
 use App\Filament\Resources\Kontaks\KontakResource;
-use App\Filament\Resources\Kontaks\Schemas\KontakInfolist;
 use App\Models\Kontak;
 use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Schemas\Schema;
 use Filament\Support\Enums\IconPosition;
 use Filament\Support\Enums\TextSize;
 use Filament\Support\Icons\Heroicon;
@@ -68,13 +65,14 @@ class KontakPerluDicekWidget extends TableWidget
                     ->color('gray')
                     ->url(KontakResource::getUrl()),
             ])
-            ->recordUrl(null)
-            ->recordAction(ViewAction::class)
+            ->recordUrl(fn (Kontak $record): string => KontakResource::getUrl('view', ['record' => $record]))
+            ->recordAction(null)
             ->recordActions([
-                ViewAction::make()
-                    ->slideOver()
-                    ->modalWidth('3xl')
-                    ->schema(fn (Schema $schema): Schema => KontakInfolist::configure($schema)),
+                Action::make('bukaKontak')
+                    ->label('Buka Detail')
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->color('gray')
+                    ->url(fn (Kontak $record): string => KontakResource::getUrl('view', ['record' => $record])),
                 Action::make('whatsapp')
                     ->label('WhatsApp')
                     ->icon(Heroicon::OutlinedChatBubbleLeftRight)
