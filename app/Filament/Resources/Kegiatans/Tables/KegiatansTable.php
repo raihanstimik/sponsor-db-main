@@ -14,6 +14,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ColorColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -164,9 +165,31 @@ class KegiatansTable
 
                 ViewAction::make()
                     ->label('')
-                    ->tooltip('Overview Detail Kegiatan')
+                    ->tooltip('Rincian Detail Kegiatan')
                     ->slideOver()
-                    ->color('info'),
+                    ->modalHeading(fn (Kegiatan $record): string => "Rincian Kegiatan: {$record->nama_event}")
+                    ->modalDescription(fn (Kegiatan $record): ?string => $record->kategoriKegiatan?->nama_kategori ? "Kategori Spesialisasi: {$record->kategoriKegiatan->nama_kategori}" : 'Informasi jadwal, lokasi, dan mitra sponsor kegiatan')
+                    ->modalCancelActionLabel('Tutup')
+                    ->modalWidth(Width::TwoExtraLarge)
+                    ->color('info')
+                    ->extraModalFooterActions([
+                        Action::make('buka_pic_modal')
+                            ->label('Buka Daftar PIC')
+                            ->icon(Heroicon::OutlinedUsers)
+                            ->color('primary')
+                            ->url(fn (Kegiatan $record): string => KontakResource::getUrl('index', [
+                                'filters' => [
+                                    'kegiatan_id' => [
+                                        'values' => [(string) $record->id],
+                                    ],
+                                ],
+                                'tableFilters' => [
+                                    'kegiatan_id' => [
+                                        'values' => [(string) $record->id],
+                                    ],
+                                ],
+                            ])),
+                    ]),
 
                 EditAction::make()
                     ->label('')

@@ -24,15 +24,11 @@ class KategoriKegiatanForm
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 ColorPicker::make('warna')
-                    ->label('Warna')
-                    ->helperText('Dipakai untuk badge & sortir menurut warna. Otomatis diisi jika dikosongkan.')
                     ->label('Warna Indikator')
                     ->helperText('Dipakai untuk badge & grafik distribusi. Otomatis diisi jika kosong.')
                     ->default(fn () => KlasifikasiTabel::warnaKategori('')),
                 Textarea::make('deskripsi')
                     ->label('Deskripsi')
-                    ->rows(3)
-                    ->rows(2)
                     ->placeholder('Penjelasan ringkas spesialisasi medis ini...')
                     ->rows(2)
                     ->columnSpanFull(),

@@ -324,4 +324,20 @@ class KontakEnhancementsTest extends TestCase
             'Filter trashed (Deleted records) seharusnya sudah dihapus dari tabel kontak.'
         );
     }
+
+    #[Test]
+    public function form_create_kontak_bersih_tanpa_toggle_status_valid_dan_berbahasa_indonesia(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $component = Livewire::test(CreateKontak::class)
+            ->assertOk()
+            ->assertSee('Tambah Kontak Baru')
+            ->assertSee('Afiliasi Perusahaan & Kegiatan')
+            ->assertSee('Informasi Kontak PIC')
+            ->assertSee('Catatan Follow-up & Negosiasi')
+            ->assertSee('Simpan Kontak')
+            ->assertDontSee('Format Nomor Valid');
+    }
 }

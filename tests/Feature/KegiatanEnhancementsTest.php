@@ -173,20 +173,29 @@ class KegiatanEnhancementsTest extends TestCase
 
         Livewire::test(ListKegiatans::class)
             ->assertActionVisible('create')
-            ->assertActionHidden('createKategori')
-            ->call('setTab', 'kategori')
-            ->assertActionHidden('create')
             ->assertActionVisible('createKategori')
+            ->call('setTab', 'kategori')
             ->callAction('createKategori', [
                 'nama_kategori' => 'Kategori Baru via Header',
                 'warna' => '#10b981',
                 'deskripsi' => 'Kategori hasil uji coba tombol kontekstual',
             ])
-            ->assertHasNoActionErrors();
+            ->assertHasNoActionErrors()
+            ->assertDispatched('refresh-kategori-widget');
 
         $this->assertDatabaseHas('kategori_kegiatans', [
             'nama_kategori' => 'Kategori Baru via Header',
         ]);
+    }
+
+    #[Test]
+    public function pengguna_tanpa_izin_tidak_melihat_tombol_kategori(): void
+    {
+        $karyawan = User::factory()->karyawan()->create();
+        $this->actingAs($karyawan);
+
+        Livewire::test(ListKegiatans::class)
+            ->assertActionHidden('createKategori');
     }
 
     #[Test]
@@ -265,5 +274,48 @@ class KegiatanEnhancementsTest extends TestCase
             'id' => $kategori->id,
             'nama_kategori' => 'Kardiologi Penting',
         ]);
+    }
+
+    #[Test]
+    public function infolist_kegiatan_merender_rincian_dan_afiliasi_sponsor(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $kategori = KategoriKegiatan::factory()->create([
+            'nama_kategori' => 'Obstetri & Ginekologi (POGI)',
+            'warna' => '#10B981',
+        ]);
+
+        $kegiatan = Kegiatan::factory()->for($kategori, 'kategoriKegiatan')->create([
+            'nama_event' => 'ACE BALI 2026',
+            'venue' => 'Bali Nusa Dua Convention Center',
+            'catatan' => 'Catatan agenda penting simposium',
+        ]);
+
+        $perusahaan = Perusahaan::factory()->create(['nama_standar' => 'PT Bio Farma']);
+
+        Kontak::factory()->create([
+            'kegiatan_id' => $kegiatan->id,
+            'kategori_kegiatan_id' => $kategori->id,
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'Dr. Budi Santoso',
+            'no_telepon' => '081234567890',
+        ]);
+
+        Livewire::test(ListKegiatans::class)
+            ->mountTableAction('view', $kegiatan)
+            ->assertHasNoTableActionErrors();
+
+        Livewire::test(\App\Filament\Resources\Kegiatans\Pages\ViewKegiatan::class, [
+            'record' => $kegiatan->getRouteKey(),
+        ])
+            ->assertSuccessful()
+            ->assertSee('ACE BALI 2026')
+            ->assertSee('Obstetri & Ginekologi (POGI)')
+            ->assertSee('Bali Nusa Dua Convention Center')
+            ->assertSee('Dr. Budi Santoso')
+            ->assertSee('PT Bio Farma')
+            ->assertDontSee('Warna Indikator');
     }
 }

@@ -38,6 +38,15 @@ class ListKegiatans extends ListRecords
         $this->tab = in_array($tab, ['kegiatan', 'kategori'], true) ? $tab : 'kegiatan';
     }
 
+    public function mountAction(string $name, array $arguments = [], array $context = []): mixed
+    {
+        if ($name === 'createKategori') {
+            $this->tab = 'kategori';
+        }
+
+        return parent::mountAction($name, $arguments, $context);
+    }
+
     public function getTotalKegiatan(): int
     {
         return Kegiatan::count();
@@ -54,7 +63,12 @@ class ListKegiatans extends ListRecords
             CreateAction::make()
                 ->label('Tambah Kegiatan')
                 ->icon(Heroicon::OutlinedPlusCircle)
-                ->visible(fn (): bool => $this->tab === 'kegiatan'),
+                ->visible(fn (): bool => ((auth()->user()?->can('create', Kegiatan::class) ?? false) || (bool) auth()->user()?->isAdmin()))
+                ->extraAttributes([
+                    'x-show' => "\$store.kegiatanTab?.tab === 'kegiatan'",
+                    'x-cloak' => '',
+                    'style' => $this->tab === 'kegiatan' ? '' : 'display: none !important;',
+                ]),
 
             Action::make('createKategori')
                 ->label('Tambah Kategori')
@@ -64,19 +78,29 @@ class ListKegiatans extends ListRecords
                 ->modalDescription('Buat kategori spesialisasi kedokteran baru secara instan.')
                 ->modalWidth('md')
                 ->slideOver()
-                ->visible(fn (): bool => $this->tab === 'kategori' && (bool) auth()->user()?->isAdmin())
+                ->modalSubmitActionLabel('Simpan Kategori')
+                ->modalCancelActionLabel('Batal')
+                ->visible(fn (): bool => ((auth()->user()?->can('create', KategoriKegiatan::class) ?? false) || (bool) auth()->user()?->isAdmin()))
+                ->extraAttributes([
+                    'x-show' => "\$store.kegiatanTab?.tab === 'kategori'",
+                    'x-cloak' => '',
+                    'style' => $this->tab === 'kategori' ? '' : 'display: none !important;',
+                ])
                 ->schema([
                     TextInput::make('nama_kategori')
                         ->label('Nama Kategori')
                         ->placeholder('contoh: Onkologi & Ginekologi')
+                        ->prefixIcon('heroicon-m-tag')
                         ->required()
                         ->unique('kategori_kegiatans', 'nama_kategori')
                         ->maxLength(255),
                     ColorPicker::make('warna')
                         ->label('Warna Indikator')
-                        ->helperText('Warna khas untuk badge dan grafik distribusi kategori.'),
+                        ->helperText('Warna khas untuk badge dan grafik distribusi kategori.')
+                        ->default(fn () => \App\Support\KlasifikasiTabel::warnaKategori('')),
                     Textarea::make('deskripsi')
                         ->label('Deskripsi')
+                        ->placeholder('Penjelasan ringkas spesialisasi medis ini...')
                         ->rows(3),
                 ])
                 ->action(function (array $data): void {
@@ -86,6 +110,8 @@ class ListKegiatans extends ListRecords
                         ->title('Kategori Medis Berhasil Ditambahkan')
                         ->success()
                         ->send();
+
+                    $this->dispatch('refresh-kategori-widget');
                 }),
         ];
     }

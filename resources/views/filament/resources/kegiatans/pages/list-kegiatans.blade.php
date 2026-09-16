@@ -1,10 +1,42 @@
 <x-filament-panels::page>
+    {{-- Page action modals must be rendered FIRST so they are outside any tab containers and never hidden by x-show --}}
+    <x-filament-actions::modals />
+
+    <script>
+        (function () {
+            function initKegiatanTabStore() {
+                if (window.Alpine && !window.Alpine.store('kegiatanTab')) {
+                    window.Alpine.store('kegiatanTab', {
+                        tab: @js($tab),
+                        setTab(newTab) {
+                            this.tab = newTab;
+                        }
+                    });
+                }
+            }
+            if (window.Alpine) {
+                initKegiatanTabStore();
+            } else {
+                document.addEventListener('alpine:init', initKegiatanTabStore);
+            }
+        })();
+    </script>
+
     <div
         x-data="{
             tab: @js($tab),
             switchTab(newTab) {
                 this.tab = newTab;
                 $wire.setTab(newTab);
+                this.$wire.setTab(newTab);
+                if (window.Alpine && window.Alpine.store('kegiatanTab')) {
+                    window.Alpine.store('kegiatanTab').setTab(newTab);
+                }
+            },
+            init() {
+                if (window.Alpine && window.Alpine.store('kegiatanTab')) {
+                    window.Alpine.store('kegiatanTab').setTab(this.tab);
+                }
             }
         }"
         class="flex flex-col gap-4"
@@ -14,6 +46,7 @@
             <div class="inline-flex p-1 bg-gray-100 dark:bg-white/5 rounded-xl border border-gray-200/80 dark:border-white/10 shadow-xs">
                 <button
                     type="button"
+                    wire:click="setTab('kegiatan')"
                     @click="switchTab('kegiatan')"
                     :class="tab === 'kegiatan'
                         ? 'bg-white text-gray-900 shadow-xs dark:bg-gray-800 dark:text-white font-semibold'
@@ -38,6 +71,7 @@
 
                 <button
                     type="button"
+                    wire:click="setTab('kategori')"
                     @click="switchTab('kategori')"
                     :class="tab === 'kategori'
                         ? 'bg-white text-gray-900 shadow-xs dark:bg-gray-800 dark:text-white font-semibold'
@@ -71,4 +105,7 @@
             @livewire(\App\Filament\Resources\Kegiatans\Widgets\KategoriKegiatanTableWidget::class)
         </div>
     </div>
+
+    {{-- Render page-level action modals outside tab panels so they are never hidden by x-show --}}
+    <x-filament-actions::modals />
 </x-filament-panels::page>

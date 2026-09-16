@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Support\KlasifikasiTabel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -128,5 +129,19 @@ class Kegiatan extends Model
             ->whereNotNull('perusahaan_id')
             ->distinct('perusahaan_id')
             ->count('perusahaan_id');
+    }
+
+    /**
+     * Mengambil daftar PIC kontak terhubung dengan relasi eager-loaded untuk infolist modal.
+     *
+     * @return Collection<int, Kontak>
+     */
+    public function kontaksForDetailModal(int $limit = 5): Collection
+    {
+        return $this->kontaks()
+            ->with(['perusahaan', 'kategoriKegiatan'])
+            ->latest('id')
+            ->limit($limit)
+            ->get();
     }
 }

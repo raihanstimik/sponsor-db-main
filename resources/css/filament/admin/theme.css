@@ -1339,3 +1339,199 @@ mark.fi-stabilo-highlight,
 }
 
 
+/* ==========================================================================
+   ICM EXECUTIVE HEADER & TOPBAR (Bug-Free, 60fps, Zero-Lag, Anti-AI Slop)
+   ========================================================================== */
+
+/* Topbar Container: Keep standard overflow clipping without horizontal scroll */
+.fi-topbar-ctn {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+/* Topbar: Frosted glassmorphism with subtle brand ambient gradient */
+.fi-topbar {
+    position: relative;
+    min-height: 4rem;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(240, 245, 255, 0.88) 32%,
+        rgba(255, 250, 245, 0.88) 68%,
+        rgba(255, 255, 255, 0.96) 100%
+    ) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    box-shadow: 0 4px 20px -2px rgba(24, 34, 94, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03) !important;
+    border-bottom: 1px solid rgba(24, 34, 94, 0.06);
+    overflow: visible !important;
+}
+
+/* Dark mode frosted styling */
+.dark .fi-topbar {
+    background: linear-gradient(
+        90deg,
+        rgba(15, 23, 42, 0.94) 0%,
+        rgba(24, 34, 94, 0.45) 35%,
+        rgba(45, 25, 15, 0.35) 75%,
+        rgba(15, 23, 42, 0.94) 100%
+    ) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Living Aurora Bottom Accent Line: 100% width, no overflow spill, 60fps GPU animation */
+.fi-topbar::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 2.5px;
+    background: linear-gradient(
+        90deg,
+        #18225E 0%,
+        #2563EB 22%,
+        #06B6D4 42%,
+        #EA7C1A 62%,
+        #F59E0B 82%,
+        #18225E 100%
+    );
+    background-size: 200% 100%;
+    will-change: background-position;
+    animation: icmHeaderAurora 10s linear infinite;
+    pointer-events: none;
+    box-shadow: 0 1px 6px rgba(234, 124, 26, 0.3), 0 0 3px rgba(24, 34, 94, 0.2);
+}
+
+@keyframes icmHeaderAurora {
+    0% {
+        background-position: 0% 50%;
+    }
+    100% {
+        background-position: 200% 50%;
+    }
+}
+
+/* Logo hover effect */
+.fi-topbar .fi-logo img {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), filter 0.25s ease;
+    filter: drop-shadow(0 1px 2px rgba(24, 34, 94, 0.06));
+}
+
+.fi-topbar .fi-logo:hover img {
+    transform: scale(1.03);
+    filter: drop-shadow(0 2px 8px rgba(234, 124, 26, 0.25));
+}
+
+/* Sidebar Toggle Arrow Button */
+.fi-topbar-collapse-sidebar-btn-ctn button,
+.fi-topbar-start .fi-icon-btn,
+.fi-topbar-open-sidebar-btn,
+.fi-topbar-close-sidebar-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 0.5rem !important;
+}
+
+.fi-topbar-collapse-sidebar-btn-ctn button:hover,
+.fi-topbar-start .fi-icon-btn:hover {
+    background-color: rgba(24, 34, 94, 0.08) !important;
+    color: #18225E !important;
+    transform: scale(1.05);
+}
+
+/* Global Search: Clean Pill Input (No nested double borders!) */
+.fi-topbar .fi-global-search .fi-input-wrp {
+    background: rgba(255, 255, 255, 0.88) !important;
+    border-radius: 9999px !important;
+    box-shadow: 0 1px 3px rgba(24, 34, 94, 0.04) !important;
+    border: 1px solid rgba(24, 34, 94, 0.12) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dark .fi-topbar .fi-global-search .fi-input-wrp {
+    background: rgba(30, 41, 59, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp:hover {
+    background: #ffffff !important;
+    border-color: rgba(234, 124, 26, 0.45) !important;
+    box-shadow: 0 2px 8px rgba(24, 34, 94, 0.06), 0 0 0 1px rgba(234, 124, 26, 0.15) !important;
+}
+
+.dark .fi-topbar .fi-global-search .fi-input-wrp:hover {
+    background: rgba(30, 41, 59, 1) !important;
+    border-color: rgba(234, 124, 26, 0.6) !important;
+}
+
+.fi-topbar .fi-global-search .fi-input-wrp:focus-within {
+    background: #ffffff !important;
+    border-color: #EA7C1A !important;
+    box-shadow: 0 0 0 3px rgba(234, 124, 26, 0.18), 0 3px 12px rgba(24, 34, 94, 0.08) !important;
+}
+
+.dark .fi-topbar .fi-global-search .fi-input-wrp:focus-within {
+    background: rgba(15, 23, 42, 1) !important;
+    border-color: #EA7C1A !important;
+    box-shadow: 0 0 0 3px rgba(234, 124, 26, 0.25) !important;
+}
+
+.fi-topbar .fi-global-search input {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* User Avatar Ring with Smooth Non-Jitter Hover */
+.fi-topbar .fi-user-menu-trigger {
+    border-radius: 9999px !important;
+    transition: transform 0.2s ease !important;
+}
+
+.fi-topbar .fi-user-menu-trigger:hover {
+    transform: scale(1.06);
+}
+
+.fi-topbar .fi-user-menu-trigger img {
+    border-radius: 9999px !important;
+    box-shadow: 0 0 0 2px rgba(234, 124, 26, 0.35), 0 2px 6px rgba(24, 34, 94, 0.12) !important;
+    transition: box-shadow 0.2s ease !important;
+}
+
+.fi-topbar .fi-user-menu-trigger:hover img {
+    box-shadow: 0 0 0 2.5px #EA7C1A, 0 4px 12px rgba(234, 124, 26, 0.4) !important;
+}
+
+/* Page Header Heading: Refined Corporate Gradient */
+.fi-header-heading {
+    background: linear-gradient(135deg, #18225E 0%, #1e293b 70%, #EA7C1A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.025em;
+    display: inline-block;
+}
+
+.dark .fi-header-heading {
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 70%, #f97316 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Reduced Motion Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .fi-topbar::after {
+        animation: none !important;
+        background-position: 0% 50% !important;
+    }
+
+    .fi-topbar .fi-logo img,
+    .fi-topbar .fi-user-menu-trigger,
+    .fi-topbar-collapse-sidebar-btn-ctn button {
+        transition: none !important;
+        transform: none !important;
+    }
+}

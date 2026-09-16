@@ -12,10 +12,20 @@ class ViewKegiatan extends ViewRecord
 {
     protected static string $resource = KegiatanResource::class;
 
+    public function getTitle(): string
+    {
+        /** @var \App\Models\Kegiatan $record */
+        $record = $this->getRecord();
+
+        return 'Rincian Kegiatan: '.$record->nama_event;
+    }
+
     protected function getHeaderActions(): array
     {
         return [
             EditAction::make(),
+            EditAction::make()
+                ->label('Edit Kegiatan'),
         ];
     }
 }

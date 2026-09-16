@@ -19,14 +19,24 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-            <a href="{{ \App\Filament\Resources\Kontaks\KontakResource::getUrl() }}" 
-               class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white text-[#18225E] text-xs font-semibold hover:bg-slate-100 active:bg-slate-200 transition-colors shadow-xs">
-                <x-heroicon-m-user-group class="w-4 h-4 text-[#18225E]" />
+            <a {{ \Filament\Support\generate_href_html(\App\Filament\Resources\Kontaks\KontakResource::getUrl()) }}
+               x-data="{ loading: false }"
+               x-on:click="if (! ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey)) { loading = true }"
+               x-on:livewire:navigated.window="loading = false"
+               x-bind:class="{ 'opacity-75 pointer-events-none cursor-wait': loading }"
+               class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white text-[#18225E] text-xs font-semibold hover:bg-slate-100 active:bg-slate-200 transition-all shadow-xs">
+                <x-filament::loading-indicator x-show="loading" x-cloak class="w-4 h-4 animate-spin text-[#18225E]" />
+                <x-heroicon-m-user-group x-show="!loading" class="w-4 h-4 text-[#18225E]" />
                 <span>Kelola Kontak PIC</span>
             </a>
-            <a href="{{ \App\Filament\Resources\Perusahaans\PerusahaanResource::getUrl() }}" 
-               class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 active:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-colors">
-                <x-heroicon-m-building-office-2 class="w-4 h-4 text-slate-200" />
+            <a {{ \Filament\Support\generate_href_html(\App\Filament\Resources\Perusahaans\PerusahaanResource::getUrl()) }}
+               x-data="{ loading: false }"
+               x-on:click="if (! ($event.altKey || $event.ctrlKey || $event.metaKey || $event.shiftKey)) { loading = true }"
+               x-on:livewire:navigated.window="loading = false"
+               x-bind:class="{ 'opacity-75 pointer-events-none cursor-wait': loading }"
+               class="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white/10 hover:bg-white/15 active:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-all">
+                <x-filament::loading-indicator x-show="loading" x-cloak class="w-4 h-4 animate-spin text-white" />
+                <x-heroicon-m-building-office-2 x-show="!loading" class="w-4 h-4 text-slate-200" />
                 <span>Master Perusahaan</span>
             </a>
         </div>
