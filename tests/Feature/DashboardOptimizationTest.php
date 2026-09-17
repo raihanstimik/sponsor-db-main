@@ -62,6 +62,8 @@ class DashboardOptimizationTest extends TestCase
         // Verifikasi tidak ada tag pulsing dot pada judul statis
         $this->assertStringNotContainsString('animate-pulse', $html);
         $this->assertStringContainsString('dashboard-card', $html);
+        $this->assertSame(1, substr_count($html, 'dashboard-card'));
+        $this->assertSame(1, substr_count($html, '<h2'));
         $this->assertStringContainsString('Lihat Rincian', $html);
         $this->assertStringContainsString('Konten Pengujian', $html);
     }
@@ -82,14 +84,18 @@ class DashboardOptimizationTest extends TestCase
             ->assertOk()
             ->assertSee('Distribusi Event per Kategori Medis')
             ->assertSee('Kardiologi')
-            ->assertSee('Kelola Kategori');
+            ->assertSee('Kelola Kategori')
+            ->assertDontSee('&lt;div class=')
+            ->assertDontSee('Dominasi event terbesar:');
 
         // Uji render Livewire TopEventWidget (menampilkan nama lengkap kegiatan di ranked list)
         Livewire::test(TopEventWidget::class)
             ->assertOk()
             ->assertSee('Top 5 Event Terbesar')
             ->assertSee('KONAS PERKI 2026')
-            ->assertSee('Lihat Rincian Event');
+            ->assertSee('Lihat Rincian Event')
+            ->assertDontSee('&lt;div class=')
+            ->assertDontSee('&lt;span class=');
 
         // Uji konfigurasi responsive columnSpan side-by-side
         $distWidget = new DistribusiKategoriWidget();

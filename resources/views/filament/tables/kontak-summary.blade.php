@@ -7,10 +7,29 @@
 
 @if ($warnaTervalidasi->isNotEmpty())
     {{-- Pewarnaan baris menurut kegiatan/kategori; tint tipis agar teks tetap terbaca. --}}
+    {{-- Pewarnaan baris menurut kegiatan/kategori: desktop tint sel, mobile card border accent --}}
     <style>
         @foreach ($warnaTervalidasi as $hex)
             tr.{{ \App\Filament\Resources\Kontaks\Tables\KontaksTable::kelasWarnaBaris($hex) }} > td {
                 background-color: {{ strtolower($hex) }}1f !important;
+            @php $kelas = \App\Filament\Resources\Kontaks\Tables\KontaksTable::kelasWarnaBaris($hex); @endphp
+            @media (min-width: 640px) {
+                tr.{{ $kelas }} > td {
+                    background-color: {{ strtolower($hex) }}1f !important;
+                }
+            }
+            @media (max-width: 639.98px) {
+                .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.{{ $kelas }} {
+                    border-left-color: {{ strtolower($hex) }} !important;
+                    background: linear-gradient(to right, {{ strtolower($hex) }}12 0%, rgba(255, 255, 255, 0.98) 40%) !important;
+                }
+                .dark .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.{{ $kelas }} {
+                    border-left-color: {{ strtolower($hex) }} !important;
+                    background: linear-gradient(to right, {{ strtolower($hex) }}22 0%, rgba(15, 23, 42, 0.92) 40%) !important;
+                }
+                .fi-ta-table.fi-ta-table-stacked-on-mobile > tbody > tr.{{ $kelas }} > td {
+                    background-color: transparent !important;
+                }
             }
         @endforeach
     </style>

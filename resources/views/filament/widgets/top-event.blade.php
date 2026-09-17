@@ -2,45 +2,56 @@
 <x-filament-widgets::widget>
     <x-dashboard-card
         title="Top 5 Event Terbesar"
-        subtitle="Akumulasi keterlibatan kontak PIC sponsor terdaftar"
-        :badge="$data['totalTop'].' PIC Total Top 5'"
-        badge-class="bg-orange-50 font-medium text-orange-900 border border-orange-200/60 dark:bg-orange-950/30 dark:text-orange-300 dark:border-orange-800/40"
-        :footer-text="'Dominasi event terbesar: '.number_format($data['dominasi'], 1, ',', '.').'% dari total database'"
+        subtitle="Akumulasi keterlibatan kontak PIC sponsor"
+        :badge="'<div class=\'leading-tight text-center font-bold text-blue-600 dark:text-blue-400\'>' . $data['totalTop'] . ' PIC<br><span class=\'font-normal text-[10px] text-blue-500\'>Total</span></div>'"
+        badge-class="bg-blue-50/80 dark:bg-blue-950/50 border border-blue-100 dark:border-blue-900/40 px-3.5 py-1 text-xs"
+        :footer-text="'Dominasi event: <span class=\'font-semibold text-slate-700 dark:text-slate-300\'>' . number_format($data['dominasi'], 1, ',', '.') . '%</span> total database'"
         :footer-url="\App\Filament\Resources\Kegiatans\KegiatanResource::getUrl()"
         footer-label="Lihat Rincian Event &rarr;"
-        footer-action-class="text-[#18225E] hover:underline dark:text-sky-400"
+        footer-action-class="text-blue-600 hover:underline dark:text-sky-400 font-semibold"
     >
         @if ($data['rows'] === [])
             <div class="py-8 text-center text-sm text-slate-400 dark:text-gray-500">
                 Belum ada kegiatan.
             </div>
         @else
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-4 sm:gap-4.5">
                 @foreach ($data['rows'] as $row)
-                    <div class="flex items-center gap-3 p-1.5 rounded-lg transition-colors duration-150 hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                        <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded text-xs font-bold tabular-nums {{ $row['rank'] === 1 ? 'bg-[#18225E] text-white shadow-xs' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' }}">
-                            {{ $row['rank'] }}
-                        </span>
-                        
-                        <div class="flex min-w-0 flex-1 flex-col gap-1">
-                            <div class="flex items-center justify-between gap-2">
-                                <span class="truncate text-xs sm:text-sm font-semibold text-slate-900 dark:text-white" title="{{ $row['nama'] }}">
-                                    {{ $row['nama'] }}
+                    <div class="group flex flex-col transition-colors duration-150">
+                        <div class="flex items-center gap-3">
+                            @if ($row['rank'] === 1)
+                                <span class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-xs sm:text-sm font-bold bg-[#0f172a] text-white shadow-xs dark:bg-slate-100 dark:text-slate-900">
+                                    {{ $row['rank'] }}
                                 </span>
-                                <span class="shrink-0 text-xs font-bold text-slate-700 dark:text-slate-200 tabular-nums">
-                                    {{ $row['count'] }} <span class="text-[11px] font-normal text-slate-500 dark:text-slate-400">PIC</span>
+                            @else
+                                <span class="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg text-xs sm:text-sm font-bold text-white shadow-xs" style="background-color: {{ $row['hex'] }}">
+                                    {{ $row['rank'] }}
                                 </span>
-                            </div>
+                            @endif
                             
-                            <div class="flex items-center gap-2">
-                                <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                                    <div class="h-full rounded-full transition-all duration-300" 
-                                         style="width: {{ $row['width'] }}%; background-color: {{ $row['hex'] }}"></div>
+                            <div class="flex min-w-0 flex-1 flex-col justify-center">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="truncate text-xs sm:text-sm font-bold text-slate-900 dark:text-white" title="{{ $row['nama'] }}">
+                                        {{ $row['nama'] }}
+                                    </span>
+                                    <span class="shrink-0 text-xs sm:text-sm font-bold text-slate-900 dark:text-white tabular-nums">
+                                        {{ number_format($row['count'], 0, ',', '.') }} <span class="text-xs font-normal text-slate-400 dark:text-slate-500">PIC</span>
+                                    </span>
                                 </div>
-                                <span class="truncate text-[10px] text-slate-500 dark:text-slate-400 max-w-[150px]" title="{{ $row['sub'] }}">
+                                <p class="truncate text-xs text-slate-400 dark:text-slate-400 mt-0.5" title="{{ $row['sub'] }}">
                                     {{ $row['sub'] }}
-                                </span>
+                                </p>
                             </div>
+                        </div>
+                        
+                        <div class="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800 mt-2">
+                            @if ($row['rank'] === 1)
+                                <div class="h-full rounded-full transition-all duration-300 bg-[#0f172a] dark:bg-slate-200" 
+                                     style="width: {{ $row['width'] }}%;"></div>
+                            @else
+                                <div class="h-full rounded-full transition-all duration-300" 
+                                     style="width: {{ $row['width'] }}%; background-color: {{ $row['hex'] }}"></div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

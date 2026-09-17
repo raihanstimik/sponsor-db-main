@@ -24,7 +24,8 @@ class FilamentTableHelper
     ): Table {
         $table
             ->recordUrl(null)
-            ->recordAction(ViewAction::class);
+            ->recordAction(ViewAction::class)
+            ->stackedOnMobile();
 
         if ($paginationOptions !== null) {
             $table->paginated($paginationOptions);

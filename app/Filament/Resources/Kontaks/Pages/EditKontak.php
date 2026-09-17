@@ -55,9 +55,13 @@ class EditKontak extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
             DeleteAction::make()
-                ->label('Hapus Kontak'),
+                ->label('Hapus Kontak')
+                ->modalHeading('Hapus Data Kontak Sponsor')
+                ->modalDescription('Apakah Anda yakin ingin menghapus kontak ini? Tindakan ini tidak dapat dibatalkan.')
+                ->modalSubmitActionLabel('Ya, Hapus')
+                ->modalCancelActionLabel('Batal')
+                ->successNotificationTitle('Kontak berhasil dihapus'),
         ];
     }
 }

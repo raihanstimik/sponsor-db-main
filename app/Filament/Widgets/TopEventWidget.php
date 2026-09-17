@@ -56,6 +56,7 @@ class TopEventWidget extends Widget
             $totalKontak = Kontak::count();
 
             $palette = ['#1E2A4A', '#0EA5E9', '#8B5CF6', '#EC4899', '#10B981'];
+            $palette = ['#0f172a', '#2563EB', '#6366F1', '#EC4899', '#F59E0B'];
             $items = [];
             foreach ($rows->values() as $idx => $row) {
                 $count = (int) $row->kontak_count;
@@ -67,6 +68,8 @@ class TopEventWidget extends Widget
                     $row->nama_kategori,
                     $row->tanggal_mulai ? Carbon::parse($row->tanggal_mulai)->format('Y') : null,
                 ])));
+                $rankHex = $palette[$idx % count($palette)];
+                $sub = $row->nama_kategori ?? '-';
                 $items[] = [
                     'rank' => $idx + 1,
                     'nama' => $row->nama_event,
@@ -75,6 +78,8 @@ class TopEventWidget extends Widget
                     'count' => $count,
                     'width' => $max > 0 ? round($count / $max * 100, 1) : 0.0,
                     'hex' => $hex,
+                    'hex' => $rankHex,
+                    'rank_hex' => $rankHex,
                 ];
             }
 

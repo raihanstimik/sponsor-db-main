@@ -6,7 +6,10 @@ namespace App\Filament\Resources\Kontaks\Schemas;
 
 use App\Models\Kegiatan;
 use App\Models\Kontak;
+use App\Support\KlasifikasiTabel;
 use App\Support\PhoneNormalizer;
+use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -72,7 +75,31 @@ class KontakForm
                                 if ($kategoriId) {
                                     $set('kategori_kegiatan_id', $kategoriId);
                                 }
-                            }),
+                            })
+                            ->createOptionForm([
+                                TextInput::make('nama_event')
+                                    ->label('Nama Kegiatan / Event')
+                                    ->placeholder('Contoh: PIT PERDAMI 2026 / INDAAC 2026')
+                                    ->required()
+                                    ->maxLength(255),
+                                Select::make('kategori_kegiatan_id')
+                                    ->label('Kategori Medis / Spesialisasi')
+                                    ->placeholder('Pilih kategori medis (opsional)...')
+                                    ->relationship('kategoriKegiatan', 'nama_kategori', fn ($query) => $query->orderBy('nama_kategori'))
+                                    ->searchable()
+                                    ->preload(),
+                                ColorPicker::make('warna')
+                                    ->label('Warna Indikator')
+                                    ->helperText('Opsional, mewarisi warna kategori bila kosong.'),
+                                DatePicker::make('tanggal_mulai')
+                                    ->label('Tanggal Mulai')
+                                    ->placeholder('Pilih tanggal mulai...'),
+                                TextInput::make('venue')
+                                    ->label('Lokasi / Venue')
+                                    ->placeholder('Contoh: Hotel Mulia Senayan, Jakarta')
+                                    ->maxLength(255),
+                            ])
+                            ->createOptionModalHeading('Tambah Kegiatan / Event Baru'),
 
                         Select::make('kategori_kegiatan_id')
                             ->label('Kategori Medis / Spesialisasi')
@@ -81,7 +108,24 @@ class KontakForm
                             ->relationship('kategoriKegiatan', 'nama_kategori', fn ($query) => $query->orderBy('nama_kategori'))
                             ->searchable()
                             ->preload()
-                            ->helperText('Otomatis terisi jika kegiatan dipilih, atau dapat ditentukan manual.'),
+                            ->helperText('Otomatis terisi jika kegiatan dipilih, atau dapat ditentukan manual.')
+                            ->createOptionForm([
+                                TextInput::make('nama_kategori')
+                                    ->label('Nama Kategori Medis')
+                                    ->placeholder('Contoh: Onkologi & Ginekologi, Estetika')
+                                    ->required()
+                                    ->unique('kategori_kegiatans', 'nama_kategori')
+                                    ->maxLength(255),
+                                ColorPicker::make('warna')
+                                    ->label('Warna Indikator')
+                                    ->helperText('Warna khas untuk badge dan grafik distribusi.')
+                                    ->default(fn () => KlasifikasiTabel::warnaKategori('')),
+                                Textarea::make('deskripsi')
+                                    ->label('Deskripsi Ringkas')
+                                    ->placeholder('Penjelasan ringkas spesialisasi medis ini...')
+                                    ->rows(2),
+                            ])
+                            ->createOptionModalHeading('Tambah Kategori Medis Baru'),
                     ]),
 
                 Section::make('Informasi Kontak PIC')

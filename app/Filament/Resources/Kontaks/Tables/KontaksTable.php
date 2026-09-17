@@ -109,9 +109,11 @@ class KontaksTable
                     ->searchable()
                     ->sortable()
                     ->limit(32)
+                    ->wrap()
                     ->limit(45)
                     ->tooltip(fn (Kontak $record): string => $record->perusahaan?->nama_standar ?? '')
                     ->placeholder('-')
+                    ->extraCellAttributes(['class' => 'col-kontak-perusahaan'])
                     ->toggleable(),
                 TextColumn::make('nama')
                     ->label('PIC')
@@ -124,6 +126,7 @@ class KontaksTable
                     ->tooltip(fn (Kontak $record): string => $record->nama ?? '')
                     ->description(fn (Kontak $record): ?string => $record->kategoriKegiatan?->nama_kategori)
                     ->placeholder('(Tanpa Nama)')
+                    ->extraCellAttributes(['class' => 'col-kontak-pic'])
                     ->toggleable(),
                 TextColumn::make('no_telepon')
                     ->label('No. Telepon')
@@ -138,6 +141,7 @@ class KontaksTable
                     ->icon(Heroicon::OutlinedPhone)
                     ->iconPosition(IconPosition::After)
                     ->extraAttributes(['style' => 'white-space: nowrap'])
+                    ->extraCellAttributes(['class' => 'col-kontak-phone'])
                     ->toggleable(),
                 TextColumn::make('kegiatan.nama_event')
                     ->label('Kegiatan')
@@ -159,6 +163,7 @@ class KontaksTable
                     ->limit(26)
                     ->tooltip(fn (Kontak $record): ?string => $record->kegiatan?->nama_event)
                     ->description(fn (Kontak $record): ?string => $record->kegiatan?->tanggal_mulai?->format('Y'))
+                    ->extraCellAttributes(['class' => 'col-kontak-event'])
                     ->toggleable(),
                 TextColumn::make('kategoriKegiatan.nama_kategori')
                     ->label('Kategori')
@@ -178,6 +183,7 @@ class KontaksTable
                     ->placeholder('-')
                     ->limit(28)
                     ->tooltip(fn (Kontak $record): ?string => $record->kategoriKegiatan?->nama_kategori)
+                    ->extraCellAttributes(['class' => 'col-kontak-kategori'])
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('klasifikasi_cari')
                     ->label('Cocok pada')
@@ -196,6 +202,7 @@ class KontaksTable
                         return implode(' + ', app(KontakSmartSearch::class)->matchColumns($record, $q));
                     })
                     ->visible(fn (HasTable $livewire): bool => filled(trim((string) ($livewire->getTableFilterState('cari')['q'] ?? ''))))
+                    ->extraCellAttributes(['class' => 'col-kontak-cocok'])
                     ->toggleable(),
                 TextColumn::make('updatedBy.name')
                     ->label('Diperbarui oleh')
