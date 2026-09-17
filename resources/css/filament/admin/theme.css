@@ -2063,3 +2063,138 @@ mark.fi-stabilo-highlight,
         padding-top: 0.2rem !important;
     }
 }
+
+/* ==========================================================================
+   DESAIN SCROLLBAR MODERN, MINIMALIS & ELEGAN (STANDAR ENTERPRISE SAAS)
+   Menghilangkan scrollbar default Windows yang tebal, kaku, dan memiliki tombol panah.
+   Menggantikannya dengan scrollbar ramping, dinamis, tanpa tombol panah, dan responsif.
+   ========================================================================== */
+
+/* Variabel CSS Scrollbar Global */
+:root {
+    --sb-thumb: rgba(148, 163, 184, 0.45);
+    --sb-thumb-hover: rgba(100, 116, 139, 0.75);
+    --sb-track: transparent;
+}
+
+.dark {
+    --sb-thumb: rgba(100, 116, 139, 0.45);
+    --sb-thumb-hover: rgba(148, 163, 184, 0.75);
+    --sb-track: transparent;
+}
+
+/* Standar W3C (Firefox & browser modern) */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) var(--sb-track);
+}
+
+/* WebKit / Blink (Google Chrome, Microsoft Edge, Safari, Opera di Windows & Mac) */
+*::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--sb-thumb);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease-in-out;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--sb-thumb-hover);
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent !important;
+}
+
+/* Menghilangkan tombol panah atas dan bawah bawaan Windows / Chromium */
+*::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* ==========================================================================
+   KHUSUS SIDEBAR NAVIGASI FILAMENT (Tampilan Ramping, Bersih ala Linear & Stripe)
+   ========================================================================== */
+.fi-sidebar,
+.fi-sidebar-nav,
+aside.fi-sidebar,
+#fi-main-sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.25) transparent;
+}
+
+.fi-sidebar::-webkit-scrollbar,
+.fi-sidebar-nav::-webkit-scrollbar,
+aside.fi-sidebar::-webkit-scrollbar,
+#fi-main-sidebar::-webkit-scrollbar {
+    width: 4.5px !important;
+}
+
+.fi-sidebar::-webkit-scrollbar-track,
+.fi-sidebar-nav::-webkit-scrollbar-track,
+aside.fi-sidebar::-webkit-scrollbar-track,
+#fi-main-sidebar::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.fi-sidebar::-webkit-scrollbar-thumb,
+.fi-sidebar-nav::-webkit-scrollbar-thumb,
+aside.fi-sidebar::-webkit-scrollbar-thumb,
+#fi-main-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.25);
+    border-radius: 9999px;
+    transition: background-color 0.2s ease;
+}
+
+.fi-sidebar:hover::-webkit-scrollbar-thumb,
+.fi-sidebar-nav:hover::-webkit-scrollbar-thumb,
+aside.fi-sidebar:hover::-webkit-scrollbar-thumb,
+#fi-main-sidebar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.65);
+}
+
+.dark .fi-sidebar::-webkit-scrollbar-thumb,
+.dark .fi-sidebar-nav::-webkit-scrollbar-thumb,
+.dark aside.fi-sidebar::-webkit-scrollbar-thumb,
+.dark #fi-main-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.3);
+}
+
+.dark .fi-sidebar:hover::-webkit-scrollbar-thumb,
+.dark .fi-sidebar-nav:hover::-webkit-scrollbar-thumb,
+.dark aside.fi-sidebar:hover::-webkit-scrollbar-thumb,
+.dark #fi-main-sidebar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.7);
+}
+
+/* ==========================================================================
+   TABEL & ELEMEN MODAL / DROPDOWN DENGAN KONTEN PANJANG
+   ========================================================================== */
+.fi-ta-content,
+.overflow-x-auto,
+.overflow-y-auto,
+.fi-modal-content,
+.fi-dropdown-panel {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb) transparent;
+}
+
+.fi-ta-content::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.fi-modal-content::-webkit-scrollbar,
+.fi-dropdown-panel::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
