@@ -93,7 +93,7 @@ class KontakEnhancementsTest extends TestCase
             ->assertTableActionExists('view')
             ->assertTableActionExists('edit')
             ->assertTableActionExists('export')
-            ->assertSee('Ekspor CSV')
+            ->assertSee('Ekspor Data')
             ->assertSee((string) $kontak->id)
             ->assertSee('wa.me/628111465133');
     }

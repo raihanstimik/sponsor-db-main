@@ -47,6 +47,7 @@ class RoleForm
                             'kontak.update' => 'Kontak — Ubah',
                             'kontak.delete' => 'Kontak — Hapus',
                             'kontak.export' => 'Kontak — Export CSV',
+                            'kontak.export' => 'Kontak — Ekspor Data (Excel/CSV/JSON)',
                             'kontak.import' => 'Kontak — Import Excel',
                             'perusahaan.view_any' => 'Perusahaan — Lihat Daftar',
                             'perusahaan.view' => 'Perusahaan — Lihat Detail',

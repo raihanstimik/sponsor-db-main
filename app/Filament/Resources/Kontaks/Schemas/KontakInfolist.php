@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Kontaks\Schemas;
 
 use App\Models\Kontak;
 use App\Support\PhoneNormalizer;
+use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -63,6 +64,19 @@ class KontakInfolist
                             ->formatStateUsing(fn (?string $state): ?string => PhoneNormalizer::formatDisplay($state))
                             ->hint(fn (Kontak $record): ?string => PhoneNormalizer::isLandline($record->no_telepon) ? 'Telepon Kantor' : null)
                             ->icon(Heroicon::OutlinedPhone)
+                            ->suffixAction(
+                                Action::make('infolist_whatsapp')
+                                    ->label('Chat WA')
+                                    ->tooltip('Kirim pesan via WhatsApp Web')
+                                    ->icon(PhoneNormalizer::whatsappIconHtml('w-3.5 h-3.5'))
+                                    ->color('success')
+                                    ->extraAttributes([
+                                        'class' => 'badge-whatsapp-inline',
+                                    ])
+                                    ->url(fn (Kontak $record): string => PhoneNormalizer::whatsappUrl($record->no_telepon))
+                                    ->openUrlInNewTab()
+                                    ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon))
+                            )
                             ->placeholder('-'),
 
                         TextEntry::make('email')

@@ -20,7 +20,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use App\Services\ExportKontakService;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Support\Enums\IconPosition;
@@ -37,6 +40,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Pagination\Paginator as ContractsPaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 class KontaksTable
 {
@@ -292,7 +296,7 @@ class KontaksTable
                     ->label('Kirim WhatsApp')
                     ->hiddenLabel()
                     ->tooltip('Kirim WhatsApp')
-                    ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                    ->icon(PhoneNormalizer::whatsappIconHtml('w-4 h-4'))
                     ->color('success')
                     ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                     ->openUrlInNewTab()
@@ -307,9 +311,13 @@ class KontaksTable
                         ->modalHeading('Detail Kontak Sponsor')
                         ->extraModalFooterActions([
                             Action::make('slideover_whatsapp')
-                                ->label('Kirim WhatsApp')
-                                ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                                ->label('Kirim Pesan WhatsApp')
+                                ->icon(PhoneNormalizer::whatsappIconHtml('w-5 h-5'))
                                 ->color('success')
+                                ->extraAttributes([
+                                    'class' => 'btn-whatsapp-cta',
+                                    'title' => 'Buka chat WhatsApp di tab baru',
+                                ])
                                 ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                                 ->openUrlInNewTab()
                                 ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
@@ -317,7 +325,7 @@ class KontaksTable
                     EditAction::make(),
                     Action::make('whatsapp')
                         ->label('Kirim WhatsApp')
-                        ->icon(Heroicon::OutlinedChatBubbleLeftRight)
+                        ->icon(PhoneNormalizer::whatsappIconHtml('w-4 h-4'))
                         ->color('success')
                         ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                         ->openUrlInNewTab()
@@ -333,12 +341,52 @@ class KontaksTable
             ])
             ->toolbarActions([
                 Action::make('export')
-                    ->label('Ekspor CSV')
+                    ->label('Ekspor Data')
                     ->icon(Heroicon::OutlinedArrowDownTray)
                     ->color('gray')
-                    ->openUrlInNewTab()
                     ->visible(fn () => auth()->user()?->can('export', Kontak::class) ?? false)
-                    ->url(fn (HasTable $livewire): string => route('kontaks.export', self::exportParams($livewire))),
+                    ->modalHeading('Ekspor Data Kontak')
+                    ->modalDescription('Pilih format berkas, cakupan data, dan kolom yang ingin diunduh.')
+                    ->modalIcon(Heroicon::OutlinedArrowDownTray)
+                    ->modalSubmitActionLabel('Unduh Berkas')
+                    ->form([
+                        Radio::make('format')
+                            ->label('Pilihan Format Berkas')
+                            ->options([
+                                'xlsx' => 'Microsoft Excel (.xlsx) — Format resmi rapi & nomor telepon aman',
+                                'csv' => 'Comma Separated Values (.csv) — Ekspor CSV standar dengan UTF-8 BOM',
+                                'json' => 'JSON (.json) — Format data terstruktur untuk integrasi sistem',
+                            ])
+                            ->default('xlsx')
+                            ->required(),
+                        Radio::make('scope')
+                            ->label('Cakupan Data yang Diekspor')
+                            ->options([
+                                'filtered' => 'Sesuai filter tabel yang aktif saat ini',
+                                'all' => 'Seluruh data kontak di database',
+                            ])
+                            ->default('filtered')
+                            ->required(),
+                        CheckboxList::make('columns')
+                            ->label('Pilihan Kolom Tambahan (Opsional)')
+                            ->options([
+                                'status_format_valid' => 'Status Validitas Format Nomor HP (Valid / Perlu Cek)',
+                                'catatan' => 'Catatan / Keterangan Kontak',
+                                'created_at' => 'Waktu Data Ditambahkan',
+                            ])
+                            ->default(['status_format_valid', 'catatan']),
+                    ])
+                    ->action(function (array $data, HasTable $livewire, ExportKontakService $exportService) {
+                        $params = ($data['scope'] ?? 'filtered') === 'all' ? [] : self::exportParams($livewire);
+                        $params['format'] = $data['format'] ?? 'xlsx';
+                        $params['scope'] = $data['scope'] ?? 'filtered';
+                        $params['columns'] = $data['columns'] ?? [];
+
+                        $request = new Request($params);
+                        $request->setUserResolver(fn () => auth()->user());
+
+                        return $exportService->export($request, auth()->user());
+                    }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->label('Hapus Kontak Terpilih')
