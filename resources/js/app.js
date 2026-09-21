@@ -92,8 +92,40 @@ window.spinningCounter = function (config) {
     };
 };
 
+import { initAurora } from './aurora';
+import { initSessionExpiredInterceptor } from './session-expired';
+
+window.initAurora = initAurora;
+
+// Inisialisasi interceptor penanganan CSRF/sesi kedaluwarsa anti AI-slop
+initSessionExpiredInterceptor();
+
+window.auroraEffect = function (config = {}) {
+    return {
+        instance: null,
+        init() {
+            this.$nextTick(() => {
+                this.instance = initAurora(this.$el, config);
+            });
+        },
+        destroy() {
+            if (this.instance) {
+                this.instance.destroy();
+                this.instance = null;
+            }
+        }
+    };
+};
+
+function registerAlpineComponents() {
+    if (!window.Alpine) return;
+    window.Alpine.data('spinningCounter', window.spinningCounter);
+    window.Alpine.data('auroraEffect', window.auroraEffect);
+}
+
 if (window.Alpine) {
     window.Alpine.data('spinningCounter', window.spinningCounter);
+    registerAlpineComponents();
 } else {
     document.addEventListener('alpine:init', function () {
         if (window.Alpine) {
@@ -105,4 +137,6 @@ if (window.Alpine) {
             window.Alpine.data('spinningCounter', window.spinningCounter);
         }
     });
+    document.addEventListener('alpine:init', registerAlpineComponents);
+    document.addEventListener('livewire:init', registerAlpineComponents);
 }

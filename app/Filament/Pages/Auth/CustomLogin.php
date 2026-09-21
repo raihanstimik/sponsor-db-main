@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages\Auth;
 
+use App\Models\User;
 use Filament\Actions\Action;
 use Filament\Auth\Pages\Login;
 use Filament\Forms\Components\TextInput;
@@ -16,6 +17,7 @@ use Filament\View\PanelsRenderHook;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\HtmlString;
+use Illuminate\Validation\ValidationException;
 
 // app/Filament/Pages/Auth/CustomLogin.php — Login ala Stitch "Masuk Sistem":
 // heading + placeholder + ikon + tombol navy + link daftar (logika auth tetap bawaan).
@@ -65,6 +67,30 @@ class CustomLogin extends Login
     {
         return parent::getAuthenticateFormAction()
             ->label('Login');
+    }
+
+    protected function throwFailureValidationException(): never
+    {
+        $data = $this->form->getState();
+        $email = trim((string) ($data['email'] ?? ''));
+
+        $user = User::whereRaw('LOWER(email) = ?', [strtolower($email)])->first();
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'data.email' => 'Alamat email ini Salah.',
+            ]);
+        }
+
+        if ($user->is_active === false) {
+            throw ValidationException::withMessages([
+                'data.email' => 'Akun Anda sedang menunggu persetujuan Admin atau berstatus nonaktif.',
+            ]);
+        }
+
+        throw ValidationException::withMessages([
+            'data.password' => 'Kata sandi yang Anda masukkan salah. Silakan periksa kembali.',
+        ]);
     }
 
     public function content(Schema $schema): Schema

@@ -88,6 +88,10 @@ class AdminPanelProvider extends PanelProvider
                 PanelsRenderHook::BODY_START,
                 fn (): string => view('filament.hooks.impersonation-banner')->render()
             )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): string => view('filament.hooks.aurora-background')->render()
+            )
             ->sidebarFullyCollapsibleOnDesktop()
             ->sidebarWidth('16.5rem')
             ->collapsedSidebarWidth('4rem')

@@ -53,6 +53,42 @@ class LoginPageTest extends TestCase
             ])
             ->call('authenticate')
             ->assertHasErrors(['data.email']);
+            ->assertHasErrors(['data.password'])
+            ->assertSee('Kata sandi yang Anda masukkan salah');
+
+        $this->assertGuest();
+    }
+
+    #[Test]
+    public function login_gagal_dengan_email_belum_terdaftar(): void
+    {
+        Livewire::test(CustomLogin::class)
+            ->fillForm([
+                'email' => 'tidak-terdaftar@icm.co.id',
+                'password' => 'password123',
+            ])
+            ->call('authenticate')
+            ->assertHasErrors(['data.email'])
+            ->assertSee('Alamat email ini belum terdaftar di sistem kami');
+
+        $this->assertGuest();
+    }
+
+    #[Test]
+    public function login_gagal_dengan_akun_nonaktif(): void
+    {
+        $user = User::factory()->create([
+            'is_active' => false,
+        ]);
+
+        Livewire::test(CustomLogin::class)
+            ->fillForm([
+                'email' => $user->email,
+                'password' => 'password',
+            ])
+            ->call('authenticate')
+            ->assertHasErrors(['data.email'])
+            ->assertSee('menunggu persetujuan Admin atau berstatus nonaktif');
 
         $this->assertGuest();
     }

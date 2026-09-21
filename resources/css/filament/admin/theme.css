@@ -181,21 +181,88 @@
 /*
  * Halaman auth ala Stitch "Masuk Sistem": gradasi navy + glow oranye samar.
  * Berlaku untuk login & register (simple layout) — light maupun dark.
+ * ==========================================================================
+/* ==========================================================================
+ * AURORA WEBGL BACKGROUND & AUTH GLASSMORPHISM (ICM BRAND PALETTE)
+ * ==========================================================================
  */
 .fi-simple-layout {
+.aurora-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background-color: #0b0f2a;
+}
+
+.aurora-container canvas {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    opacity: 0.95;
+    pointer-events: none;
+}
+
+.aurora-fallback-gradient {
+    position: absolute;
+    inset: 0;
     background:
         radial-gradient(60rem 28rem at 50% -8rem, rgba(253, 138, 42, 0.22), transparent 60%),
         linear-gradient(135deg, #0a1230 0%, #18225e 55%, #0a1230 100%);
+    background-color: #0b0f2a;
+    background-image:
+        radial-gradient(60rem 32rem at 50% -8rem, rgba(234, 124, 26, 0.3), transparent 60%),
+        radial-gradient(45rem 30rem at 20% 80%, rgba(24, 34, 94, 0.8), transparent 70%),
+        radial-gradient(50rem 35rem at 85% 65%, rgba(59, 73, 184, 0.5), transparent 65%),
+        #0b0f2a;
+        radial-gradient(50rem 35rem at 85% 65%, rgba(59, 73, 184, 0.5), transparent 65%);
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.aurora-container canvas + .aurora-fallback-gradient {
+    opacity: 0.4;
+}
+
+.fi-simple-layout {
+    position: relative;
+    min-height: 100vh;
+    background: transparent !important;
+    overflow-x: hidden;
+}
+
+.fi-simple-main-ctn {
+    position: relative;
+    z-index: 10;
 }
 
 /*
  * Auth ramping: kartu + header dipadatkan agar pas satu layar desktop tanpa scroll.
  * Logo auth diperbesar khusus di sini (sidebar tidak ikut).
+ * Auth ramping: kartu login glassmorphism modern, floating di atas gelombang Aurora
  */
 .fi-simple-layout .fi-simple-main {
     margin-block: 1.5rem;
     padding: 1.75rem 1.5rem;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    background: rgba(255, 255, 255, 0.90) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 25px 50px -12px rgba(11, 15, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.4) !important;
+    border-radius: 1.25rem !important;
 }
+
+.dark .fi-simple-layout .fi-simple-main {
+    background: rgba(15, 23, 42, 0.84) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06) !important;
+}
+
 @media (min-width: 640px) {
     .fi-simple-layout .fi-simple-main {
         padding: 2.25rem 2.5rem;
@@ -206,6 +273,8 @@
 }
 .fi-simple-layout .fi-simple-header-heading {
     font-size: 1.35rem;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
 }
 .fi-simple-layout .fi-simple-header img.fi-logo {
     height: 3rem !important;
@@ -2321,3 +2390,285 @@ a.badge-whatsapp-inline {
     color: #ffffff !important;
     border-color: #25D366 !important;
 }
+
+/* ==========================================================================
+   MODAL SESI KEDALUWARSA / CSRF MISMATCH (ANTI AI-SLOP, ENTERPRISE GRADE)
+   ========================================================================== */
+.session-expired-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    background: rgba(11, 15, 42, 0.72);
+    backdrop-filter: blur(14px) saturate(180%);
+    -webkit-backdrop-filter: blur(14px) saturate(180%);
+    animation: sessionExpiredFadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.session-expired-backdrop.is-closing {
+    animation: sessionExpiredFadeOut 180ms ease forwards;
+}
+
+.session-expired-card {
+    position: relative;
+    width: 100%;
+    max-width: 29rem;
+    border-radius: 1.125rem;
+    padding: 1.5rem;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 25px 50px -12px rgba(11, 15, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.4);
+    animation: sessionExpiredScaleIn 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+}
+
+.dark .session-expired-card {
+    background: linear-gradient(180deg, #101935 0%, #0c1228 100%);
+    border: 1px solid rgba(234, 124, 26, 0.28);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 35px -5px rgba(234, 124, 26, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.session-expired-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.125rem;
+}
+
+.session-expired-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.2rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    background: rgba(234, 124, 26, 0.12);
+    color: #ea7c1a;
+    border: 1px solid rgba(234, 124, 26, 0.28);
+}
+
+.session-expired-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ea7c1a;
+    box-shadow: 0 0 6px #ea7c1a;
+    animation: sessionExpiredPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.session-expired-code {
+    font-family: var(--mono-font-family, monospace);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #94a3b8;
+    background: rgba(148, 163, 184, 0.1);
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.375rem;
+}
+
+.session-expired-hero {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    margin-bottom: 0.875rem;
+}
+
+.session-expired-icon-wrap {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(234, 124, 26, 0.14);
+    border: 1px solid rgba(234, 124, 26, 0.3);
+    color: #ea7c1a;
+}
+
+.session-expired-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.session-expired-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.session-expired-title {
+    font-family: var(--font-display, sans-serif);
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.015em;
+}
+
+.dark .session-expired-title {
+    color: #f8fafc;
+}
+
+.session-expired-subtitle {
+    font-size: 0.8125rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.dark .session-expired-subtitle {
+    color: #94a3b8;
+}
+
+.session-expired-body {
+    font-size: 0.845rem;
+    line-height: 1.55;
+    color: #475569;
+    margin-bottom: 1.35rem;
+}
+
+.dark .session-expired-body {
+    color: #cbd5e1;
+}
+
+.session-expired-body p {
+    margin: 0;
+}
+
+.session-expired-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.625rem;
+}
+
+.session-expired-btn-cancel {
+    padding: 0.525rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #64748b;
+    background: transparent;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.session-expired-btn-cancel:hover {
+    color: #0f172a;
+    background: rgba(241, 245, 249, 0.8);
+    border-color: #94a3b8;
+}
+
+.dark .session-expired-btn-cancel {
+    color: #94a3b8;
+    border-color: #2e3d6d;
+}
+
+.dark .session-expired-btn-cancel:hover {
+    color: #f8fafc;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: #475569;
+}
+
+.session-expired-btn-reload {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.525rem 1.15rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+    background: linear-gradient(135deg, #18225e 0%, #22307e 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 14px rgba(24, 34, 94, 0.35);
+    transition: all 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.session-expired-btn-reload:hover {
+    background: linear-gradient(135deg, #ea7c1a 0%, #f59e0b 100%);
+    box-shadow: 0 4px 18px rgba(234, 124, 26, 0.4);
+    transform: translateY(-1px);
+}
+
+.session-expired-btn-reload:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.session-expired-reload-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    transition: transform 220ms ease;
+}
+
+.session-expired-btn-reload:hover .session-expired-reload-icon {
+    transform: rotate(45deg);
+}
+
+.session-expired-btn-reload.is-loading {
+    opacity: 0.85;
+    cursor: wait;
+}
+
+.session-expired-btn-reload.is-loading .session-expired-reload-icon {
+    animation: sessionExpiredSpin 800ms linear infinite;
+}
+
+@keyframes sessionExpiredFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes sessionExpiredFadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes sessionExpiredScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes sessionExpiredSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sessionExpiredPulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.4;
+        transform: scale(1.2);
+    }
+}
+
