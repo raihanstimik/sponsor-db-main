@@ -50,7 +50,7 @@ class KontaksTable
 
         return $table
             // Eager load anti N+1, withCount siap jika perlu agregat
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['perusahaan', 'kegiatan', 'kategoriKegiatan', 'updatedBy']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['perusahaan', 'kegiatan', 'kegiatans', 'kategoriKegiatan', 'updatedBy']))
             ->searchable(false)
             ->striped()
             ->header(fn (HasTable $livewire): View => view('filament.tables.kontak-summary', [
@@ -153,7 +153,7 @@ class KontaksTable
                     ->width('22%')
                     ->searchable()
                     ->badge()
-                    ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna)
+                    ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna ?? 'primary')
                     ->sortable(query: function (Builder $query, string $direction): Builder {
                         $arah = $direction === 'desc' ? 'desc' : 'asc';
 
@@ -165,8 +165,28 @@ class KontaksTable
                     })
                     ->placeholder('-')
                     ->limit(26)
-                    ->tooltip(fn (Kontak $record): ?string => $record->kegiatan?->nama_event)
-                    ->description(fn (Kontak $record): ?string => $record->kegiatan?->tanggal_mulai?->format('Y'))
+                    ->formatStateUsing(function (?string $state, Kontak $record): string {
+                        if ($record->kegiatans && $record->kegiatans->count() > 1) {
+                            return $record->kegiatans->pluck('nama_event')->implode(', ');
+                        }
+
+                        return $state ?? $record->kegiatans?->first()?->nama_event ?? '-';
+                    })
+                    ->tooltip(function (Kontak $record): ?string {
+                        if ($record->kegiatans && $record->kegiatans->count() > 0) {
+                            return $record->kegiatans->pluck('nama_event')->implode(', ');
+                        }
+
+                        return $record->kegiatan?->nama_event;
+                    })
+                    ->description(function (Kontak $record): ?string {
+                        $total = $record->kegiatans ? $record->kegiatans->count() : 0;
+                        if ($total > 1) {
+                            return "({$total} Event Diikuti)";
+                        }
+
+                        return $record->kegiatan?->tanggal_mulai?->format('Y') ?? $record->kegiatans?->first()?->tanggal_mulai?->format('Y');
+                    })
                     ->extraCellAttributes(['class' => 'col-kontak-event'])
                     ->toggleable(),
                 TextColumn::make('kategoriKegiatan.nama_kategori')
@@ -252,7 +272,12 @@ class KontaksTable
                     ])
                     ->query(fn (Builder $query, array $data): Builder => filled(trim((string) ($data['q'] ?? '')))
                         ? app(KontakSmartSearch::class)->applyTo($query, trim((string) $data['q']))
-                        : $query),
+                        : $query)
+                    ->indicateUsing(function (array $data): ?array {
+                        $q = trim((string) ($data['q'] ?? ''));
+
+                        return filled($q) ? ['Pencarian: "' . $q . '"'] : null;
+                    }),
                 SelectFilter::make('kegiatan_id')
                     ->label('Kegiatan')
                     ->options(fn (): array => Kegiatan::query()->orderBy('nama_event')->pluck('nama_event', 'id')->all())
@@ -260,6 +285,18 @@ class KontaksTable
                     ->preload()
                     ->searchable()
                     ->modifyFormFieldUsing(fn (Select $field) => $field->extraAttributes(['class' => 'fi-filter-kegiatan-compact']))
+                    ->query(function (Builder $query, array $data): Builder {
+                        $vals = $data['values'] ?? $data['value'] ?? [];
+                        $vals = is_array($vals) ? array_filter($vals) : array_filter([$vals]);
+                        if (blank($vals)) {
+                            return $query;
+                        }
+
+                        return $query->where(function (Builder $sub) use ($vals): void {
+                            $sub->whereHas('kegiatans', fn (Builder $kq) => $kq->whereIn('kegiatans.id', $vals))
+                                ->orWhereIn('kontaks.kegiatan_id', $vals);
+                        });
+                    })
                     ->indicateUsing(function (array $data, array $state): ?array {
                         $vals = $state['values'] ?? $state['value'] ?? $data['values'] ?? $data['value'] ?? [];
                         $vals = is_array($vals) ? array_filter($vals) : array_filter([$vals]);

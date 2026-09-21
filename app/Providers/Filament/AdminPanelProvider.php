@@ -41,6 +41,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogoHeight('2.25rem')
             ->darkModeBrandLogo(asset('images/logo-icm.png'))
             ->darkModeBrandLogo(asset('images/logo-icm.webp'))
+            ->favicon(asset('images/icon-icm.png'))
+            ->favicon(fn (): string => asset('images/icon-icm.png') . '?v=' . (file_exists(public_path('images/icon-icm.png')) ? filemtime(public_path('images/icon-icm.png')) : 1))
             ->colors([
                 'primary' => Color::hex('#18225E'),
                 'primary' => [
@@ -65,10 +67,23 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->font('Fira Sans')
             ->spa()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->globalSearchDebounce('400ms')
             ->simplePageMaxContentWidth(Width::Medium)
             ->viteTheme(['resources/css/filament/admin/theme.css', 'resources/js/app.js'])
+            ->renderHook(
+                PanelsRenderHook::HEAD_START,
+                function (): string {
+                    $v = file_exists(public_path('images/icon-icm.png')) ? (string) filemtime(public_path('images/icon-icm.png')) : '1';
+
+                    return '<link rel="apple-touch-icon" sizes="180x180" href="' . asset('apple-touch-icon.png') . '?v=' . $v . '">' . PHP_EOL .
+                        '<link rel="icon" type="image/png" sizes="32x32" href="' . asset('images/icon-icm-32x32.png') . '?v=' . $v . '">' . PHP_EOL .
+                        '<link rel="icon" type="image/png" sizes="192x192" href="' . asset('images/icon-icm-192x192.png') . '?v=' . $v . '">' . PHP_EOL .
+                        '<link rel="shortcut icon" href="' . asset('favicon.ico') . '?v=' . $v . '">';
+                }
+            )
             ->renderHook(
                 PanelsRenderHook::BODY_START,
                 fn (): string => view('filament.hooks.impersonation-banner')->render()

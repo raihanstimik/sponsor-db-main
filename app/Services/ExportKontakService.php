@@ -55,7 +55,7 @@ class ExportKontakService
     public function buildQuery(Request $request, string $scope = 'filtered'): Builder
     {
         $query = Kontak::query()
-            ->with(['perusahaan', 'kegiatan', 'kategoriKegiatan'])
+            ->with(['perusahaan', 'kegiatan', 'kegiatans', 'kategoriKegiatan'])
             ->orderBy('nama');
 
         if ($scope === 'all') {
@@ -69,7 +69,11 @@ class ExportKontakService
 
         $kegiatanId = $request->query('kegiatan_id', $request->input('kegiatan_id'));
         if (filled($kegiatanId)) {
-            $query->whereIn('kegiatan_id', (array) $kegiatanId);
+            $ids = (array) $kegiatanId;
+            $query->where(function (Builder $sub) use ($ids): void {
+                $sub->whereIn('kontaks.kegiatan_id', $ids)
+                    ->orWhereHas('kegiatans', fn (Builder $kq): Builder => $kq->whereIn('kegiatans.id', $ids));
+            });
         }
 
         $kategoriId = $request->query('kategori_kegiatan_id', $request->input('kategori_kegiatan_id'));
@@ -235,14 +239,21 @@ class ExportKontakService
             $query->chunk(500, function ($kontaks) use ($handle, $extraColumns, &$isFirst): void {
                 foreach ($kontaks as $kontak) {
                     /** @var Kontak $kontak */
+                    $namaEvent = $kontak->kegiatans->isNotEmpty()
+                        ? $kontak->kegiatans->pluck('nama_event')->implode(', ')
+                        : $kontak->kegiatan?->nama_event;
+                    $tahunEvent = $kontak->kegiatans->isNotEmpty()
+                        ? $kontak->kegiatans->pluck('tanggal_mulai')->filter()->map(fn ($d) => $d->format('Y'))->unique()->implode(', ')
+                        : $kontak->kegiatan?->tanggal_mulai?->format('Y');
+
                     $item = [
                         'id' => $kontak->id,
                         'nama_pic' => $kontak->nama,
                         'perusahaan' => $kontak->perusahaan?->nama_standar,
                         'industri' => $kontak->perusahaan?->industri,
                         'no_telepon' => $kontak->no_telepon,
-                        'kegiatan' => $kontak->kegiatan?->nama_event,
-                        'tahun' => $kontak->kegiatan?->tanggal_mulai?->format('Y'),
+                        'kegiatan' => $namaEvent ?: $kontak->kegiatan?->nama_event,
+                        'tahun' => $tahunEvent ?: $kontak->kegiatan?->tanggal_mulai?->format('Y'),
                         'kategori' => $kontak->kategoriKegiatan?->nama_kategori,
                     ];
 
@@ -312,13 +323,20 @@ class ExportKontakService
      */
     public function transformKontakToRow(Kontak $kontak, array $extraColumns, bool $forExcel = false): array
     {
+        $namaEvent = $kontak->kegiatans->isNotEmpty()
+            ? $kontak->kegiatans->pluck('nama_event')->implode(', ')
+            : $kontak->kegiatan?->nama_event;
+        $tahunEvent = $kontak->kegiatans->isNotEmpty()
+            ? $kontak->kegiatans->pluck('tanggal_mulai')->filter()->map(fn ($d) => $d->format('Y'))->unique()->implode(', ')
+            : $kontak->kegiatan?->tanggal_mulai?->format('Y');
+
         $row = [
             $kontak->nama,
             $kontak->perusahaan?->nama_standar,
             $kontak->perusahaan?->industri,
             $kontak->no_telepon,
-            $kontak->kegiatan?->nama_event,
-            $kontak->kegiatan?->tanggal_mulai?->format('Y'),
+            $namaEvent ?: $kontak->kegiatan?->nama_event,
+            $tahunEvent ?: $kontak->kegiatan?->tanggal_mulai?->format('Y'),
             $kontak->kategoriKegiatan?->nama_kategori,
         ];
 

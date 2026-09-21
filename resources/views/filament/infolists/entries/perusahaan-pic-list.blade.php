@@ -23,7 +23,7 @@
                             {{ $kontak->nama ?: '(Tanpa Nama PIC)' }}
                         </p>
                         <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-                            {{ $kontak->kegiatan?->nama_event ?? $kontak->kategoriKegiatan?->nama_kategori ?? 'Kongres Umum' }}
+                            {{ $kontak->kegiatans->isNotEmpty() ? $kontak->kegiatans->pluck('nama_event')->implode(', ') : ($kontak->kegiatan?->nama_event ?? $kontak->kategoriKegiatan?->nama_kategori ?? 'Kongres Umum') }}
                             @if($kontak->email)
                                 &bull; <a href="mailto:{{ $kontak->email }}" class="hover:underline text-slate-600 dark:text-slate-300">{{ $kontak->email }}</a>
                             @endif
@@ -51,7 +51,7 @@
 @endif
 
 <div class="pt-2 flex justify-end">
-    <a href="{{ \App\Filament\Resources\Kontaks\KontakResource::getUrl() }}?tableFilters[perusahaan][value]={{ $getRecord()->id }}" 
+    <a href="{{ \App\Filament\Resources\Kontaks\KontakResource::getUrl() }}?tableFilters[cari][q]={{ urlencode($getRecord()->nama_standar) }}" 
        class="text-xs font-semibold text-[#18225E] dark:text-blue-400 hover:underline inline-flex items-center gap-1">
         <span>Buka & Kelola Seluruh PIC di Modul Kontak</span>
         <span>&rarr;</span>

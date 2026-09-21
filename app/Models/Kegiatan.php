@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -50,7 +51,12 @@ class Kegiatan extends Model
         return $this->belongsTo(KategoriKegiatan::class, 'kategori_kegiatan_id');
     }
 
-    public function kontaks(): HasMany
+    public function kontaks(): BelongsToMany
+    {
+        return $this->belongsToMany(Kontak::class, 'kegiatan_kontak')->withTimestamps();
+    }
+
+    public function directKontaks(): HasMany
     {
         return $this->hasMany(Kontak::class);
     }

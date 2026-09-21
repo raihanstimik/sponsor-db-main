@@ -86,10 +86,10 @@ class KontakInfolist
                             ->url(fn ($record) => filled($record->email) ? 'mailto:'.$record->email : null)
                             ->placeholder('-'),
 
-                        TextEntry::make('kegiatan.nama_event')
-                            ->label('Kegiatan / Event')
+                        TextEntry::make('kegiatans.nama_event')
+                            ->label('Kegiatan / Event yang Diikuti')
                             ->badge()
-                            ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna)
+                            ->color(fn (Kontak $record): ?string => $record->kegiatan?->warna ?? $record->kategoriKegiatan?->warna ?? 'primary')
                             ->placeholder('-'),
 
                         TextEntry::make('kategoriKegiatan.nama_kategori')
@@ -126,9 +126,17 @@ class KontakInfolist
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Format Valid' : 'Format Tidak Standar')
                             ->color(fn (bool $state): string => $state ? 'success' : 'warning'),
 
-                        TextEntry::make('kegiatan.tanggal_mulai')
+                        TextEntry::make('tahun_event')
                             ->label('Tahun Event')
-                            ->date('Y')
+                            ->state(function (Kontak $record): string {
+                                if ($record->kegiatans->isNotEmpty()) {
+                                    $years = $record->kegiatans->pluck('tanggal_mulai')->filter()->map(fn ($d) => $d->format('Y'))->unique()->implode(', ');
+                                    if ($years !== '') {
+                                        return $years;
+                                    }
+                                }
+                                return $record->kegiatan?->tanggal_mulai?->format('Y') ?? '-';
+                            })
                             ->placeholder('-'),
 
                         TextEntry::make('created_at')

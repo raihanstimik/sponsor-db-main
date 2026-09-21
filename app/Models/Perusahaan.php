@@ -46,7 +46,7 @@ class Perusahaan extends Model
     public function kontaksForDetailModal(): Collection
     {
         return $this->kontaks()
-            ->with(['kegiatan', 'kategoriKegiatan'])
+            ->with(['kegiatan', 'kegiatans', 'kategoriKegiatan'])
             ->orderBy('nama')
             ->get();
     }
@@ -93,9 +93,21 @@ class Perusahaan extends Model
     public function kegiatanPernahDiikuti(): Collection
     {
         return Kegiatan::query()
-            ->whereHas('kontaks', fn ($q) => $q->where('perusahaan_id', $this->id))
+            ->where(function ($query) {
+                $query->whereHas('kontaks', fn ($q) => $q->where('perusahaan_id', $this->id))
+                    ->orWhereHas('directKontaks', fn ($q) => $q->where('perusahaan_id', $this->id));
+            })
             ->with('kategoriKegiatan')
-            ->orderByDesc('tanggal_mulai')
-            ->get();
+            ->get()
+            ->sortByDesc(function (Kegiatan $k) {
+                if ($k->tanggal_mulai) {
+                    return $k->tanggal_mulai->format('Y-m-d');
+                }
+                if (preg_match('/\b(20\d{2})\b/', $k->nama_event, $matches)) {
+                    return $matches[1] . '-01-01';
+                }
+                return '1970-01-01';
+            })
+            ->values();
     }
 }

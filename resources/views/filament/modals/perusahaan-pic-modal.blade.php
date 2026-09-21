@@ -60,7 +60,7 @@
     @endif
 
     <div class="pt-2 flex justify-end">
-        <a href="{{ \App\Filament\Resources\Kontaks\KontakResource::getUrl() }}?tableFilters[perusahaan][value]={{ $record->id }}" class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+        <a href="{{ \App\Filament\Resources\Kontaks\KontakResource::getUrl() }}?tableFilters[cari][q]={{ urlencode($record->nama_standar) }}" class="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
             <span>Buka & Kelola di Modul Kontak</span>
             <span>&rarr;</span>
         </a>

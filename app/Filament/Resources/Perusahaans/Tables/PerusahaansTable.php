@@ -28,7 +28,6 @@ class PerusahaansTable
         FilamentTableHelper::applyDefaultPresets($table);
 
         return $table
-            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['updatedBy']))
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['updatedBy', 'latestKontakWithKegiatan.kegiatan']))
             ->columns([
                 TextColumn::make('nama_standar')
@@ -87,11 +86,6 @@ class PerusahaansTable
 
                 TextColumn::make('latest_event')
                     ->label('Event Terakhir')
-                    ->state(function (Perusahaan $record): ?string {
-                        $latest = $record->kontaks()->with('kegiatan')->whereNotNull('kegiatan_id')->latest('id')->first();
-
-                        return $latest?->kegiatan?->nama_event;
-                    })
                     ->state(fn (Perusahaan $record): ?string => $record->latestKontakWithKegiatan?->kegiatan?->nama_event)
                     ->placeholder('-')
                     ->limit(24)
@@ -132,7 +126,6 @@ class PerusahaansTable
                     ->color('success')
                     ->modalHeading(fn (Perusahaan $record): string => 'Daftar PIC: '.$record->nama_standar)
                     ->modalWidth('xl')
-                    ->modalContent(fn (Perusahaan $record): View => view('filament.modals.perusahaan-pic-modal', ['record' => $record]))
                     ->modalContent(fn (Perusahaan $record): View => view('filament.modals.perusahaan-pic-modal', [
                         'record' => $record,
                         'kontaks' => $record->kontaksForDetailModal(),
@@ -142,7 +135,6 @@ class PerusahaansTable
 
                 ViewAction::make()
                     ->label('')
-                    ->tooltip('Lihat Overview Perusahaan')
                     ->tooltip('Lihat Profil Perusahaan')
                     ->slideOver()
                     ->modalWidth('2xl')

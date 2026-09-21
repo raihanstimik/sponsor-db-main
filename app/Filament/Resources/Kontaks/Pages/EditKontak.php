@@ -26,6 +26,14 @@ class EditKontak extends EditRecord
         return $data;
     }
 
+    protected function afterSave(): void
+    {
+        $firstKegiatanId = $this->record->kegiatans()->first()?->id;
+        if ($this->record->kegiatan_id !== $firstKegiatanId) {
+            $this->record->updateQuietly(['kegiatan_id' => $firstKegiatanId]);
+        }
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');

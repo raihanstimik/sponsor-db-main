@@ -10,6 +10,7 @@ use App\Support\KlasifikasiTabel;
 use App\Support\PhoneNormalizer;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -59,21 +60,28 @@ class KontakForm
                             ])
                             ->createOptionModalHeading('Tambah Perusahaan Sponsor Baru'),
 
-                        Select::make('kegiatan_id')
-                            ->label('Kegiatan / Event Sponsor')
-                            ->placeholder('Pilih kegiatan / event (opsional)...')
+                        Hidden::make('kegiatan_id')->dehydrated(),
+
+                        Select::make('kegiatans')
+                            ->label('Kegiatan / Event yang Diikuti')
+                            ->placeholder('Pilih satu atau beberapa kegiatan / event...')
                             ->prefixIcon('heroicon-m-calendar')
-                            ->relationship('kegiatan', 'nama_event', fn ($query) => $query->orderBy('nama_event'))
+                            ->relationship('kegiatans', 'nama_event', fn ($query) => $query->orderBy('nama_event'))
+                            ->multiple()
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->afterStateUpdated(function (?string $state, Set $set): void {
-                                if (! $state) {
+                            ->afterStateUpdated(function ($state, Set $set): void {
+                                if (empty($state)) {
                                     return;
                                 }
-                                $kategoriId = Kegiatan::where('id', $state)->value('kategori_kegiatan_id');
-                                if ($kategoriId) {
-                                    $set('kategori_kegiatan_id', $kategoriId);
+                                $ids = is_array($state) ? $state : [$state];
+                                $firstId = reset($ids);
+                                if ($firstId) {
+                                    $kategoriId = Kegiatan::where('id', $firstId)->value('kategori_kegiatan_id');
+                                    if ($kategoriId) {
+                                        $set('kategori_kegiatan_id', $kategoriId);
+                                    }
                                 }
                             })
                             ->createOptionForm([

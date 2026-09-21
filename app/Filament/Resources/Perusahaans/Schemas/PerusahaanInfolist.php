@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Perusahaans\Schemas;
 
 use App\Models\Perusahaan;
-use Filament\Actions\Action;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
 use Filament\Schemas\Components\Grid;
@@ -42,13 +41,7 @@ class PerusahaanInfolist
                                         ->hiddenLabel()
                                         ->weight(FontWeight::Bold)
                                         ->size(TextSize::Large)
-                                        ->color('primary')
-                                        ->suffixAction(
-                                            Action::make('verified')
-                                                ->icon('heroicon-m-check-badge')
-                                                ->color('warning')
-                                                ->tooltip('Entitas Terdaftar di Sistem ICM')
-                                        ),
+                                        ->color('primary'),
 
                                     Grid::make(['default' => 2, 'sm' => 3])
                                         ->schema([

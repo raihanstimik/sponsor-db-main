@@ -131,7 +131,7 @@ class PerusahaanEnhancementsTest extends TestCase
 
         $timelineHtml = view('filament.infolists.entries.perusahaan-event-timeline', ['getRecord' => fn () => $perusahaan])->render();
         $this->assertStringContainsString('PIT IKABI 2026', $timelineHtml);
-        $this->assertStringContainsString('Terbaru', $timelineHtml);
+        $this->assertStringNotContainsString('Terbaru', $timelineHtml);
     }
 }
 

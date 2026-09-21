@@ -340,4 +340,88 @@ class KontakEnhancementsTest extends TestCase
             ->assertSee('Simpan Kontak')
             ->assertDontSee('Format Nomor Valid');
     }
+
+    #[Test]
+    public function kontak_dapat_terafiliasi_dengan_banyak_kegiatan_tanpa_duplikasi_kontak(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $perusahaan = Perusahaan::factory()->create(['nama_standar' => 'PT Bio Farma']);
+        $eventA = \App\Models\Kegiatan::factory()->create(['nama_event' => 'PIT PERDAMI 2026']);
+        $eventB = \App\Models\Kegiatan::factory()->create(['nama_event' => 'INDAAC 2026']);
+
+        Livewire::test(CreateKontak::class)
+            ->fillForm([
+                'perusahaan_id' => $perusahaan->id,
+                'nama' => 'dr. Rudi Salim',
+                'no_telepon' => '081198765432',
+                'kegiatans' => [$eventA->id, $eventB->id],
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseCount('kontaks', 1);
+        $kontak = Kontak::where('nama', 'dr. Rudi Salim')->first();
+        $this->assertNotNull($kontak);
+
+        $this->assertCount(2, $kontak->kegiatans);
+        $this->assertTrue($kontak->kegiatans->contains($eventA));
+        $this->assertTrue($kontak->kegiatans->contains($eventB));
+
+        Livewire::test(ListKontaks::class)
+            ->assertOk()
+            ->filterTable('kegiatan_id', [(string) $eventB->id])
+            ->assertCanSeeTableRecords([$kontak]);
+    }
+
+    #[Test]
+    public function import_kontak_dengan_nomor_sama_menautkan_event_baru_ke_kontak_lama(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $perusahaan = Perusahaan::factory()->create(['nama_standar' => 'PT Kalbe Farma']);
+        $event1 = \App\Models\Kegiatan::factory()->create(['nama_event' => 'KONAS POGI 2025']);
+        $event2 = \App\Models\Kegiatan::factory()->create(['nama_event' => 'PIT HOGSI 2026']);
+
+        $kontak = Kontak::factory()->create([
+            'perusahaan_id' => $perusahaan->id,
+            'nama' => 'Budi Santoso',
+            'no_telepon' => '628111465133',
+            'kegiatan_id' => $event1->id,
+        ]);
+
+        $this->assertCount(1, $kontak->fresh()->kegiatans);
+
+        $service = new \App\Services\KontakImportService;
+        $previews = [
+            [
+                'baris' => 1,
+                'nama_perusahaan' => 'PT Kalbe Farma',
+                'perusahaan_status' => 'cocok',
+                'perusahaan_id' => $perusahaan->id,
+                'perusahaan_nama_resmi' => 'PT Kalbe Farma',
+                'industri' => 'Farmasi',
+                'nama' => 'Budi Santoso',
+                'no_telepon_mentah' => '0811-1465-133',
+                'no_telepon' => '628111465133',
+                'no_telepon_valid' => true,
+                'catatan' => '',
+                'nama_event' => 'PIT HOGSI 2026',
+                'nama_kategori' => '',
+                'status_kontak' => 'duplikat_telepon',
+                'alasan' => 'Sudah ada kontak bernomor 628111465133 pada PT Kalbe Farma',
+            ],
+        ];
+
+        $result = $service->save((int) $admin->id, $previews);
+
+        $this->assertSame(0, $result['kontak_dibuat']);
+        $this->assertSame(1, $result['dilewati']);
+        $this->assertDatabaseCount('kontaks', 1);
+
+        $freshKontak = $kontak->fresh();
+        $this->assertCount(2, $freshKontak->kegiatans);
+        $this->assertTrue($freshKontak->kegiatans->contains($event1));
+        $this->assertTrue($freshKontak->kegiatans->contains($event2));
+    }
 }

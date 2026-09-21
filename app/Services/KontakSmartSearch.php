@@ -59,7 +59,7 @@ class KontakSmartSearch
                         $inner->where(function (Builder $sub) use ($needle): void {
                             $sub->whereHas('perusahaan', fn (Builder $p): Builder => $p->where('nama_standar', 'like', $needle))
                                 ->orWhere('kontaks.nama', 'like', $needle)
-                                ->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
+                                ->orWhereHas('kegiatans', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
                                 ->orWhereHas('kategoriKegiatan', fn (Builder $k): Builder => $k->where('nama_kategori', 'like', $needle));
                             $this->applyTextMatch($sub, $needle);
                         })->orWhere('kontaks.no_telepon', 'like', $phoneNeedle);
@@ -67,7 +67,7 @@ class KontakSmartSearch
                         $needle = $this->textNeedle($token);
                         $inner->whereHas('perusahaan', fn (Builder $p): Builder => $p->where('nama_standar', 'like', $needle))
                             ->orWhere('kontaks.nama', 'like', $needle)
-                            ->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
+                            ->orWhereHas('kegiatans', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))->orWhereHas('kegiatan', fn (Builder $k): Builder => $k->where('nama_event', 'like', $needle))
                             ->orWhereHas('kategoriKegiatan', fn (Builder $k): Builder => $k->where('nama_kategori', 'like', $needle));
                         $inner->where(function (Builder $sub) use ($needle): void {
                             $this->applyTextMatch($sub, $needle);
@@ -98,7 +98,8 @@ class KontakSmartSearch
             }
 
             if ($kegiatanIds !== []) {
-                $q->orWhereIn('kontaks.kegiatan_id', $kegiatanIds);
+                $q->orWhereIn('kontaks.kegiatan_id', $kegiatanIds)
+                    ->orWhereHas('kegiatans', fn (Builder $kq): Builder => $kq->whereIn('kegiatans.id', $kegiatanIds));
             }
 
             if ($kategoriIds !== []) {
@@ -134,7 +135,7 @@ class KontakSmartSearch
                 $labels[] = 'PIC';
             }
 
-            if (! $this->isPureNumber($token) && $this->contains((string) $record->kegiatan?->nama_event, $low)) {
+            if (! $this->isPureNumber($token) && ($this->contains((string) $record->kegiatan?->nama_event, $low) || ($record->kegiatans && $record->kegiatans->contains(fn ($k): bool => $this->contains((string) $k->nama_event, $low))))) {
                 $labels[] = 'Kegiatan';
             }
 

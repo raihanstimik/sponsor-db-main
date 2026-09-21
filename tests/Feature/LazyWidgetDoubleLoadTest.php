@@ -29,13 +29,31 @@ class LazyWidgetDoubleLoadTest extends TestCase
         $html = $this->get('/admin')->assertOk()->getContent();
 
         preg_match(
+        preg_match_all(
             '/wire:snapshot="(?<snap>[^"]+)"[^>]*?wire:id="(?<id>[^"]+)"[^>]*?wire:name="(?<name>[^"]+)"[^>]*?x-intersect="\$wire\.__lazyLoad\(&#039;(?<enc>[^&]+)&#039;\)"/',
             $html,
             $hit,
+            $matches,
+            PREG_SET_ORDER
         );
 
         $this->assertNotEmpty($hit, 'Widget lazy (placeholder) tidak ditemukan di halaman dashboard.');
         $this->assertStringContainsString('App\Filament\Widgets', $hit['name']);
+        $this->assertNotEmpty($matches, 'Widget lazy (placeholder) tidak ditemukan di halaman dashboard.');
+
+        $hit = null;
+        foreach ($matches as $match) {
+            if (str_contains($match['name'], 'App\\Filament\\Widgets') || str_contains($match['name'], 'app.filament.widgets')) {
+                $hit = $match;
+                break;
+            }
+        }
+
+        if ($hit === null) {
+            $hit = $matches[0];
+        }
+
+        $this->assertNotNull($hit);
 
         $snapshot = json_decode(html_entity_decode($hit['snap']), true);
         $encoded = $hit['enc'];

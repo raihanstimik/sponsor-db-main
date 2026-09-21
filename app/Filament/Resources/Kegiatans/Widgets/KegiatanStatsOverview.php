@@ -31,7 +31,10 @@ class KegiatanStatsOverview extends StatsOverviewWidget
                     });
             })->count();
 
-            $totalKontakTerafiliasi = Kontak::whereNotNull('kegiatan_id')->count();
+            $totalKontakTerafiliasi = Kontak::where(function ($query) {
+                $query->whereNotNull('kegiatan_id')
+                    ->orWhereHas('kegiatans');
+            })->count();
 
             return [
                 'totalKegiatan' => $totalKegiatan,

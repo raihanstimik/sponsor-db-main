@@ -59,6 +59,14 @@ class CadanganData extends Page
                 ->body("File snapshot {$result['filename']} tersimpan ({$result['total_records']} total data).")
                 ->success()
                 ->send();
+
+            if (auth()->user()) {
+                app(\App\Services\AppNotificationService::class)->notifyBackupBerhasil(
+                    auth()->user(),
+                    $result['filename'],
+                    $result['size'] ?? 'snapshot'
+                );
+            }
         } catch (Exception $e) {
             Notification::make()
                 ->title('Pembuatan Cadangan Gagal')
@@ -142,6 +150,13 @@ class CadanganData extends Page
                 ->body($result['message'] . ' Snapshot pengaman darurat (pre-restore) juga telah dibuat otomatis.')
                 ->success()
                 ->send();
+
+            if (auth()->user()) {
+                app(\App\Services\AppNotificationService::class)->notifyRestoreBerhasil(
+                    auth()->user(),
+                    $filename
+                );
+            }
         } catch (Exception $e) {
             Notification::make()
                 ->title('Pemulihan Gagal')

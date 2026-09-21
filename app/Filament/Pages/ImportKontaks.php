@@ -240,6 +240,15 @@ class ImportKontaks extends Page
             ))
             ->success()
             ->send();
+
+        if (auth()->user()) {
+            app(\App\Services\AppNotificationService::class)->notifyImportSelesai(
+                auth()->user(),
+                $result['kontak_dibuat'],
+                $result['perusahaan_dibuat'],
+                $result['dilewati']
+            );
+        }
     }
 
     public function resetImport(): void

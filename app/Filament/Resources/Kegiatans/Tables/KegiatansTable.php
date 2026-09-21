@@ -33,7 +33,7 @@ class KegiatansTable
                 ->with('kategoriKegiatan')
                 ->select('kegiatans.*')
                 ->selectSub(
-                    'select count(distinct perusahaan_id) from kontaks where kontaks.kegiatan_id = kegiatans.id and kontaks.perusahaan_id is not null',
+                    'select count(distinct kontaks.perusahaan_id) from kontaks inner join kegiatan_kontak on kegiatan_kontak.kontak_id = kontaks.id where kegiatan_kontak.kegiatan_id = kegiatans.id and kontaks.perusahaan_id is not null',
                     'sponsors_count'
                 )
             )

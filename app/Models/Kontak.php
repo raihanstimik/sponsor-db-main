@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -38,6 +39,15 @@ class Kontak extends Model
         return [
             'status_format_valid' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Kontak $kontak): void {
+            if ($kontak->kegiatan_id !== null) {
+                $kontak->kegiatans()->syncWithoutDetaching([$kontak->kegiatan_id]);
+            }
+        });
     }
 
     /**
@@ -86,6 +96,11 @@ class Kontak extends Model
     public function perusahaan(): BelongsTo
     {
         return $this->belongsTo(Perusahaan::class);
+    }
+
+        public function kegiatans(): BelongsToMany
+    {
+        return $this->belongsToMany(Kegiatan::class, 'kegiatan_kontak')->withTimestamps();
     }
 
     public function kegiatan(): BelongsTo

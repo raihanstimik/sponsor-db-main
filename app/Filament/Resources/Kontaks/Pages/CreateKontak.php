@@ -22,7 +22,44 @@ class CreateKontak extends CreateRecord
     {
         $data['updated_by'] = auth()->id();
 
+        if (! empty($data['kegiatan_id'])) {
+            $kegiatan = \App\Models\Kegiatan::find($data['kegiatan_id']);
+            if ($kegiatan && empty($data['kategori_kegiatan_id'])) {
+                $data['kategori_kegiatan_id'] = $kegiatan->kategori_kegiatan_id;
+            }
+        }
+
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        if ($this->record->kegiatan_id && $this->record->kegiatans()->count() === 0) {
+            $this->record->kegiatans()->syncWithoutDetaching([$this->record->kegiatan_id]);
+        }
+
+        $firstKegiatan = $this->record->kegiatans()->first()
+            ?? ($this->record->kegiatan_id ? \App\Models\Kegiatan::find($this->record->kegiatan_id) : null);
+
+        if ($firstKegiatan) {
+            $updates = [];
+            if ($this->record->kegiatan_id !== $firstKegiatan->id) {
+                $updates['kegiatan_id'] = $firstKegiatan->id;
+            }
+            if (! $this->record->kategori_kegiatan_id && $firstKegiatan->kategori_kegiatan_id) {
+                $updates['kategori_kegiatan_id'] = $firstKegiatan->kategori_kegiatan_id;
+            }
+            if ($updates !== []) {
+                $this->record->updateQuietly($updates);
+            }
+        }
+
+        if (auth()->user()) {
+            app(\App\Services\AppNotificationService::class)->notifyKontakBaru(
+                auth()->user(),
+                $this->record
+            );
+        }
     }
 
     protected function getRedirectUrl(): string

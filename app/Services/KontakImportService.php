@@ -749,11 +749,62 @@ class KontakImportService
         $createdCompanies = [];
         $kegiatanCache = [];
         $kategoriCache = [];
+        $createdKontaks = [];
 
-        activity()->withoutLogs(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache): void {
-            DB::transaction(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache): void {
+        activity()->withoutLogs(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache, &$createdKontaks): void {
+            DB::transaction(function () use ($previews, $authId, &$dilewati, &$perusahaanDibuat, &$kontakDibuat, &$createdCompanies, &$kegiatanCache, &$kategoriCache, &$createdKontaks): void {
                 foreach ($previews as $preview) {
                     if ($preview['status_kontak'] !== 'dibuat') {
+                        // Jika kontak sudah ada dan baris import memiliki event, tautkan event ke kontak tersebut (M:N)
+                        if (in_array($preview['status_kontak'], ['duplikat_telepon', 'duplikat_batch'], true) && filled($preview['nama_event'] ?? null) && filled($preview['no_telepon'] ?? null)) {
+                            $targetPerusahaanId = $preview['perusahaan_id'] ?? null;
+                            if (! $targetPerusahaanId && $norm !== '') {
+                                $targetPerusahaanId = isset($createdCompanies[$norm]) ? $createdCompanies[$norm]->id : Perusahaan::withTrashed()->where('nama_standar', $targetNama)->value('id');
+                            }
+
+                            if ($targetPerusahaanId) {
+                                $phoneKey = $targetPerusahaanId.'|'.$preview['no_telepon'];
+                                $existingKontak = $createdKontaks[$phoneKey] ?? Kontak::where('perusahaan_id', $targetPerusahaanId)
+                                    ->where('no_telepon', $preview['no_telepon'])
+                                    ->first();
+
+                                if ($existingKontak) {
+                                    $namaEvent = KlasifikasiTabel::eventKanonik($preview['nama_event']);
+                                    if (filled($namaEvent)) {
+                                        if (! isset($kegiatanCache[$namaEvent])) {
+                                            $kegiatan = Kegiatan::firstOrCreate(['nama_event' => $namaEvent]);
+                                            $kegiatanCache[$namaEvent] = $kegiatan;
+
+                                            if (filled($preview['nama_kategori'] ?? null)) {
+                                                $kategoriNama = (string) $preview['nama_kategori'];
+                                                if (! isset($kategoriCache[$kategoriNama])) {
+                                                    $kategoriCache[$kategoriNama] = KategoriKegiatan::firstOrCreate(['nama_kategori' => $kategoriNama]);
+                                                }
+                                                $kegiatan->kategori_kegiatan_id = $kategoriCache[$kategoriNama]->id;
+                                            }
+
+                                            if (filled($preview['venue'] ?? null)) {
+                                                $kegiatan->venue = (string) $preview['venue'];
+                                            }
+
+                                            if (filled($preview['tanggal_mulai'] ?? null)) {
+                                                $kegiatan->tanggal_mulai = (string) $preview['tanggal_mulai'];
+                                            }
+
+                                            $kegiatan->save();
+                                        }
+
+                                        $kegiatan = $kegiatanCache[$namaEvent];
+                                        $existingKontak->kegiatans()->syncWithoutDetaching([$kegiatan->id]);
+
+                                        if (empty($existingKontak->kegiatan_id)) {
+                                            $existingKontak->updateQuietly(['kegiatan_id' => $kegiatan->id]);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         $dilewati++;
 
                         continue;
@@ -841,7 +892,7 @@ class KontakImportService
                         $kategoriId = $kegiatan->kategori_kegiatan_id;
                     }
 
-                    Kontak::create([
+                    $newKontak = Kontak::create([
                         'perusahaan_id' => $perusahaan->id,
                         'kegiatan_id' => $kegiatanId,
                         'kategori_kegiatan_id' => $kategoriId,
@@ -852,6 +903,15 @@ class KontakImportService
                         'updated_by' => $authId,
                         'catatan' => $preview['catatan'] ?: null,
                     ]);
+
+                    if ($kegiatanId) {
+                        $newKontak->kegiatans()->syncWithoutDetaching([$kegiatanId]);
+                    }
+
+                    if (filled($preview['no_telepon'])) {
+                        $createdKontaks[$perusahaan->id.'|'.$preview['no_telepon']] = $newKontak;
+                    }
+
                     $kontakDibuat++;
                 }
             });
