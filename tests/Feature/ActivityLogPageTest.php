@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Resources\ActivityLogs\Pages\ListActivityLogs;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -65,5 +66,30 @@ class ActivityLogPageTest extends TestCase
         // Log 10 hari lalu harus sudah terhapus, log 1 jam lalu tetap ada
         $this->assertDatabaseMissing('activity_log', ['id' => $oldActivity->id]);
         $this->assertDatabaseHas('activity_log', ['id' => $recentActivity->id]);
+    }
+
+    public function test_activity_log_handles_deleted_or_unknown_subject_models_gracefully(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        DB::table('activity_log')->insert([
+            'log_name' => 'default',
+            'description' => 'Membuat data organisasi lama',
+            'subject_type' => 'App\Models\Organisasi',
+            'subject_id' => 99,
+            'causer_type' => 'App\Models\User',
+            'causer_id' => $admin->id,
+            'properties' => json_encode(['attributes' => ['nama_organisasi' => 'IDAI Lama']]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $response = $this->get('/admin/activity-logs');
+        $response->assertSuccessful();
+
+        Livewire::actingAs($admin)
+            ->test(ListActivityLogs::class)
+            ->assertSuccessful();
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Filament\Resources\Kegiatans\Schemas;
 
 use Filament\Forms\Components\ColorPicker;
@@ -16,7 +18,6 @@ class KegiatanForm
         return $schema
             ->components([
                 Select::make('kategori_kegiatan_id')
-                    ->label('Kategori Kegiatan')
                     ->label('Kategori Medis')
                     ->relationship('kategoriKegiatan', 'nama_kategori')
                     ->searchable()

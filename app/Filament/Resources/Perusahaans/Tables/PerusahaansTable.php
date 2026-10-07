@@ -13,6 +13,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
@@ -29,6 +30,11 @@ class PerusahaansTable
 
         return $table
             ->modifyQueryUsing(fn (Builder $query): Builder => $query->with(['updatedBy', 'latestKontakWithKegiatan.kegiatan']))
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with([
+                'updatedBy',
+                'latestKontakWithKegiatan.kegiatan',
+                'latestRiwayatSponsorship.kegiatan',
+            ]))
             ->columns([
                 TextColumn::make('nama_standar')
                     ->label('Perusahaan Sponsor Baku')
@@ -93,12 +99,20 @@ class PerusahaansTable
                     ->color('primary')
                     ->toggleable(),
 
+                TextColumn::make('status_keaktifan')
+                    ->label('Keaktifan')
+                    ->badge()
+                    ->color(fn (Perusahaan $record): string => $record->keaktifan_sponsor['color'])
+                    ->state(fn (Perusahaan $record): string => $record->keaktifan_sponsor['label'])
+                    ->description(fn (Perusahaan $record): ?string => $record->keaktifan_sponsor['tahun_terakhir'] ? 'Event '.$record->keaktifan_sponsor['tahun_terakhir'] : null)
+                    ->toggleable(),
+
                 TextColumn::make('updated_at')
                     ->label('Pembaruan')
                     ->description(fn (Perusahaan $record): ?string => $record->updatedBy?->name ? 'Oleh '.$record->updatedBy->name : null)
                     ->since()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('industri')
@@ -113,6 +127,19 @@ class PerusahaansTable
                 Filter::make('mitra_utama')
                     ->label('Mitra Utama (≥3 PIC)')
                     ->query(fn (Builder $query): Builder => $query->has('kontaks', '>=', 3)),
+
+                Filter::make('aktif_3_tahun')
+                    ->label('Sponsor Aktif (3 Tahun Terakhir)')
+                    ->query(function (Builder $query): Builder {
+                        $threeYearsAgo = (int) date('Y') - 2;
+
+                        return $query->whereHas('riwayatSponsorships', function ($q) use ($threeYearsAgo) {
+                            $q->where(function ($sq) use ($threeYearsAgo) {
+                                $sq->where('tahun', '>=', $threeYearsAgo)
+                                    ->orWhereYear('tanggal_partisipasi', '>=', $threeYearsAgo);
+                            });
+                        });
+                    }),
             ])
             ->paginated([15, 25, 50, 100])
             ->defaultPaginationPageOption(25)
@@ -138,6 +165,7 @@ class PerusahaansTable
                     ->tooltip('Lihat Profil Perusahaan')
                     ->slideOver()
                     ->modalWidth('2xl')
+                    ->modalWidth(Width::FourExtraLarge)
                     ->modalHeading(fn (Perusahaan $record): string => 'Profil Perusahaan: '.$record->nama_standar)
                     ->modalCancelActionLabel('Tutup')
                     ->color('primary'),

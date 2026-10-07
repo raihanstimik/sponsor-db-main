@@ -21,6 +21,21 @@ class ViewPerusahaan extends ViewRecord
         return 'Profil Perusahaan: '.$record->nama_standar;
     }
 
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true;
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Profil Perusahaan';
+    }
+
+    public function getContentTabIcon(): ?string
+    {
+        return 'heroicon-o-building-office-2';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

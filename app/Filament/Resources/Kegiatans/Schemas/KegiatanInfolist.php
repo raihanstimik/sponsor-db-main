@@ -44,7 +44,7 @@ class KegiatanInfolist
                                         ->size(TextSize::Large)
                                         ->color('primary'),
 
-                                    Grid::make(['default' => 1, 'sm' => 3])
+                                    Grid::make(['default' => 2, 'sm' => 3])
                                         ->schema([
                                             TextEntry::make('kategoriKegiatan.nama_kategori')
                                                 ->hiddenLabel()

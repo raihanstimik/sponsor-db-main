@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Kontaks\Tables;
 
 use App\Filament\Pages\ImportKontaks;
+use App\Filament\Resources\Kontaks\KontakResource;
+use App\Filament\Resources\Perusahaans\PerusahaanResource;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
+use App\Services\ExportKontakService;
 use App\Services\KontakSmartSearch;
 use App\Services\PetaNomorPerusahaan;
 use App\Support\FilamentTableHelper;
@@ -20,7 +23,6 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use App\Services\ExportKontakService;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Radio;
@@ -41,6 +43,7 @@ use Illuminate\Contracts\Pagination\Paginator as ContractsPaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class KontaksTable
 {
@@ -116,6 +119,8 @@ class KontaksTable
                     ->wrap()
                     ->limit(45)
                     ->tooltip(fn (Kontak $record): string => $record->perusahaan?->nama_standar ?? '')
+                    ->url(fn (Kontak $record): ?string => $record->perusahaan_id ? PerusahaanResource::getUrl('view', ['record' => $record->perusahaan_id]) : null)
+                    ->openUrlInNewTab()
                     ->placeholder('-')
                     ->extraCellAttributes(['class' => 'col-kontak-perusahaan'])
                     ->toggleable(),
@@ -277,6 +282,7 @@ class KontaksTable
                         $q = trim((string) ($data['q'] ?? ''));
 
                         return filled($q) ? ['Pencarian: "' . $q . '"'] : null;
+                        return filled($q) ? ['Pencarian: "'.$q.'"'] : null;
                     }),
                 SelectFilter::make('kegiatan_id')
                     ->label('Kegiatan')
@@ -358,6 +364,12 @@ class KontaksTable
                                 ->url(fn (Kontak $record): string => self::whatsappUrl($record))
                                 ->openUrlInNewTab()
                                 ->visible(fn (Kontak $record): bool => filled($record->no_telepon) && PhoneNormalizer::isWhatsappSupported($record->no_telepon)),
+                            Action::make('slideover_edit')
+                                ->label('Edit Kontak')
+                                ->icon(Heroicon::OutlinedPencilSquare)
+                                ->color('warning')
+                                ->tooltip('Ubah data kontak sponsor ini')
+                                ->url(fn (Kontak $record): string => KontakResource::getUrl('edit', ['record' => $record])),
                         ]),
                     EditAction::make(),
                     Action::make('whatsapp')
@@ -510,6 +522,8 @@ class KontaksTable
 
         $totalPerusahaan = Perusahaan::count();
         $totalKegiatan = Kegiatan::count();
+        $totalPerusahaan = Cache::remember('summary_card_perusahaan_count', 30, fn () => Perusahaan::count());
+        $totalKegiatan = Cache::remember('summary_card_kegiatan_count', 30, fn () => Kegiatan::count());
 
         return [
             [

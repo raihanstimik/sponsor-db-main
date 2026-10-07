@@ -5,8 +5,14 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Perusahaans\Schemas;
 
 use App\Models\Perusahaan;
+use Filament\Actions\Action;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\ViewEntry;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
@@ -21,56 +27,11 @@ class PerusahaanInfolist
         return $schema
             ->columns(1)
             ->components([
-                // 1. Identitas & Ringkasan Eksekutif
-                Section::make()
-                    ->compact()
+                // 1. Identitas & Ringkasan Eksekutif Minimalis (Anti-Clipped)
+                ViewEntry::make('header_card')
+                    ->hiddenLabel()
                     ->columnSpanFull()
-                    ->schema([
-                        Grid::make(['default' => 1, 'sm' => 12])
-                            ->schema([
-                                TextEntry::make('inisial')
-                                    ->hiddenLabel()
-                                    ->formatStateUsing(fn (Perusahaan $record): string => $record->inisial)
-                                    ->extraAttributes([
-                                        'class' => 'w-12 h-12 rounded-xl bg-[#18225E] text-white flex items-center justify-center font-bold text-lg shadow-sm tracking-wider',
-                                    ])
-                                    ->columnSpan(['default' => 12, 'sm' => 2]),
-
-                                Group::make([
-                                    TextEntry::make('nama_standar')
-                                        ->hiddenLabel()
-                                        ->weight(FontWeight::Bold)
-                                        ->size(TextSize::Large)
-                                        ->color('primary'),
-
-                                    Grid::make(['default' => 2, 'sm' => 3])
-                                        ->schema([
-                                            TextEntry::make('industri')
-                                                ->hiddenLabel()
-                                                ->badge()
-                                                ->color('gray')
-                                                ->placeholder('Sektor Umum'),
-
-                                            TextEntry::make('kontaks_count')
-                                                ->hiddenLabel()
-                                                ->state(fn (Perusahaan $record): string => $record->kontaks()->count().' PIC Terhubung')
-                                                ->badge()
-                                                ->icon('heroicon-o-user-group')
-                                                ->color('success'),
-
-                                            TextEntry::make('kegiatans_count')
-                                                ->hiddenLabel()
-                                                ->state(fn (Perusahaan $record): string => $record->kegiatanPernahDiikuti()->count().' Event Diikuti')
-                                                ->badge()
-                                                ->icon('heroicon-o-calendar-days')
-                                                ->color('primary'),
-                                        ]),
-                                ])->columnSpan(['default' => 12, 'sm' => 10]),
-                            ]),
-                    ])
-                    ->extraAttributes([
-                        'class' => '!p-4 bg-slate-50/70 dark:bg-slate-900/40 rounded-xl border border-slate-200/70 dark:border-slate-800',
-                    ]),
+                    ->view('filament.infolists.entries.perusahaan-header-card'),
 
                 // 2. Informasi Kantor & Saluran Resmi
                 Section::make('Informasi Kantor & Kontak Resmi')
@@ -123,8 +84,92 @@ class PerusahaanInfolist
                 Section::make('Histori Partisipasi Kongres Medis')
                     ->icon('heroicon-o-clock')
                     ->description('Event kongres yang diikuti melalui PIC kontak perusahaan ini')
+                    ->description('Rekam jejak sponsorship, nominal dana, paket, dan analisis keaktifan perusahaan')
                     ->compact()
                     ->columnSpanFull()
+                    ->headerActions([
+                        Action::make('catat_riwayat_cepat')
+                            ->label('Catat Sponsorship')
+                            ->icon('heroicon-o-plus-circle')
+                            ->color('primary')
+                            ->modalHeading('Catat Riwayat Sponsorship Baru')
+                            ->modalWidth('xl')
+                            ->slideOver()
+                            ->form([
+                                Select::make('kegiatan_id')
+                                    ->label('Pilih dari Master Event')
+                                    ->relationship('kegiatan', 'nama_event')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('-- Pilih dari master kegiatan resmi atau isi manual di bawah --')
+                                    ->reactive(),
+
+                                TextInput::make('nama_event_manual')
+                                    ->label('Nama Event Bebas / Mandiri')
+                                    ->placeholder('Contoh: Kongres Nasional 2021...')
+                                    ->visible(fn ($get): bool => blank($get('kegiatan_id'))),
+
+                                TextInput::make('tahun')
+                                    ->label('Tahun Pelaksanaan')
+                                    ->numeric()
+                                    ->minValue(1990)
+                                    ->maxValue((int) date('Y') + 5)
+                                    ->default((int) date('Y'))
+                                    ->required(),
+
+                                DatePicker::make('tanggal_partisipasi')
+                                    ->label('Tanggal Pelaksanaan (Opsional)'),
+
+                                Select::make('paket')
+                                    ->label('Paket Sponsorship')
+                                    ->options([
+                                        'Platinum' => '💎 Platinum (Tier Utama)',
+                                        'Gold' => '🥇 Gold (Tier Menengah Atas)',
+                                        'Silver' => '🥈 Silver (Tier Standar)',
+                                        'Bronze' => '🥉 Bronze (Tier Dasar)',
+                                        'Simposium' => '🎤 Simposium Satelit',
+                                        'Booth' => '🎪 Sewa Booth Pameran',
+                                        'Reguler' => '📦 Reguler',
+                                        'Custom' => '⚙️ Custom / Kemitraan Khusus',
+                                    ])
+                                    ->searchable()
+                                    ->placeholder('-- Pilih paket sponsorship --'),
+
+                                TextInput::make('nominal')
+                                    ->label('Nominal Dana Sponsorship (Rp)')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->placeholder('0'),
+
+                                TextInput::make('bentuk_partisipasi')
+                                    ->label('Bentuk Partisipasi')
+                                    ->placeholder('Contoh: Sewa Booth 3x3, Simposium, Kit Seminar...')
+                                    ->datalist([
+                                        'Sewa Booth 3x3',
+                                        'Sewa Booth 2x2',
+                                        'Simposium Satelit',
+                                        'Workshop Klinis',
+                                        'Goodie Bag & Kit Seminar',
+                                        'Branding Lanyard & ID Card',
+                                        'Donasi Pendidikan',
+                                        'Iklan Buku Program',
+                                    ])
+                                    ->columnSpanFull(),
+
+                                Textarea::make('catatan')
+                                    ->label('Keterangan / Benefit Tambahan')
+                                    ->placeholder('Catatan PIC, nomor invoice, fasilitas khusus...')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                            ])
+                            ->action(function (Perusahaan $record, array $data): void {
+                                $record->riwayatSponsorships()->create($data);
+                                Notification::make()
+                                    ->title('Riwayat sponsorship berhasil dicatat')
+                                    ->success()
+                                    ->send();
+                            }),
+                    ])
                     ->schema([
                         ViewEntry::make('histori_event')
                             ->hiddenLabel()

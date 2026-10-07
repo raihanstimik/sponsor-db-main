@@ -7,6 +7,7 @@ use App\Filament\Widgets\KontakPerluDicekWidget;
 use App\Filament\Widgets\KontakStatsOverview;
 use App\Filament\Widgets\SambutanDashboard;
 use App\Filament\Widgets\TopEventWidget;
+use App\Filament\Widgets\TopSponsorWidget;
 use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
@@ -170,5 +171,48 @@ class DashboardWidgetTest extends TestCase
             ->assertSee('Kontak PIC Terbaru')
             ->assertSee('PIC Pertama')
             ->assertSee('PIC Kedua');
+    }
+
+    #[Test]
+    public function top_sponsor_widget_renders_dan_dapat_membuka_tutup_detail_sponsor(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $perusahaan = Perusahaan::factory()->create([
+            'nama_standar' => 'PT Kalbe Farma Tbk',
+        ]);
+        $kegiatan = Kegiatan::factory()->create(['nama_event' => 'Simposium Nasional 2026']);
+
+        $riwayat = $perusahaan->riwayatSponsorships()->create([
+            'kegiatan_id' => $kegiatan->id,
+            'tahun' => 2026,
+            'paket' => 'Platinum',
+            'nominal' => 50000000,
+            'status' => 'deal',
+            'bentuk_partisipasi' => 'Booth Platinum & Simposium',
+            'catatan' => 'SPK Terverifikasi Direksi',
+        ]);
+
+        Livewire::test(TopSponsorWidget::class)
+            ->assertOk()
+            ->assertSee('Top 10 Sponsor Paling Aktif')
+            ->call('selectPerusahaan', $perusahaan->id)
+            ->assertOk()
+            ->assertSee('PT Kalbe Farma Tbk')
+            ->assertSee('Simposium Nasional 2026')
+            ->assertSee('Platinum')
+            ->assertSee('Tinjau Riwayat')
+            ->call('selectRiwayat', $riwayat->id)
+            ->assertOk()
+            ->assertSee('Tinjau Riwayat Sponsorship')
+            ->assertSee('Booth Platinum & Simposium')
+            ->assertSee('SPK Terverifikasi Direksi')
+            ->call('closeRiwayatDetail')
+            ->assertOk()
+            ->assertDontSee('SPK Terverifikasi Direksi')
+            ->call('closeDetail')
+            ->assertOk()
+            ->assertDontSee('Tutup Preview');
     }
 }

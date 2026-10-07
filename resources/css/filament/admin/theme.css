@@ -1,6 +1,7 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
 
 @source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/**/*';
 @source '../../../../resources/views/filament/**/*';
 @source '../../../../resources/views/livewire/**/*';
 @source '../../../../resources/views/vendor/**/*';
@@ -186,7 +187,6 @@
  * AURORA WEBGL BACKGROUND & AUTH GLASSMORPHISM (ICM BRAND PALETTE)
  * ==========================================================================
  */
-.fi-simple-layout {
 .aurora-container {
     position: fixed;
     inset: 0;
@@ -211,15 +211,10 @@
 .aurora-fallback-gradient {
     position: absolute;
     inset: 0;
-    background:
-        radial-gradient(60rem 28rem at 50% -8rem, rgba(253, 138, 42, 0.22), transparent 60%),
-        linear-gradient(135deg, #0a1230 0%, #18225e 55%, #0a1230 100%);
     background-color: #0b0f2a;
     background-image:
         radial-gradient(60rem 32rem at 50% -8rem, rgba(234, 124, 26, 0.3), transparent 60%),
         radial-gradient(45rem 30rem at 20% 80%, rgba(24, 34, 94, 0.8), transparent 70%),
-        radial-gradient(50rem 35rem at 85% 65%, rgba(59, 73, 184, 0.5), transparent 65%),
-        #0b0f2a;
         radial-gradient(50rem 35rem at 85% 65%, rgba(59, 73, 184, 0.5), transparent 65%);
     pointer-events: none;
     transition: opacity 0.5s ease;
@@ -1286,9 +1281,28 @@
 }
 
 /* 5. Dashboard Cards: Clean Border & Elevation Hover */
+/* 5. Dashboard Cards: Clean Subtle Border & Elevation Hover (Anti Black Border) */
 .dashboard-card {
+    border: 1px solid #e2e8f0 !important;
+    background-color: #ffffff;
+    border-radius: 1rem !important;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04) !important;
     animation: dashboardFadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-card:hover {
+    border-color: #cbd5e1 !important;
+}
+
+.dark .dashboard-card {
+    border: 1px solid #1e293b !important;
+    background-color: #0f172a !important;
+    box-shadow: none !important;
+}
+
+.dark .dashboard-card:hover {
+    border-color: #334155 !important;
 }
 
 /* 6. Table Rows Smooth Hover */

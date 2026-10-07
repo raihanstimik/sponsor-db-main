@@ -134,4 +134,3 @@ class PerusahaanEnhancementsTest extends TestCase
         $this->assertStringNotContainsString('Terbaru', $timelineHtml);
     }
 }
-

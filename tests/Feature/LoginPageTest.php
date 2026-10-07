@@ -52,7 +52,6 @@ class LoginPageTest extends TestCase
                 'password' => 'salah-password',
             ])
             ->call('authenticate')
-            ->assertHasErrors(['data.email']);
             ->assertHasErrors(['data.password'])
             ->assertSee('Kata sandi yang Anda masukkan salah');
 

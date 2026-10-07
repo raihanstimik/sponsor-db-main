@@ -10,7 +10,7 @@
     'footerActionClass' => 'text-blue-600 hover:underline dark:text-sky-400',
 ])
 
-<div {{ $attributes->merge(['class' => 'dashboard-card flex flex-col justify-between rounded-2xl bg-white p-5 sm:p-6 border border-slate-100/90 shadow-xs transition-colors duration-150 hover:border-slate-200 dark:bg-gray-900 dark:border-slate-800 dark:hover:border-slate-700']) }}>
+<div {{ $attributes->merge(['class' => 'dashboard-card flex flex-col justify-between rounded-2xl bg-white p-5 sm:p-6 border border-slate-200/80 shadow-xs transition-all duration-150 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700']) }}>
     <div>
         <div class="mb-5 flex items-start justify-between gap-3">
             <div>

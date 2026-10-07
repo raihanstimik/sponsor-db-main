@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Kontaks\Schemas;
 
+use App\Filament\Resources\Kontaks\KontakResource;
+use App\Filament\Resources\Perusahaans\PerusahaanResource;
 use App\Models\Kontak;
 use App\Support\PhoneNormalizer;
 use Filament\Actions\Action;
@@ -32,6 +34,9 @@ class KontakInfolist
                             ->weight(FontWeight::Bold)
                             ->size(TextSize::Large)
                             ->color('primary')
+                            ->url(fn (?Kontak $record): ?string => $record?->perusahaan_id ? PerusahaanResource::getUrl('view', ['record' => $record->perusahaan_id]) : null)
+                            ->openUrlInNewTab()
+                            ->tooltip('Buka profil perusahaan di tab baru')
                             ->placeholder('-'),
 
                         TextEntry::make('perusahaan.industri')
@@ -42,7 +47,6 @@ class KontakInfolist
 
                         TextEntry::make('nama')
                             ->label('Nama PIC')
-                            ->icon(Heroicon::OutlinedUser)
                             ->weight(FontWeight::SemiBold)
                             ->placeholder('(Tanpa Nama PIC)'),
 

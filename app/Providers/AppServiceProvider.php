@@ -47,8 +47,25 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (! app()->environment('testing') && (str_starts_with((string) config('app.url'), 'https://') || request()->header('x-forwarded-proto') === 'https')) {
-            URL::forceScheme('https');
+        if (! app()->runningInConsole()) {
+            @ini_set('max_execution_time', '180');
+            @set_time_limit(180);
+        }
+
+        if (! app()->environment('testing')) {
+            $forwardedProto = request()->header('x-forwarded-proto');
+            $forwardedHost = request()->header('x-forwarded-host') ?? request()->header('host');
+            $isTunnel = str_contains((string) $forwardedHost, 'ngrok')
+                || str_contains((string) $forwardedHost, 'loca.lt')
+                || str_contains((string) $forwardedHost, 'trycloudflare.com');
+
+            if ($isTunnel || $forwardedProto === 'https' || request()->isSecure() || str_starts_with((string) config('app.url'), 'https://')) {
+                URL::forceScheme('https');
+            }
+
+            if (($isTunnel || $forwardedProto === 'https') && filled($forwardedHost)) {
+                URL::forceRootUrl('https://' . $forwardedHost);
+            }
         }
 
         FilamentColor::register([

@@ -3,8 +3,11 @@
     @php
         $currentStep = 1;
         if ($this->saved && $this->saveResult) {
+            $currentStep = 4;
+        } elseif ($this->previews || $this->rows) {
             $currentStep = 3;
         } elseif ($this->previews || $this->rows) {
+        } elseif ($this->mappingStep) {
             $currentStep = 2;
         }
     @endphp
@@ -13,9 +16,12 @@
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {{-- Stepper Progress --}}
             <nav class="flex items-center gap-2 sm:gap-4 text-xs font-medium" aria-label="Progress">
+            <nav class="flex items-center gap-2 sm:gap-3 text-xs font-medium flex-wrap" aria-label="Progress">
                 {{-- Step 1 --}}
                 <div class="flex items-center gap-2">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 1 ? 'bg-success-500 text-white' : ($currentStep === 1 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
+                <div class="flex items-center gap-1.5">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 1 ? 'bg-success-500 text-white' : ($currentStep === 1 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
                         @if ($currentStep > 1)
                             <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
                         @else
@@ -23,42 +29,64 @@
                         @endif
                     </span>
                     <span class="{{ $currentStep === 1 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 1 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
+                    <span class="{{ $currentStep === 1 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 1 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
                         Unggah File
                     </span>
                 </div>
 
                 <div class="hidden h-0.5 w-8 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
+                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
                     <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 1 ? 'w-full' : 'w-0' }}"></div>
                 </div>
 
                 {{-- Step 2 --}}
                 <div class="flex items-center gap-2">
                     <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 2 ? 'bg-success-500 text-white' : ($currentStep === 2 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
+                <div class="flex items-center gap-1.5">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 2 ? 'bg-success-500 text-white' : ($currentStep === 2 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
                         @if ($currentStep > 2)
                             <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
                         @else
                             2
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 2 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 2 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
-                        Pratinjau &amp; Analisis
+                    <span class="{{ $currentStep === 2 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 2 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
+                        Pemetaan Kolom
                     </span>
                 </div>
 
-                <div class="hidden h-0.5 w-8 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
+                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
                     <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 2 ? 'w-full' : 'w-0' }}"></div>
                 </div>
 
                 {{-- Step 3 --}}
-                <div class="flex items-center gap-2">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep === 3 ? 'bg-success-600 text-white ring-2 ring-success-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
-                        @if ($currentStep === 3)
+                <div class="flex items-center gap-1.5">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 3 ? 'bg-success-500 text-white' : ($currentStep === 3 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
+                        @if ($currentStep > 3)
                             <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
                         @else
                             3
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 3 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500' }}">
+                    <span class="{{ $currentStep === 3 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 3 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
+                        Pratinjau &amp; Analisis
+                    </span>
+                </div>
+
+                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
+                    <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 3 ? 'w-full' : 'w-0' }}"></div>
+                </div>
+
+                {{-- Step 4 --}}
+                <div class="flex items-center gap-1.5">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep === 4 ? 'bg-success-600 text-white ring-2 ring-success-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800' }}">
+                        @if ($currentStep === 4)
+                            <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
+                        @else
+                            4
+                        @endif
+                    </span>
+                    <span class="{{ $currentStep === 4 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-400' }}">
                         Selesai
                     </span>
                 </div>
@@ -67,10 +95,14 @@
             {{-- Live Indicator / Info --}}
             <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <span class="inline-flex h-2 w-2 rounded-full {{ $currentStep === 3 ? 'bg-success-500' : ($currentStep === 2 ? 'bg-primary-500 animate-pulse' : 'bg-slate-400') }}"></span>
+                <span class="inline-flex h-2 w-2 rounded-full {{ $currentStep === 4 ? 'bg-success-500' : ($currentStep >= 2 ? 'bg-primary-500 animate-pulse' : 'bg-slate-400') }}"></span>
                 @if ($currentStep === 1)
                     <span>Siap menerima format Excel &amp; CSV</span>
                 @elseif ($currentStep === 2)
                     <span>Analisis selesai &bull; verifikasi data sebelum simpan</span>
+                    <span>Cocokkan header kolom Excel ke sistem</span>
+                @elseif ($currentStep === 3)
+                    <span>Analisis selesai &bull; verifikasi sebelum simpan</span>
                 @else
                     <span>Data berhasil disimpan ke database</span>
                 @endif
@@ -168,9 +200,139 @@
             </div>
         </div>
 
+    @elseif ($this->mappingStep)
+        {{-- ============================================================ --}}
+        {{-- STEP 2: PEMETAAN KOLOM CERDAS (SMART COLUMN MAPPING)          --}}
+        {{-- ============================================================ --}}
+        <div class="space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div>
+                    <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white" style="font-family: var(--font-display);">
+                        Pemetaan Kolom File &bull; Smart Excel Importer
+                    </h3>
+                    <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                        Sistem mendeteksi kolom dari file Excel Anda. Cocokkan header kolom ke field database yang sesuai sebelum analisis.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <x-filament::button
+                        color="primary"
+                        icon="heroicon-m-arrow-right"
+                        wire:click="applyMappingAndAnalyze"
+                        wire:loading.attr="disabled"
+                    >
+                        Lanjutkan Analisis Data &rarr;
+                    </x-filament::button>
+
+                    <x-filament::button
+                        color="gray"
+                        icon="heroicon-m-arrow-path"
+                        wire:click="resetImport"
+                    >
+                        Ganti File
+                    </x-filament::button>
+                </div>
+            </div>
+
+            {{-- Mapping Table --}}
+            <div class="overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                <div class="border-b border-slate-200/80 bg-slate-50/70 p-3.5 dark:border-slate-800 dark:bg-slate-900/60 flex items-center justify-between">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+                        Daftar Kolom Terdeteksi ({{ count($this->detectedHeaders ?? []) }} Kolom)
+                    </h4>
+                    <span class="text-xs text-slate-400 dark:text-slate-500">
+                        Pilihan otomatis telah disesuaikan berdasarkan kata kunci
+                    </span>
+                </div>
+
+                <div class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @foreach ($this->detectedHeaders ?? [] as $idx => $headerName)
+                        @php
+                            $sampleValues = [];
+                            foreach ($this->sampleRows ?? [] as $sampleRow) {
+                                if (isset($sampleRow[$idx]) && trim((string)$sampleRow[$idx]) !== '') {
+                                    $sampleValues[] = \Illuminate\Support\Str::limit((string)$sampleRow[$idx], 35);
+                                }
+                            }
+                        @endphp
+                        <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-4 p-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
+                            {{-- Col 1: Original Column Name --}}
+                            <div class="md:col-span-4 min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-mono font-bold text-slate-600 dark:text-slate-400">
+                                        {{ $idx + 1 }}
+                                    </span>
+                                    <span class="font-bold text-sm text-slate-900 dark:text-white truncate" title="{{ $headerName }}">
+                                        {{ $headerName }}
+                                    </span>
+                                </div>
+                                <div class="mt-1 pl-8 text-xs text-slate-400 dark:text-slate-500 truncate">
+                                    Header asli file Excel
+                                </div>
+                            </div>
+
+                            {{-- Col 2: Sample Data --}}
+                            <div class="md:col-span-4 min-w-0">
+                                <span class="text-[11px] font-semibold uppercase text-slate-400 dark:text-slate-500">Contoh Isi:</span>
+                                @if (empty($sampleValues))
+                                    <span class="text-xs text-slate-400 italic">Kosong di baris teratas</span>
+                                @else
+                                    <div class="flex items-center gap-1.5 flex-wrap mt-0.5">
+                                        @foreach (array_slice($sampleValues, 0, 2) as $val)
+                                            <span class="inline-block px-2 py-0.5 rounded text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono">
+                                                {{ $val }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Col 3: Target Field Selector --}}
+                            <div class="md:col-span-4">
+                                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                    Petakan ke Field Database:
+                                </label>
+                                <select
+                                    wire:model.live="columnMapping.{{ $idx }}"
+                                    class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-800 focus:border-[#18225E] focus:outline-hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                                >
+                                    <option value="company">🏢 Nama Perusahaan / Sponsor</option>
+                                    <option value="name">👤 Nama Kontak / PIC</option>
+                                    <option value="phone">📱 Nomor Telepon / HP</option>
+                                    <option value="combined">🔀 Kolom Gabungan (PIC & Nomor)</option>
+                                    <option value="industri">🏭 Bidang Industri / Sektor</option>
+                                    <option value="nominal">💰 Nominal Dana Sponsorship (Rp)</option>
+                                    <option value="paket">🏆 Jenis Paket (Platinum, Gold, dll)</option>
+                                    <option value="bentuk_partisipasi">🎪 Bentuk Partisipasi (Sewa Booth, dll)</option>
+                                    <option value="catatan">📝 Catatan Tambahan</option>
+                                    <option value="ignore">❌ -- Abaikan Kolom Ini --</option>
+                                </select>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="border-t border-slate-200/80 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-900/60 flex items-center justify-between">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        *Kolom yang diabaikan tidak akan dimasukkan ke database.
+                    </p>
+                    <x-filament::button
+                        color="primary"
+                        icon="heroicon-m-arrow-right"
+                        wire:click="applyMappingAndAnalyze"
+                        wire:loading.attr="disabled"
+                    >
+                        Lanjutkan Analisis Data &rarr;
+                    </x-filament::button>
+                </div>
+            </div>
+        </div>
+
     @elseif ($this->previews)
         {{-- ============================================================ --}}
         {{-- STEP 2: PRATINJAU & VERIFIKASI HASIL ANALISIS                 --}}
+        {{-- STEP 3: PRATINJAU & VERIFIKASI HASIL ANALISIS                 --}}
         {{-- ============================================================ --}}
         <div class="space-y-4">
             {{-- Action Header Bar --}}
@@ -201,6 +363,15 @@
                     >
                         Kembali ke pratinjau
                     </x-filament::button>
+                    @if ($this->detectedHeaders)
+                        <x-filament::button
+                            color="gray"
+                            icon="heroicon-m-adjustments-horizontal"
+                            wire:click="backToMapping"
+                        >
+                            Ubah Pemetaan Kolom
+                        </x-filament::button>
+                    @endif
 
                     <x-filament::button
                         color="gray"
@@ -208,6 +379,7 @@
                         wire:click="resetImport"
                     >
                         Ganti file
+                        Ganti File
                     </x-filament::button>
                 </div>
             </div>

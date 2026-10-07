@@ -78,7 +78,7 @@ class CustomLogin extends Login
 
         if (! $user) {
             throw ValidationException::withMessages([
-                'data.email' => 'Alamat email ini Salah.',
+                'data.email' => 'Alamat email ini belum terdaftar di sistem kami.',
             ]);
         }
 

@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Perusahaans\Schemas;
 
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -65,6 +68,97 @@ class PerusahaanForm
                             ->rows(3)
                             ->placeholder('Misal: Mitra sponsor rutin kategori simposium satelit dan pameran.')
                             ->columnSpanFull(),
+                    ]),
+
+                Section::make('Riwayat Sponsorship & Keterlibatan Event')
+                    ->description('Kelola seluruh event yang disponsori perusahaan secara langsung di form ini')
+                    ->icon('heroicon-o-trophy')
+                    ->collapsible()
+                    ->schema([
+                        Repeater::make('riwayatSponsorships')
+                            ->relationship('riwayatSponsorships')
+                            ->label('Daftar Partisipasi Event')
+                            ->itemLabel(function (array $state): ?string {
+                                $tahun = $state['tahun'] ?? '-';
+                                $paket = filled($state['paket'] ?? null) ? "💎 {$state['paket']}" : 'Event';
+                                $nominal = ! empty($state['nominal']) && (float) $state['nominal'] > 0
+                                    ? ' (Rp '.number_format((float) $state['nominal'], 0, ',', '.').')'
+                                    : '';
+
+                                return "{$tahun} — {$paket}{$nominal}";
+                            })
+                            ->collapsible()
+                            ->collapsed(fn (string $operation): bool => $operation === 'edit')
+                            ->cloneable()
+                            ->addActionLabel('+ Catat Riwayat Sponsorship Baru')
+                            ->columns(2)
+                            ->schema([
+                                Select::make('kegiatan_id')
+                                    ->label('Pilih dari Master Event')
+                                    ->relationship('kegiatan', 'nama_event')
+                                    ->searchable()
+                                    ->preload()
+                                    ->placeholder('-- Pilih dari master kegiatan resmi atau isi manual di bawah --')
+                                    ->reactive(),
+
+                                TextInput::make('nama_event_manual')
+                                    ->label('Nama Event Bebas / Mandiri')
+                                    ->placeholder('Contoh: Kongres Nasional 2021...')
+                                    ->visible(fn ($get): bool => blank($get('kegiatan_id'))),
+
+                                TextInput::make('tahun')
+                                    ->label('Tahun Pelaksanaan')
+                                    ->numeric()
+                                    ->minValue(1990)
+                                    ->maxValue((int) date('Y') + 5)
+                                    ->default((int) date('Y'))
+                                    ->required(),
+
+                                DatePicker::make('tanggal_partisipasi')
+                                    ->label('Tanggal Pelaksanaan (Opsional)'),
+
+                                Select::make('paket')
+                                    ->label('Paket Sponsorship')
+                                    ->options([
+                                        'Platinum' => '💎 Platinum (Tier Utama)',
+                                        'Gold' => '🥇 Gold (Tier Menengah Atas)',
+                                        'Silver' => '🥈 Silver (Tier Standar)',
+                                        'Bronze' => '🥉 Bronze (Tier Dasar)',
+                                        'Simposium' => '🎤 Simposium Satelit',
+                                        'Booth' => '🎪 Sewa Booth Pameran',
+                                        'Reguler' => '📦 Reguler',
+                                        'Custom' => '⚙️ Custom / Kemitraan Khusus',
+                                    ])
+                                    ->searchable()
+                                    ->placeholder('-- Pilih paket sponsorship --'),
+
+                                TextInput::make('nominal')
+                                    ->label('Nominal Dana Sponsorship (Rp)')
+                                    ->numeric()
+                                    ->prefix('Rp')
+                                    ->placeholder('0'),
+
+                                TextInput::make('bentuk_partisipasi')
+                                    ->label('Bentuk Partisipasi')
+                                    ->placeholder('Contoh: Sewa Booth 3x3, Simposium, Kit Seminar...')
+                                    ->datalist([
+                                        'Sewa Booth 3x3',
+                                        'Sewa Booth 2x2',
+                                        'Simposium Satelit',
+                                        'Workshop Klinis',
+                                        'Goodie Bag & Kit Seminar',
+                                        'Branding Lanyard & ID Card',
+                                        'Donasi Pendidikan',
+                                        'Iklan Buku Program',
+                                    ])
+                                    ->columnSpanFull(),
+
+                                Textarea::make('catatan')
+                                    ->label('Keterangan / Benefit Tambahan')
+                                    ->placeholder('Catatan PIC, nomor invoice, fasilitas khusus...')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                            ]),
                     ]),
             ]);
     }

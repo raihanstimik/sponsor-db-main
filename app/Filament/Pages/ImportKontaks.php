@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Kontak;
+use App\Services\AppNotificationService;
 use App\Services\KontakImportService;
 use BackedEnum;
 use Filament\Notifications\Notification;
@@ -39,6 +40,18 @@ class ImportKontaks extends Page
     protected static ?int $navigationSort = 2;
 
     public $file = null;
+
+    /** @var array<int, string>|null Header kolom yang terdeteksi dari file */
+    public ?array $detectedHeaders = null;
+
+    /** @var array<int, array<int, string>>|null Contoh baris data untuk pratinjau pemetaan */
+    public ?array $sampleRows = null;
+
+    /** @var array<int, string> Pilihan pemetaan kolom (index => target_field) */
+    public array $columnMapping = [];
+
+    /** Menandakan sedang di langkah konfirmasi pemetaan kolom */
+    public bool $mappingStep = false;
 
     /** @var array<int, array<string, mixed>>|null Baris mentah hasil ekstraksi (langkah pratinjau). */
     public ?array $rows = null;
@@ -171,6 +184,21 @@ class ImportKontaks extends Page
             : (string) $this->file->getClientOriginalExtension();
 
         $rows = $service->extractRows((string) $path, $extension);
+        $structure = $service->detectStructure((string) $path, $extension);
+
+        if (! empty($structure['headers'])) {
+            $this->detectedHeaders = $structure['headers'];
+            $this->sampleRows = $structure['samples'] ?? [];
+            $this->columnMapping = $structure['mapping'] ?? [];
+        } else {
+            $this->detectedHeaders = [];
+            $this->sampleRows = [];
+            $this->columnMapping = [];
+        }
+
+        $rows = ! empty($this->columnMapping)
+            ? $service->extractRows((string) $path, $extension, $this->columnMapping)
+            : $service->extractRows((string) $path, $extension);
 
         if ($rows === []) {
             Notification::make()
@@ -185,10 +213,57 @@ class ImportKontaks extends Page
         // Pratinjau sekaligus analisis: satu klik langsung menghasilkan
         // klasifikasi (baru/duplikat/junk) tanpa tombol "Analisis" terpisah.
         $this->rows = $rows;
+        $this->mappingStep = false;
         $this->reclassify();
         $this->saved = false;
         $this->saveResult = null;
         $this->resetFilters();
+    }
+
+    public function applyMappingAndAnalyze(): void
+    {
+        if (! $this->file) {
+            Notification::make()->title('File tidak ditemukan')->danger()->send();
+
+            return;
+        }
+
+        $service = app(KontakImportService::class);
+        $path = $this->file->getRealPath();
+        $extension = $this->file instanceof TemporaryUploadedFile
+            ? strtolower(pathinfo($this->file->getFilename(), PATHINFO_EXTENSION))
+            : (string) $this->file->getClientOriginalExtension();
+
+        $rows = $service->extractRows((string) $path, $extension, $this->columnMapping);
+
+        if ($rows === []) {
+            Notification::make()
+                ->title('Tidak ada data yang dapat diekstrak dengan pemetaan kolom ini')
+                ->body('Pastikan minimal satu kolom Perusahaan, Nama PIC, atau Nomor Telepon telah dipetakan.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->rows = $rows;
+        $this->mappingStep = false;
+        $this->reclassify();
+        $this->saved = false;
+        $this->saveResult = null;
+        $this->resetFilters();
+    }
+
+    public function backToMapping(): void
+    {
+        if ($this->detectedHeaders) {
+            $this->mappingStep = true;
+            $this->previews = null;
+            $this->counts = [];
+            $this->resetFilters();
+        } else {
+            $this->backToPreview();
+        }
     }
 
     public function analyze(): void
@@ -242,7 +317,7 @@ class ImportKontaks extends Page
             ->send();
 
         if (auth()->user()) {
-            app(\App\Services\AppNotificationService::class)->notifyImportSelesai(
+            app(AppNotificationService::class)->notifyImportSelesai(
                 auth()->user(),
                 $result['kontak_dibuat'],
                 $result['perusahaan_dibuat'],
@@ -259,6 +334,10 @@ class ImportKontaks extends Page
         $this->counts = [];
         $this->saved = false;
         $this->saveResult = null;
+        $this->detectedHeaders = null;
+        $this->sampleRows = null;
+        $this->columnMapping = [];
+        $this->mappingStep = false;
         $this->resetFilters();
     }
 

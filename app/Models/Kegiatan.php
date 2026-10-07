@@ -61,6 +61,13 @@ class Kegiatan extends Model
         return $this->hasMany(Kontak::class);
     }
 
+    public function perusahaans(): BelongsToMany
+    {
+        return $this->belongsToMany(Perusahaan::class, 'perusahaan_kegiatan')
+            ->withPivot(['nominal', 'paket', 'bentuk_partisipasi', 'tahun', 'catatan'])
+            ->withTimestamps();
+    }
+
     /**
      * Warna efektif kegiatan: warna event itu sendiri, atau mewarisi warna kategori bila kosong.
      */

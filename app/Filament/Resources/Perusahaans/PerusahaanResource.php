@@ -8,6 +8,7 @@ use App\Filament\Resources\Perusahaans\Pages\CreatePerusahaan;
 use App\Filament\Resources\Perusahaans\Pages\EditPerusahaan;
 use App\Filament\Resources\Perusahaans\Pages\ListPerusahaans;
 use App\Filament\Resources\Perusahaans\Pages\ViewPerusahaan;
+use App\Filament\Resources\Perusahaans\RelationManagers\RiwayatSponsorshipRelationManager;
 use App\Filament\Resources\Perusahaans\Schemas\PerusahaanForm;
 use App\Filament\Resources\Perusahaans\Schemas\PerusahaanInfolist;
 use App\Filament\Resources\Perusahaans\Tables\PerusahaansTable;
@@ -73,6 +74,7 @@ class PerusahaanResource extends Resource
     {
         return [
             //
+            RiwayatSponsorshipRelationManager::class,
         ];
     }
 

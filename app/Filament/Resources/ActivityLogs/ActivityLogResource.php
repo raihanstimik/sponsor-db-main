@@ -168,13 +168,13 @@ class ActivityLogResource extends Resource
             ->emptyStateHeading('Belum ada histori')
             ->emptyStateDescription('Histori akan muncul otomatis setiap ada penambahan, perubahan, atau penghapusan data. Untuk karyawan, hanya histori Anda sendiri yang tampil.')
             ->emptyStateIcon('heroicon-o-clock')
-            ->poll('30s')
             ->toolbarActions([]);
     }
 
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery()->with(['causer', 'subject']);
+        $query = parent::getEloquentQuery()->with(['causer']);
 
         $user = auth()->user();
 

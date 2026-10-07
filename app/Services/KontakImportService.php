@@ -34,22 +34,66 @@ class KontakImportService
     ];
 
     /**
-     * Baca file (xlsx/xls/ods/csv/tsv) menjadi array baris canonical.
+     * Deteksi struktur tabel dari file Excel/CSV untuk pemetaan visual kolom.
      *
-     * - Header dideteksi otomatis (bisa di baris manapun, bukan baris pertama).
-     * - Nama kolom dicocokkan secara fuzzy (Indonesia/Inggris, spasi/garis-bawah,
-     *   kolom gabungan seperti "PIC / No. HP").
-     * - Semua sheet dibaca; tiap sheet di-scan lewat header-nya sendiri.
-     * - Nama & nomor telepon yang tercampur dalam satu sel dipisahkan otomatis.
-     *
-     * @return array<int, array<string, mixed>> Kolom: sheet, nama_perusahaan, industri, nama, no_telepon_mentah, catatan, nama_event, nama_kategori, kategori_key, tanggal_mulai, venue
+     * @return array{headerIndex: int, headers: array<int, string>, mapping: array<int, string>, samples: array<int, array<int, string>>}|array{}
      */
-    public function extractRows(string $path, ?string $extension = null): array
+    public function detectStructure(string $path, ?string $extension = null): array
+    {
+        $extension ??= strtolower(pathinfo($path, PATHINFO_EXTENSION));
+
+        $rawRows = [];
+        if (in_array($extension, ['csv', 'tsv'], true)) {
+            $rows = $this->mapColumns($this->extractRowsFromDelimited($path, $extension));
+            $rawRows = $this->extractRowsFromDelimited($path, $extension);
+        } else {
+            $reader = IOFactory::createReaderForFile($path);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($path);
+            $sheet = $spreadsheet->getSheet(0);
+            $rawRows = array_values($sheet->toArray(null, true, false, false));
+        }
+
+        $headerIndex = $this->findHeaderRow($rawRows);
+        if ($headerIndex === null) {
+            return [];
+        }
+
+        $headers = [];
+        $headerCells = array_values($rawRows[$headerIndex]);
+        $mappingGuesses = [];
+
+        foreach ($headerCells as $i => $cell) {
+            $cleanHeader = trim($this->cleanUtf8((string) $cell));
+            if ($cleanHeader === '') {
+                $cleanHeader = 'Kolom '.($i + 1);
+            }
+            $headers[$i] = $cleanHeader;
+            $guess = $this->classifyHeader($cleanHeader);
+            $mappingGuesses[$i] = in_array($guess, ['company', 'name', 'phone', 'combined', 'industri', 'catatan', 'nominal', 'paket', 'bentuk_partisipasi'], true)
+                ? $guess
+                : 'ignore';
+        }
+
+        $samples = [];
+        foreach (array_slice($rawRows, $headerIndex + 1, 3) as $row) {
+            $samples[] = array_map(fn ($val) => trim($this->cleanUtf8((string) $val)), array_values($row));
+        }
+
+        return [
+            'headerIndex' => $headerIndex,
+            'headers' => $headers,
+            'mapping' => $mappingGuesses,
+            'samples' => $samples,
+        ];
+    }
+
+    public function extractRows(string $path, ?string $extension = null, ?array $columnMapping = null): array
     {
         $extension ??= strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
         if (in_array($extension, ['csv', 'tsv'], true)) {
-            $rows = $this->mapColumns($this->extractRowsFromDelimited($path, $extension));
+            $rows = $this->mapColumns($this->extractRowsFromDelimited($path, $extension), $columnMapping);
 
             foreach ($rows as &$row) {
                 $row['sheet'] = null;
@@ -85,7 +129,7 @@ class KontakImportService
 
             $detected = $detektor->parse($this->cleanUtf8($sheet->getTitle()), $fileName, $meta);
 
-            foreach ($this->mapColumns($cells) as $row) {
+            foreach ($this->mapColumns($cells, $columnMapping) as $row) {
                 $row['sheet'] = $this->cleanUtf8($sheet->getTitle());
                 $row['nama_event'] = $detected['event'];
                 $row['nama_kategori'] = $detected['kategori_nama'];
@@ -121,7 +165,7 @@ class KontakImportService
      * @param  array<int, array<int, mixed>>  $rawRows
      * @return array<int, array<string, mixed>>
      */
-    protected function mapColumns(array $rawRows): array
+    protected function mapColumns(array $rawRows, ?array $customMapping = null): array
     {
         $headerIndex = $this->findHeaderRow($rawRows);
         if ($headerIndex === null) {
@@ -136,19 +180,43 @@ class KontakImportService
         $combinedIdx = null;
         $industriIdx = null;
         $catatanIdx = null;
+        $nominalIdx = null;
+        $paketIdx = null;
+        $bentukIdx = null;
 
-        foreach ($header as $i => $cell) {
-            $kind = $this->classifyHeader((string) $cell);
+        if ($customMapping !== null && ! empty($customMapping)) {
+            foreach ($customMapping as $i => $target) {
+                $i = (int) $i;
+                match ($target) {
+                    'company' => $companyIdx = $i,
+                    'name' => $nameIdx = $i,
+                    'phone' => $phoneIdx = $i,
+                    'combined' => $combinedIdx = $i,
+                    'industri' => $industriIdx = $i,
+                    'catatan' => $catatanIdx = $i,
+                    'nominal' => $nominalIdx = $i,
+                    'paket' => $paketIdx = $i,
+                    'bentuk_partisipasi' => $bentukIdx = $i,
+                    default => null,
+                };
+            }
+        } else {
+            foreach ($header as $i => $cell) {
+                $kind = $this->classifyHeader((string) $cell);
 
-            match ($kind) {
-                'company' => $companyIdx ??= $i,
-                'name' => $nameIdx ??= $i,
-                'phone' => $phoneIdx ??= $i,
-                'combined' => $combinedIdx ??= $i,
-                'industri' => $industriIdx ??= $i,
-                'catatan' => $catatanIdx ??= $i,
-                default => null,
-            };
+                match ($kind) {
+                    'company' => $companyIdx ??= $i,
+                    'name' => $nameIdx ??= $i,
+                    'phone' => $phoneIdx ??= $i,
+                    'combined' => $combinedIdx ??= $i,
+                    'industri' => $industriIdx ??= $i,
+                    'catatan' => $catatanIdx ??= $i,
+                    'nominal' => $nominalIdx ??= $i,
+                    'paket' => $paketIdx ??= $i,
+                    'bentuk_partisipasi' => $bentukIdx ??= $i,
+                    default => null,
+                };
+            }
         }
 
         if ($companyIdx === null && $nameIdx === null && $phoneIdx === null && $combinedIdx === null) {
@@ -210,6 +278,16 @@ class KontakImportService
             }
 
             $catatan = $this->cell($cells, $catatanIdx);
+            $nominalVal = 0.0;
+            if ($nominalIdx !== null) {
+                $rawNom = preg_replace('/[^0-9]/', '', (string) $this->cell($cells, $nominalIdx));
+                if ($rawNom !== '') {
+                    $nominalVal = (float) $rawNom;
+                }
+            }
+
+            $paketVal = $paketIdx !== null ? trim($this->cleanUtf8((string) $this->cell($cells, $paketIdx))) : null;
+            $bentukVal = $bentukIdx !== null ? trim($this->cleanUtf8((string) $this->cell($cells, $bentukIdx))) : null;
 
             // Satu orang = satu baris. Tanda "/" (atau baris baru) memisahkan
             // beberapa kontak dalam satu sel; nomor dipasangkan secara posisional.
@@ -224,6 +302,9 @@ class KontakImportService
                     'nama' => $sub['nama'],
                     'no_telepon_mentah' => $sub['no_telepon_mentah'],
                     'catatan' => $catatan,
+                    'nominal' => $nominalVal,
+                    'paket' => $paketVal ?: null,
+                    'bentuk_partisipasi' => $bentukVal ?: null,
                 ];
             }
         }
@@ -314,6 +395,18 @@ class KontakImportService
 
         if ($has(['catatan', 'keterangan', 'notes', 'note', 'remark'])) {
             return 'catatan';
+        }
+
+        if ($has(['nominal', 'dana', 'biaya', 'rupiah', 'rp', 'amount', 'budget', 'tarif', 'uang', 'kontribusi', 'sumbangan'])) {
+            return 'nominal';
+        }
+
+        if ($has(['paket', 'tier', 'package', 'level'])) {
+            return 'paket';
+        }
+
+        if ($has(['booth', 'stand', 'partisipasi', 'bentuk', 'fasilitas'])) {
+            return 'bentuk_partisipasi';
         }
 
         if ($has(['qty', 'check', 'checklist', 'cheklist', 'persiapan', 'preparasi'])) {
@@ -725,6 +818,9 @@ class KontakImportService
                 'nama_kategori' => $namaKategori,
                 'status_kontak' => $statusKontak,
                 'alasan' => $alasan,
+                'nominal' => (float) ($row['nominal'] ?? 0),
+                'paket' => $row['paket'] ?? null,
+                'bentuk_partisipasi' => $row['bentuk_partisipasi'] ?? null,
             ];
         }
 
@@ -796,6 +892,18 @@ class KontakImportService
 
                                         $kegiatan = $kegiatanCache[$namaEvent];
                                         $existingKontak->kegiatans()->syncWithoutDetaching([$kegiatan->id]);
+
+                                        if ($existingKontak->perusahaan_id) {
+                                            $thn = $kegiatan->tanggal_mulai ? (int) $kegiatan->tanggal_mulai->format('Y') : (int) date('Y');
+                                            $existingKontak->perusahaan?->kegiatans()->syncWithoutDetaching([
+                                                $kegiatan->id => [
+                                                    'nominal' => (float) ($preview['nominal'] ?? 0),
+                                                    'paket' => $preview['paket'] ?? null,
+                                                    'bentuk_partisipasi' => $preview['bentuk_partisipasi'] ?? 'Partisipasi Event',
+                                                    'tahun' => $thn,
+                                                ],
+                                            ]);
+                                        }
 
                                         if (empty($existingKontak->kegiatan_id)) {
                                             $existingKontak->updateQuietly(['kegiatan_id' => $kegiatan->id]);
@@ -906,6 +1014,16 @@ class KontakImportService
 
                     if ($kegiatanId) {
                         $newKontak->kegiatans()->syncWithoutDetaching([$kegiatanId]);
+
+                        $thn = (isset($kegiatan) && $kegiatan->tanggal_mulai) ? (int) $kegiatan->tanggal_mulai->format('Y') : (int) date('Y');
+                        $perusahaan->kegiatans()->syncWithoutDetaching([
+                            $kegiatanId => [
+                                'nominal' => (float) ($preview['nominal'] ?? 0),
+                                'paket' => $preview['paket'] ?? null,
+                                'bentuk_partisipasi' => $preview['bentuk_partisipasi'] ?? 'Partisipasi Event',
+                                'tahun' => $thn,
+                            ],
+                        ]);
                     }
 
                     if (filled($preview['no_telepon'])) {
