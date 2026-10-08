@@ -25,6 +25,7 @@ class FilamentTableHelper
         $table
             ->recordUrl(null)
             ->recordAction(ViewAction::class)
+            ->searchDebounce('400ms')
             ->stackedOnMobile();
 
         if ($paginationOptions !== null) {

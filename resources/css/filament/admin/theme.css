@@ -179,14 +179,9 @@
     }
 }
 
-/*
- * Halaman auth ala Stitch "Masuk Sistem": gradasi navy + glow oranye samar.
- * Berlaku untuk login & register (simple layout) — light maupun dark.
- * ==========================================================================
 /* ==========================================================================
  * AURORA WEBGL BACKGROUND & AUTH GLASSMORPHISM (ICM BRAND PALETTE)
- * ==========================================================================
- */
+ * ========================================================================== */
 .aurora-container {
     position: fixed;
     inset: 0;
@@ -466,9 +461,12 @@
 
 /* 4. OPTIMASI TATA LETAK & DENSITAS RUANG ENTERPRISE (HEMAT SPACE) */
 /* 4. SHADCN/UI TABLE DESIGN — LAYOUT & DENSITY
+/* ==========================================================================
+   4. SHADCN/UI TABLE DESIGN — LAYOUT & DENSITY
    Meniru estetika shadcn/ui Data Table:
    - Container rounded dengan border tipis (bukan shadow tebal)
    - Header lowercase, font-medium, muted — bukan uppercase all-caps
+   - Header uppercase compact, font-medium, muted
    - Divider horizontal antar baris (bukan garis vertical)
    - Hover subtle muted/50
    - Padding lebih lega (px-4 py-3) agar mudah dibaca
@@ -510,6 +508,7 @@
 
 /* ── Table Header: shadcn style — lowercase, font-medium, muted ── */
 /* ── Table Header: compact, clean, muted ── */
+/* ── Table Header: compact, uppercase, muted ── */
 .fi-ta-header-cell {
     padding-block: 0.625rem !important;
     padding-inline: 0.75rem !important;
@@ -557,6 +556,7 @@
 /* Baris Tabel Ramping & Nyaman (44px - 48px) */
 /* ── Table Rows: border-b antar baris (shadcn style) ── */
 /* ── Table Rows: compact density, reduced row height & tighter column gaps ── */
+/* ── Table Rows: compact density (shadcn style) ── */
 .fi-ta-row td {
     padding-block: 0.5rem !important;
     padding-inline: 0.75rem !important;
@@ -566,6 +566,7 @@
     padding-block: 0.3125rem !important;  /* ~5px — sleek row height (~38px) */
     padding-inline: 0.5rem !important;    /* ~8px — tight column spacing */
     padding-block: 0.375rem !important;  /* ~6px sleek row height */
+    padding-block: 0.375rem !important;   /* ~6px sleek row height */
     padding-inline: 0.5rem !important;    /* ~8px tight column spacing */
     font-size: 0.8125rem !important;      /* text-[13px] */
     line-height: 1.35 !important;

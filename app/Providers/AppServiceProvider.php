@@ -9,6 +9,7 @@ use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use App\Models\Kontak;
 use App\Models\Perusahaan;
+use App\Models\PerusahaanKegiatan;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
 use App\Policies\DivisiPolicy;
@@ -110,18 +111,47 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() ? true : null;
         });
 
-        // Invalidate cache 60 detik untuk 50 reader — stale max 60s masih aman
+        // Invalidate cache realtime pada model events (saved, deleted, restored)
         $forgetIcm = fn (): \Closure => function (): void {
             Cache::forget('icm:stats_overview');
             Cache::forget('icm:chart_kategori');
             Cache::forget('icm:chart_top_event');
             Cache::forget('icm:peta_nomor_perusahaan');
             Cache::forget('icm:perusahaan_stats');
+            Cache::forget('icm:kegiatan_stats');
+            Cache::forget('icm:widget_top_10_sponsors');
+            Cache::forget('icm:total_kontak_count');
         };
-        foreach ([Kontak::class, Perusahaan::class, Kegiatan::class, KategoriKegiatan::class] as $model) {
+        foreach ([Kontak::class, Perusahaan::class, Kegiatan::class, KategoriKegiatan::class, PerusahaanKegiatan::class] as $model) {
             $model::saved($forgetIcm());
             $model::deleted($forgetIcm());
+            if (method_exists($model, 'restored')) {
+                $model::restored($forgetIcm());
+            }
         }
+
+        // Invalidate divisi stats cache ketika user atau divisi berubah
+        $forgetDivisi = function (): void {
+            Cache::forget('icm:divisi_stats');
+        };
+        Divisi::saved($forgetDivisi);
+        Divisi::deleted($forgetDivisi);
+        User::saved($forgetDivisi);
+        User::deleted($forgetDivisi);
+
+        // Invalidate per-perusahaan analitik cache ketika data sponsorship atau perusahaan berubah
+        $forgetAnalitikPerusahaan = function ($entity): void {
+            $perusahaanId = $entity instanceof Perusahaan ? $entity->id : ($entity->perusahaan_id ?? null);
+            if ($perusahaanId) {
+                Cache::forget("icm:analitik_sponsor:{$perusahaanId}");
+            }
+            Cache::forget('icm:perusahaan_stats');
+            Cache::forget('icm:widget_top_10_sponsors');
+        };
+        Perusahaan::saved($forgetAnalitikPerusahaan);
+        Perusahaan::deleted($forgetAnalitikPerusahaan);
+        PerusahaanKegiatan::saved($forgetAnalitikPerusahaan);
+        PerusahaanKegiatan::deleted($forgetAnalitikPerusahaan);
 
         // --------------------------------------------------------------------------
         // Rate Limiter: Skalabilitas 50+ Pegawai & Perlindungan Resource

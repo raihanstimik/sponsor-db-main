@@ -36,6 +36,7 @@ class TopSponsorWidget extends Widget
             $sponsors = Perusahaan::query()
                 ->withCount(['kegiatans', 'kontaks'])
                 ->with('updatedBy')
+                ->with(['updatedBy', 'riwayatSponsorships'])  // eager-load nominal — hindari N+1 SUM query per sponsor
                 ->orderByDesc('kegiatans_count')
                 ->orderByDesc('kontaks_count')
                 ->limit(10)

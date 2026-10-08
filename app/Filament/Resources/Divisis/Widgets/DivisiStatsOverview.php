@@ -10,6 +10,7 @@ use App\Support\KlasifikasiTabel;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\Cache;
 
 class DivisiStatsOverview extends StatsOverviewWidget
 {
@@ -20,6 +21,21 @@ class DivisiStatsOverview extends StatsOverviewWidget
         $totalDivisi = Divisi::count();
         $totalKaryawan = User::whereNotNull('divisi_id')->count();
         $avgKaryawan = $totalDivisi > 0 ? round($totalKaryawan / $totalDivisi, 1) : 0;
+        $cached = Cache::remember('icm:divisi_stats', 60, function (): array {
+            $totalDivisi = Divisi::count();
+            $totalKaryawan = User::whereNotNull('divisi_id')->count();
+            $avgKaryawan = $totalDivisi > 0 ? round($totalKaryawan / $totalDivisi, 1) : 0;
+
+            return [
+                'totalDivisi' => $totalDivisi,
+                'totalKaryawan' => $totalKaryawan,
+                'avgKaryawan' => $avgKaryawan,
+            ];
+        });
+
+        $totalDivisi = (int) $cached['totalDivisi'];
+        $totalKaryawan = (int) $cached['totalKaryawan'];
+        $avgKaryawan = $cached['avgKaryawan'];
 
         return [
             Stat::make('Total Divisi Kerja', number_format($totalDivisi, 0, ',', '.'))

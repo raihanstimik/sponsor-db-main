@@ -273,6 +273,8 @@ class KontaksTable
                             ->debounce(300)
                             ->extraAttributes([
                                 'wire:target' => 'tableFilters.cari.q',
+                                'x-on:keydown.enter.prevent' => "\$wire.\$set('tableFilters.cari.q', \$el.value)",
+                                'x-on:search' => "if (\$el.value === '') { \$wire.\$set('tableFilters.cari.q', '') }",
                             ]),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => filled(trim((string) ($data['q'] ?? '')))
@@ -281,7 +283,6 @@ class KontaksTable
                     ->indicateUsing(function (array $data): ?array {
                         $q = trim((string) ($data['q'] ?? ''));
 
-                        return filled($q) ? ['Pencarian: "' . $q . '"'] : null;
                         return filled($q) ? ['Pencarian: "'.$q.'"'] : null;
                     }),
                 SelectFilter::make('kegiatan_id')

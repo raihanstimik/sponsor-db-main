@@ -47,6 +47,19 @@ class PerusahaanKegiatan extends Model
         'catatan',
     ];
 
+    protected $attributes = [
+        'nominal' => 0,
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (PerusahaanKegiatan $model): void {
+            if ($model->nominal === null) {
+                $model->nominal = 0;
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return [

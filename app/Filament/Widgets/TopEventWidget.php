@@ -54,6 +54,9 @@ class TopEventWidget extends Widget
             $totalTop = $counts->sum();
             $max = $counts->max();
             $totalKontak = Kontak::count();
+            // Pakai cache total kontak — hindari COUNT query redundan terpisah dari stats_overview
+            $totalKontak = Cache::remember('icm:total_kontak_count', 60, fn () => Kontak::count());
+            $totalKontak = (int) Cache::remember('icm:total_kontak_count', 60, fn (): int => Kontak::count());
 
             $palette = ['#1E2A4A', '#0EA5E9', '#8B5CF6', '#EC4899', '#10B981'];
             $palette = ['#0f172a', '#2563EB', '#6366F1', '#EC4899', '#F59E0B'];

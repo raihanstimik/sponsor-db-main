@@ -39,7 +39,7 @@ class KegiatansTable
             )
             ->columns([
                 TextColumn::make('nama_event')
-                    ->label('Kegiatan & Venue')
+                    ->label('Kegiatan')
                     ->searchable()
                     ->weight(FontWeight::Bold)
                     ->color('primary')

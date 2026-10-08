@@ -182,16 +182,26 @@ export function initAurora(container, options = {}) {
   const mesh = new Mesh(gl, { geometry, program });
   container.appendChild(gl.canvas);
 
+  let resizeTimer = null;
   const resizeHandler = () => {
-    if (!container || !renderer || !program) return;
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (!container || !renderer || !program) return;
+      const width = getWidth();
+      const height = getHeight();
+      renderer.setSize(width, height);
+      program.uniforms.uResolution.value = [width, height];
+    }, 100);
+  };
+
+  window.addEventListener('resize', resizeHandler);
+  // Initial sizing without debounce
+  if (container && renderer && program) {
     const width = getWidth();
     const height = getHeight();
     renderer.setSize(width, height);
     program.uniforms.uResolution.value = [width, height];
-  };
-
-  window.addEventListener('resize', resizeHandler);
-  resizeHandler();
+  }
 
   let animationId = 0;
   const startTime = performance.now();
@@ -199,7 +209,7 @@ export function initAurora(container, options = {}) {
   const update = (t) => {
     if (!renderer || !program) return;
 
-    if (!prefersReducedMotion) {
+    if (!prefersReducedMotion && !document.hidden) {
       animationId = requestAnimationFrame(update);
     }
 
@@ -207,6 +217,19 @@ export function initAurora(container, options = {}) {
     program.uniforms.uTime.value = elapsed * speed;
     renderer.render({ scene: mesh });
   };
+
+  const visibilityHandler = () => {
+    if (document.hidden) {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = 0;
+      }
+    } else if (!prefersReducedMotion && !animationId) {
+      animationId = requestAnimationFrame(update);
+    }
+  };
+
+  document.addEventListener('visibilitychange', visibilityHandler);
 
   if (prefersReducedMotion) {
     program.uniforms.uTime.value = 0.5;
@@ -218,7 +241,9 @@ export function initAurora(container, options = {}) {
   return {
     destroy() {
       if (animationId) cancelAnimationFrame(animationId);
+      if (resizeTimer) clearTimeout(resizeTimer);
       window.removeEventListener('resize', resizeHandler);
+      document.removeEventListener('visibilitychange', visibilityHandler);
       if (renderer && gl.canvas.parentNode === container) {
         container.removeChild(gl.canvas);
         gl.getExtension('WEBGL_lose_context')?.loseContext();

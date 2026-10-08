@@ -78,6 +78,7 @@ class PerusahaanForm
                         Repeater::make('riwayatSponsorships')
                             ->relationship('riwayatSponsorships')
                             ->label('Daftar Partisipasi Event')
+                            ->defaultItems(0)
                             ->itemLabel(function (array $state): ?string {
                                 $tahun = $state['tahun'] ?? '-';
                                 $paket = filled($state['paket'] ?? null) ? "💎 {$state['paket']}" : 'Event';
@@ -95,11 +96,20 @@ class PerusahaanForm
                             ->schema([
                                 Select::make('kegiatan_id')
                                     ->label('Pilih dari Master Event')
-                                    ->relationship('kegiatan', 'nama_event')
+                                    ->options(fn () => \App\Models\Kegiatan::query()->orderBy('nama_event')->pluck('nama_event', 'id'))
                                     ->searchable()
                                     ->preload()
                                     ->placeholder('-- Pilih dari master kegiatan resmi atau isi manual di bawah --')
-                                    ->reactive(),
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        if ($state) {
+                                            $kg = \App\Models\Kegiatan::find($state);
+                                            if ($kg && $kg->tanggal_mulai) {
+                                                $set('tahun', (int) $kg->tanggal_mulai->format('Y'));
+                                                $set('tanggal_partisipasi', $kg->tanggal_mulai->format('Y-m-d'));
+                                            }
+                                        }
+                                    }),
 
                                 TextInput::make('nama_event_manual')
                                     ->label('Nama Event Bebas / Mandiri')
@@ -136,6 +146,7 @@ class PerusahaanForm
                                     ->label('Nominal Dana Sponsorship (Rp)')
                                     ->numeric()
                                     ->prefix('Rp')
+                                    ->default(0)
                                     ->placeholder('0'),
 
                                 TextInput::make('bentuk_partisipasi')

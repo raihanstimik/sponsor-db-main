@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
@@ -96,11 +97,18 @@ class Perusahaan extends Model
 
     /**
      * Akumulasi total nominal dana yang pernah diberikan perusahaan.
+     * Jika relasi sudah di-eager-load, gunakan koleksi — hindari SUM query baru (anti N+1).
      */
     public function totalNominalSponsorship(): float
     {
+        if ($this->relationLoaded('riwayatSponsorships')) {
+            return (float) $this->riwayatSponsorships->sum('nominal');
+        }
+
         return (float) $this->riwayatSponsorships()->sum('nominal');
     }
+
+    protected ?array $memoKeaktifanSponsor = null;
 
     /**
      * Analisis Keaktifan Sponsor berdasarkan riwayat event terbaru.
@@ -109,8 +117,11 @@ class Perusahaan extends Model
      */
     public function getKeaktifanSponsorAttribute(): array
     {
+        if ($this->memoKeaktifanSponsor !== null) {
+            return $this->memoKeaktifanSponsor;
+        }
+
         $currentYear = (int) date('Y');
-        $latestRecord = $this->riwayatSponsorships()->first();
 
         $latestRecord = $this->relationLoaded('latestRiwayatSponsorship')
             ? $this->latestRiwayatSponsorship
@@ -129,7 +140,7 @@ class Perusahaan extends Model
                 if ($yr) {
                     $selisih = $currentYear - $yr;
 
-                    return $this->formatKeaktifanResult($yr, $selisih);
+                    return $this->memoKeaktifanSponsor = $this->formatKeaktifanResult($yr, $selisih);
                 }
             }
 
@@ -143,11 +154,11 @@ class Perusahaan extends Model
                 if ($yr) {
                     $selisih = $currentYear - $yr;
 
-                    return $this->formatKeaktifanResult($yr, $selisih);
+                    return $this->memoKeaktifanSponsor = $this->formatKeaktifanResult($yr, $selisih);
                 }
             }
 
-            return [
+            return $this->memoKeaktifanSponsor = [
                 'key' => 'baru',
                 'label' => 'Prospek Baru',
                 'color' => 'gray',
@@ -160,7 +171,7 @@ class Perusahaan extends Model
         $latestYear = $latestRecord->tahun_efektif;
         $selisih = $latestYear ? ($currentYear - $latestYear) : 0;
 
-        return $this->formatKeaktifanResult($latestYear, $selisih);
+        return $this->memoKeaktifanSponsor = $this->formatKeaktifanResult($latestYear, $selisih);
     }
 
     protected function formatKeaktifanResult(?int $latestYear, ?int $selisih): array
@@ -227,69 +238,75 @@ class Perusahaan extends Model
      */
     public function getAnalitikSponsorAttribute(): array
     {
-        $riwayats = $this->riwayatSponsorships()->with('kegiatan')->get();
-        $totalNominal = (float) $riwayats->sum('nominal');
-        $totalEvent = $riwayats->count();
-        $avgNominal = $totalEvent > 0 ? ($totalNominal / $totalEvent) : 0;
+        // Cache 2 menit per perusahaan — query berat ke riwayat, paket, dan trend tidak perlu ulang tiap akses
+        return Cache::remember("icm:analitik_sponsor:{$this->id}", 120, function (): array {
+            $riwayats = $this->relationLoaded('riwayatSponsorships')
+                ? $this->riwayatSponsorships->load('kegiatan')
+                : $this->riwayatSponsorships()->with('kegiatan')->get();
 
-        $packageCounts = [];
-        $trendTahunan = [];
+            $totalNominal = (float) $riwayats->sum('nominal');
+            $totalEvent = $riwayats->count();
+            $avgNominal = $totalEvent > 0 ? ($totalNominal / $totalEvent) : 0;
 
-        foreach ($riwayats as $rw) {
-            $yr = $rw->tahun_efektif ?? (int) date('Y');
-            $pkt = $rw->paket;
+            $packageCounts = [];
+            $trendTahunan = [];
 
-            if ($pkt) {
-                $packageCounts[$pkt] = ($packageCounts[$pkt] ?? 0) + 1;
+            foreach ($riwayats as $rw) {
+                $yr = $rw->tahun_efektif ?? (int) date('Y');
+                $pkt = $rw->paket;
+
+                if ($pkt) {
+                    $packageCounts[$pkt] = ($packageCounts[$pkt] ?? 0) + 1;
+                }
+
+                if (! isset($trendTahunan[$yr])) {
+                    $trendTahunan[$yr] = ['nominal' => 0.0, 'count' => 0, 'pakets' => []];
+                }
+
+                $trendTahunan[$yr]['nominal'] += (float) $rw->nominal;
+                $trendTahunan[$yr]['count']++;
+                if ($pkt && ! in_array($pkt, $trendTahunan[$yr]['pakets'], true)) {
+                    $trendTahunan[$yr]['pakets'][] = $pkt;
+                }
             }
 
-            if (! isset($trendTahunan[$yr])) {
-                $trendTahunan[$yr] = ['nominal' => 0.0, 'count' => 0, 'pakets' => []];
-            }
+            ksort($trendTahunan);
+            arsort($packageCounts);
+            $paketFavorit = ! empty($packageCounts) ? array_key_first($packageCounts) : null;
 
-            $trendTahunan[$yr]['nominal'] += (float) $rw->nominal;
-            $trendTahunan[$yr]['count']++;
-            if ($pkt && ! in_array($pkt, $trendTahunan[$yr]['pakets'], true)) {
-                $trendTahunan[$yr]['pakets'][] = $pkt;
-            }
-        }
+            $hasPlatinum = in_array('Platinum', array_keys($packageCounts), true);
+            $hasGold = in_array('Gold', array_keys($packageCounts), true);
+            $hasSilver = in_array('Silver', array_keys($packageCounts), true);
 
-        ksort($trendTahunan);
-        arsort($packageCounts);
-        $paketFavorit = ! empty($packageCounts) ? array_key_first($packageCounts) : null;
+            $kategoriPotensi = match (true) {
+                $totalNominal >= 150000000 || $hasPlatinum => 'Diamond Whale (Tier 1)',
+                $totalNominal >= 50000000 || $hasGold => 'Core Partner (Tier 2)',
+                $totalNominal >= 15000000 || $hasSilver => 'Growth Partner (Tier 3)',
+                $totalEvent > 0 => 'Entry Partner (Tier 4)',
+                default => 'Prospek Baru',
+            };
 
-        $hasPlatinum = in_array('Platinum', array_keys($packageCounts), true);
-        $hasGold = in_array('Gold', array_keys($packageCounts), true);
-        $hasSilver = in_array('Silver', array_keys($packageCounts), true);
+            $keaktifan = $this->keaktifan_sponsor;
+            $rekomendasi = match (true) {
+                $keaktifan['key'] === 'baru' => 'Sponsor belum memiliki histori event. Rekomendasi: Tawarkan proposal pengenalan dengan paket fleksibel (Silver/Booth) dan jadwalkan audiensi dengan PIC.',
+                $keaktifan['key'] === 'dorman' => "Perusahaan tidak aktif sejak {$keaktifan['tahun_terakhir']}. Rekomendasi: Lakukan pendekatan re-engagement dengan penawaran diskon early-bird atau paket kolaborasi khusus.",
+                $keaktifan['key'] === 'perlu_reaktivasi' => "Terakhir berpartisipasi pada {$keaktifan['tahun_terakhir']}. Rekomendasi: Segera kirimkan proposal event mendatang dan jadwalkan sesi koordinasi dengan PIC sebelum budget sponsor dialokasikan ke event lain.",
+                $hasPlatinum => 'Sponsor Platinum bernilai sangat tinggi. Rekomendasi: Tawarkan slot simposium eksklusif atau sponsorship utama dengan proposal prioritas VVIP.',
+                $hasGold => 'Sponsor konsisten di tier Gold. Rekomendasi: Ajukan paket Gold sebagai standar, dan berikan opsi upgrade ke Platinum dengan benefit penempatan booth premium.',
+                $hasSilver => 'Sponsor rutin di paket Silver. Rekomendasi: Dorong upgrade nilai sponsorship dengan menawarkan bundling simposium satelit atau branding kit.',
+                default => 'Sponsor aktif berpartisipasi. Rekomendasi: Pertahankan hubungan kemitraan dengan memberikan laporan apresiasi keterlibatan event sebelumnya.'
+            };
 
-        $kategoriPotensi = match (true) {
-            $totalNominal >= 150000000 || $hasPlatinum => 'Diamond Whale (Tier 1)',
-            $totalNominal >= 50000000 || $hasGold => 'Core Partner (Tier 2)',
-            $totalNominal >= 15000000 || $hasSilver => 'Growth Partner (Tier 3)',
-            $totalEvent > 0 => 'Entry Partner (Tier 4)',
-            default => 'Prospek Baru',
-        };
-
-        $keaktifan = $this->keaktifan_sponsor;
-        $rekomendasi = match (true) {
-            $keaktifan['key'] === 'baru' => 'Sponsor belum memiliki histori event. Rekomendasi: Tawarkan proposal pengenalan dengan paket fleksibel (Silver/Booth) dan jadwalkan audiensi dengan PIC.',
-            $keaktifan['key'] === 'dorman' => "Perusahaan tidak aktif sejak {$keaktifan['tahun_terakhir']}. Rekomendasi: Lakukan pendekatan re-engagement dengan penawaran diskon early-bird atau paket kolaborasi khusus.",
-            $keaktifan['key'] === 'perlu_reaktivasi' => "Terakhir berpartisipasi pada {$keaktifan['tahun_terakhir']}. Rekomendasi: Segera kirimkan proposal event mendatang dan jadwalkan sesi koordinasi dengan PIC sebelum budget sponsor dialokasikan ke event lain.",
-            $hasPlatinum => 'Sponsor Platinum bernilai sangat tinggi. Rekomendasi: Tawarkan slot simposium eksklusif atau sponsorship utama dengan proposal prioritas VVIP.',
-            $hasGold => 'Sponsor konsisten di tier Gold. Rekomendasi: Ajukan paket Gold sebagai standar, dan berikan opsi upgrade ke Platinum dengan benefit penempatan booth premium.',
-            $hasSilver => 'Sponsor rutin di paket Silver. Rekomendasi: Dorong upgrade nilai sponsorship dengan menawarkan bundling simposium satelit atau branding kit.',
-            default => 'Sponsor aktif berpartisipasi. Rekomendasi: Pertahankan hubungan kemitraan dengan memberikan laporan apresiasi keterlibatan event sebelumnya.'
-        };
-
-        return [
-            'total_investasi' => $totalNominal,
-            'total_event' => $totalEvent,
-            'rata_rata_nominal' => $avgNominal,
-            'paket_favorit' => $paketFavorit,
-            'kategori_potensi' => $kategoriPotensi,
-            'rekomendasi_strategi' => $rekomendasi,
-            'trend_tahunan' => $trendTahunan,
-        ];
+            return [
+                'total_investasi' => $totalNominal,
+                'total_event' => $totalEvent,
+                'rata_rata_nominal' => $avgNominal,
+                'paket_favorit' => $paketFavorit,
+                'kategori_potensi' => $kategoriPotensi,
+                'rekomendasi_strategi' => $rekomendasi,
+                'trend_tahunan' => $trendTahunan,
+            ];
+        });
     }
 
     public function latestKontakWithKegiatan(): HasOne

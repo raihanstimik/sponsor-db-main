@@ -10,6 +10,14 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ImportKontaks extends Page
 {
@@ -493,16 +501,151 @@ class ImportKontaks extends Page
         ];
     }
 
-    public function downloadTemplate()
+    public function downloadTemplate(): StreamedResponse
     {
-        $csv = "nama_perusahaan,industri,nama,no_telepon,catatan\n"
-            ."PT Alfa Medika,Farmasi,Budi Santoso,0811-1465-133,Catatan opsional\n"
-            ."CV Sinar Sehat,Distributor Alkes,Siti Aminah,6281291018454,-\n";
-
         return response()->streamDownload(
-            static fn () => print ($csv),
-            'template-import-kontak-csv.csv',
-            ['Content-Type' => 'text/csv']
+            function (): void {
+                $spreadsheet = $this->buildTemplateSpreadsheet();
+                $writer = new Xlsx($spreadsheet);
+                $writer->save('php://output');
+                $spreadsheet->disconnectWorksheets();
+                unset($spreadsheet);
+            },
+            'template-import-kontak-icm.xlsx',
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="template-import-kontak-icm.xlsx"',
+            ]
         );
+    }
+
+    /**
+     * Membangun spreadsheet template import dengan format visual terstandar ICM.
+     */
+    public function buildTemplateSpreadsheet(): Spreadsheet
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Import Kontak');
+
+        // Tampilkan garis grid excel
+        $sheet->setShowGridLines(true);
+
+        // Freeze baris header agar tetap terlihat saat scroll
+        $sheet->freezePane('A2');
+
+        // Baris Header Kolom
+        $headers = [
+            'A1' => 'nama_perusahaan',
+            'B1' => 'industri',
+            'C1' => 'nama',
+            'D1' => 'no_telepon',
+            'E1' => 'catatan',
+        ];
+
+        foreach ($headers as $cell => $value) {
+            $sheet->setCellValue($cell, $value);
+        }
+
+        // Styling Header: Warna Brand ICM Navy (#18225E), Teks Putih Tebal, Rata Tengah
+        $sheet->getStyle('A1:E1')->applyFromArray([
+            'font' => [
+                'name' => 'Segoe UI',
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '18225E'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => '0D153B'],
+                ],
+            ],
+        ]);
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        // Contoh Data Nyata yang Rapi
+        $samples = [
+            [
+                'PT Kalbe Farma Tbk',
+                'Farmasi',
+                'Budi Santoso',
+                '08111223344',
+                'Sponsor Utama Kongres Medis',
+            ],
+            [
+                'PT Kimia Farma (Persero)',
+                'Farmasi & Alkes',
+                'Siti Aminah',
+                '081298765432',
+                'PIC Booth Pameran',
+            ],
+            [
+                'CV Alkesindo Nusantara',
+                'Distributor Alkes',
+                'dr. Hendra Pratama',
+                '081345678901',
+                'Simposium Satelit Kardiologi',
+            ],
+        ];
+
+        $rowIdx = 2;
+        foreach ($samples as $sample) {
+            $sheet->setCellValue('A'.$rowIdx, $sample[0]);
+            $sheet->setCellValue('B'.$rowIdx, $sample[1]);
+            $sheet->setCellValue('C'.$rowIdx, $sample[2]);
+            // Format eksplisit string agar awalan 08 tidak hilang di Excel
+            $sheet->setCellValueExplicit('D'.$rowIdx, $sample[3], DataType::TYPE_STRING);
+            $sheet->setCellValue('E'.$rowIdx, $sample[4]);
+
+            $isEven = $rowIdx % 2 === 0;
+            $bgColor = $isEven ? 'FFFFFF' : 'F8FAFC';
+
+            $sheet->getStyle('A'.$rowIdx.':E'.$rowIdx)->applyFromArray([
+                'font' => [
+                    'name' => 'Segoe UI',
+                    'size' => 10,
+                    'color' => ['rgb' => '1E293B'],
+                ],
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => ['rgb' => $bgColor],
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['rgb' => 'CBD5E1'],
+                    ],
+                ],
+                'alignment' => [
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            // Perataan isi kolom
+            $sheet->getStyle('B'.$rowIdx)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D'.$rowIdx)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('D'.$rowIdx)->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+
+            $sheet->getRowDimension($rowIdx)->setRowHeight(22);
+            $rowIdx++;
+        }
+
+        // Lebar kolom terukur dan proporsional
+        $sheet->getColumnDimension('A')->setWidth(30);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(26);
+        $sheet->getColumnDimension('D')->setWidth(22);
+        $sheet->getColumnDimension('E')->setWidth(35);
+
+        return $spreadsheet;
     }
 }

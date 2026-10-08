@@ -36,15 +36,11 @@ class AdminPanelProvider extends PanelProvider
             ->login(CustomLogin::class)
             ->registration(CustomRegister::class)
             ->brandName('ICM Sponsor')
-            ->brandLogo(asset('images/logo-icm.png'))
             ->brandLogo(asset('images/logo-icm.webp'))
             ->brandLogoHeight('2.25rem')
-            ->darkModeBrandLogo(asset('images/logo-icm.png'))
             ->darkModeBrandLogo(asset('images/logo-icm.webp'))
-            ->favicon(asset('images/icon-icm.png'))
             ->favicon(fn (): string => asset('images/icon-icm.png') . '?v=' . (file_exists(public_path('images/icon-icm.png')) ? filemtime(public_path('images/icon-icm.png')) : 1))
             ->colors([
-                'primary' => Color::hex('#18225E'),
                 'primary' => [
                     50 => '#f0f4ff',
                     100 => '#e0e7ff',
@@ -65,7 +61,6 @@ class AdminPanelProvider extends PanelProvider
                 'danger' => Color::hex('#F43F5E'),
                 'gray' => Color::Slate,
             ])
-            ->font('Fira Sans')
             ->spa()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')

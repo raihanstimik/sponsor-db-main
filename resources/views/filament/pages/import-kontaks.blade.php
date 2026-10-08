@@ -6,103 +6,93 @@
             $currentStep = 4;
         } elseif ($this->previews || $this->rows) {
             $currentStep = 3;
-        } elseif ($this->previews || $this->rows) {
         } elseif ($this->mappingStep) {
             $currentStep = 2;
         }
     @endphp
 
-    <div class="mb-4 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="mb-5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             {{-- Stepper Progress --}}
-            <nav class="flex items-center gap-2 sm:gap-4 text-xs font-medium" aria-label="Progress">
-            <nav class="flex items-center gap-2 sm:gap-3 text-xs font-medium flex-wrap" aria-label="Progress">
+            <nav class="flex items-center gap-2 sm:gap-3 text-xs font-medium overflow-x-auto py-1" aria-label="Progress">
                 {{-- Step 1 --}}
-                <div class="flex items-center gap-2">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 1 ? 'bg-success-500 text-white' : ($currentStep === 1 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
-                <div class="flex items-center gap-1.5">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 1 ? 'bg-success-500 text-white' : ($currentStep === 1 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs font-bold transition-all duration-200 {{ $currentStep > 1 ? 'bg-emerald-500 text-white' : ($currentStep === 1 ? 'bg-[#18225E] text-white ring-2 ring-[#18225E]/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
                         @if ($currentStep > 1)
-                            <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
+                            <x-filament::icon alias="heroicon-m-check" class="h-4 w-4" />
                         @else
                             1
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 1 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 1 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
-                    <span class="{{ $currentStep === 1 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 1 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
+                    <span class="{{ $currentStep === 1 ? 'font-bold text-slate-900 dark:text-white' : ($currentStep > 1 ? 'font-medium text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
                         Unggah File
                     </span>
                 </div>
 
-                <div class="hidden h-0.5 w-8 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
-                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
-                    <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 1 ? 'w-full' : 'w-0' }}"></div>
+                <div class="hidden sm:block h-0.5 w-6 md:w-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0">
+                    <div class="h-full bg-emerald-500 transition-all duration-300 {{ $currentStep > 1 ? 'w-full' : 'w-0' }}"></div>
                 </div>
 
                 {{-- Step 2 --}}
-                <div class="flex items-center gap-2">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 2 ? 'bg-success-500 text-white' : ($currentStep === 2 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
-                <div class="flex items-center gap-1.5">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 2 ? 'bg-success-500 text-white' : ($currentStep === 2 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs font-bold transition-all duration-200 {{ $currentStep > 2 ? 'bg-emerald-500 text-white' : ($currentStep === 2 ? 'bg-[#18225E] text-white ring-2 ring-[#18225E]/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
                         @if ($currentStep > 2)
-                            <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
+                            <x-filament::icon alias="heroicon-m-check" class="h-4 w-4" />
                         @else
                             2
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 2 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 2 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
+                    <span class="{{ $currentStep === 2 ? 'font-bold text-slate-900 dark:text-white' : ($currentStep > 2 ? 'font-medium text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
                         Pemetaan Kolom
                     </span>
                 </div>
 
-                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
-                    <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 2 ? 'w-full' : 'w-0' }}"></div>
+                <div class="hidden sm:block h-0.5 w-6 md:w-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0">
+                    <div class="h-full bg-emerald-500 transition-all duration-300 {{ $currentStep > 2 ? 'w-full' : 'w-0' }}"></div>
                 </div>
 
                 {{-- Step 3 --}}
-                <div class="flex items-center gap-1.5">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep > 3 ? 'bg-success-500 text-white' : ($currentStep === 3 ? 'bg-primary-600 text-white ring-2 ring-primary-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800') }}">
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs font-bold transition-all duration-200 {{ $currentStep > 3 ? 'bg-emerald-500 text-white' : ($currentStep === 3 ? 'bg-[#18225E] text-white ring-2 ring-[#18225E]/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400') }}">
                         @if ($currentStep > 3)
-                            <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
+                            <x-filament::icon alias="heroicon-m-check" class="h-4 w-4" />
                         @else
                             3
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 3 ? 'font-semibold text-slate-900 dark:text-white' : ($currentStep > 3 ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400') }}">
+                    <span class="{{ $currentStep === 3 ? 'font-bold text-slate-900 dark:text-white' : ($currentStep > 3 ? 'font-medium text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500') }}">
                         Pratinjau &amp; Analisis
                     </span>
                 </div>
 
-                <div class="hidden h-0.5 w-6 rounded-full bg-slate-200 sm:block dark:bg-slate-700">
-                    <div class="h-full bg-success-500 transition-all duration-300 {{ $currentStep > 3 ? 'w-full' : 'w-0' }}"></div>
+                <div class="hidden sm:block h-0.5 w-6 md:w-10 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0">
+                    <div class="h-full bg-emerald-500 transition-all duration-300 {{ $currentStep > 3 ? 'w-full' : 'w-0' }}"></div>
                 </div>
 
                 {{-- Step 4 --}}
-                <div class="flex items-center gap-1.5">
-                    <span class="flex h-6 w-6 items-center justify-center rounded-full font-mono text-[11px] font-semibold transition-all duration-200 {{ $currentStep === 4 ? 'bg-success-600 text-white ring-2 ring-success-600/30' : 'bg-slate-100 text-slate-500 dark:bg-slate-800' }}">
+                <div class="flex items-center gap-2 shrink-0">
+                    <span class="flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs font-bold transition-all duration-200 {{ $currentStep === 4 ? 'bg-emerald-600 text-white ring-2 ring-emerald-600/30 ring-offset-1 dark:ring-offset-slate-900' : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400' }}">
                         @if ($currentStep === 4)
-                            <x-filament::icon alias="heroicon-m-check" class="h-3.5 w-3.5" />
+                            <x-filament::icon alias="heroicon-m-check" class="h-4 w-4" />
                         @else
                             4
                         @endif
                     </span>
-                    <span class="{{ $currentStep === 4 ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-400' }}">
+                    <span class="{{ $currentStep === 4 ? 'font-bold text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500' }}">
                         Selesai
                     </span>
                 </div>
             </nav>
 
             {{-- Live Indicator / Info --}}
-            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                <span class="inline-flex h-2 w-2 rounded-full {{ $currentStep === 3 ? 'bg-success-500' : ($currentStep === 2 ? 'bg-primary-500 animate-pulse' : 'bg-slate-400') }}"></span>
-                <span class="inline-flex h-2 w-2 rounded-full {{ $currentStep === 4 ? 'bg-success-500' : ($currentStep >= 2 ? 'bg-primary-500 animate-pulse' : 'bg-slate-400') }}"></span>
+            <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 shrink-0 border-t lg:border-t-0 pt-2 lg:pt-0 border-slate-100 dark:border-slate-800">
+                <span class="inline-flex h-2 w-2 rounded-full {{ $currentStep === 4 ? 'bg-emerald-500' : ($currentStep > 1 ? 'bg-blue-500 animate-pulse' : 'bg-blue-500') }}"></span>
                 @if ($currentStep === 1)
-                    <span>Siap menerima format Excel &amp; CSV</span>
+                    <span>Siap menerima format Excel &amp; Spreadsheet</span>
                 @elseif ($currentStep === 2)
-                    <span>Analisis selesai &bull; verifikasi data sebelum simpan</span>
-                    <span>Cocokkan header kolom Excel ke sistem</span>
+                    <span>Cocokkan header kolom file ke database</span>
                 @elseif ($currentStep === 3)
-                    <span>Analisis selesai &bull; verifikasi sebelum simpan</span>
+                    <span>Analisis selesai &bull; tinjau sebelum simpan</span>
                 @else
                     <span>Data berhasil disimpan ke database</span>
                 @endif
@@ -1159,7 +1149,7 @@
                             wire:click="downloadTemplate"
                             icon="heroicon-m-arrow-down-tray"
                         >
-                            Unduh template (CSV)
+                            Unduh Template (.xlsx)
                         </x-filament::button>
                     </div>
                 </div>

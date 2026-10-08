@@ -94,11 +94,14 @@ window.spinningCounter = function (config) {
 
 import { initAurora } from './aurora';
 import { initSessionExpiredInterceptor } from './session-expired';
+import { initSessionKeepalive } from './session-keepalive';
 
 window.initAurora = initAurora;
 
 // Inisialisasi interceptor penanganan CSRF/sesi kedaluwarsa anti AI-slop
 initSessionExpiredInterceptor();
+// Menjaga sesi tetap standby aktif di latar belakang sampai logout
+initSessionKeepalive();
 
 window.auroraEffect = function (config = {}) {
     return {

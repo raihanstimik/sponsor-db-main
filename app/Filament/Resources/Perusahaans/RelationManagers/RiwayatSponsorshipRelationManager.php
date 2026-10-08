@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use BackedEnum;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class RiwayatSponsorshipRelationManager extends RelationManager
@@ -49,12 +50,21 @@ class RiwayatSponsorshipRelationManager extends RelationManager
                     ->schema([
                         Select::make('kegiatan_id')
                             ->label('Pilih dari Master Event')
-                            ->relationship('kegiatan', 'nama_event')
+                            ->options(fn () => \App\Models\Kegiatan::query()->orderBy('nama_event')->pluck('nama_event', 'id'))
                             ->searchable()
                             ->preload()
                             ->placeholder('-- Pilih dari master kegiatan resmi atau kosongkan jika mandiri --')
                             ->helperText('Pilih jika event ini sudah terdaftar di master data kegiatan.')
-                            ->reactive(),
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $kg = \App\Models\Kegiatan::find($state);
+                                    if ($kg && $kg->tanggal_mulai) {
+                                        $set('tahun', (int) $kg->tanggal_mulai->format('Y'));
+                                        $set('tanggal_partisipasi', $kg->tanggal_mulai->format('Y-m-d'));
+                                    }
+                                }
+                            }),
 
                         TextInput::make('nama_event_manual')
                             ->label('Nama Event Mandiri / Bebas')
@@ -80,6 +90,7 @@ class RiwayatSponsorshipRelationManager extends RelationManager
                             ->label('Nominal Dana Sponsorship (Rp)')
                             ->numeric()
                             ->prefix('Rp')
+                            ->default(0)
                             ->placeholder('0')
                             ->helperText('Kosongkan jika nominal tidak diketahui atau berupa in-kind'),
 
@@ -125,6 +136,7 @@ class RiwayatSponsorshipRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query): Builder => $query->with('kegiatan'))
             ->recordTitleAttribute('nama_event')
             ->defaultSort('tahun', 'desc')
             ->columns([

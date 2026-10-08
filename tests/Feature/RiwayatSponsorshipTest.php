@@ -311,5 +311,62 @@ class RiwayatSponsorshipTest extends TestCase
         $sectionHistori = collect($configured->getComponents())->first(fn ($s) => $s instanceof \Filament\Schemas\Components\Section && $s->getHeading() === 'Histori Partisipasi Kongres Medis');
         $this->assertNotNull($sectionHistori);
         $this->assertNotEmpty($sectionHistori->getHeaderActions());
+        // 5. Verifikasi HTTP GET ke halaman view (detail) perusahaan render tanpa error
+        $viewResponse = $this->get('/admin/perusahaans/' . $perusahaan->id);
+        $viewResponse->assertOk();
+        $viewResponse->assertSee('Histori Partisipasi Kongres Medis');
+    }
+
+    #[Test]
+    public function catat_riwayat_cepat_action_dapat_dieksekusi_tanpa_exception_relationship(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $kegiatan = Kegiatan::factory()->create(['nama_event' => 'Simposium Kardiologi 2026']);
+        $perusahaan = Perusahaan::factory()->create(['nama_standar' => 'PT Farmasi Mandiri']);
+
+        $test = \Livewire\Livewire::test(\App\Filament\Resources\Perusahaans\Pages\ViewPerusahaan::class, [
+            'record' => $perusahaan->id,
+        ]);
+        $comp = $test->instance();
+        $infolist = $comp->getSchema('infolist');
+        $sectionHistori = collect($infolist->getComponents())->first(fn ($s) => $s instanceof \Filament\Schemas\Components\Section && $s->getHeading() === 'Histori Partisipasi Kongres Medis');
+
+        $action = collect($sectionHistori->getHeaderActions())->first(fn ($a) => $a->getName() === 'catat_riwayat_cepat');
+        $this->assertNotNull($action);
+
+        $actionSchema = $action->getSchema($infolist);
+        $this->assertNotNull($actionSchema);
+
+        // Verifikasi Select kegiatan_id memiliki options yang memuat master kegiatan tanpa LogicException
+        $kegiatanSelect = collect($actionSchema->getComponents())->first(fn ($c) => $c->getName() === 'kegiatan_id');
+        $this->assertNotNull($kegiatanSelect);
+        $options = $kegiatanSelect->getOptions();
+        $this->assertArrayHasKey($kegiatan->id, $options);
+        $this->assertSame('Simposium Kardiologi 2026', $options[$kegiatan->id]);
+
+        // Eksekusi action untuk menyimpan data
+        $action->call([
+            'record' => $perusahaan,
+            'data' => [
+                'kegiatan_id' => $kegiatan->id,
+                'tahun' => 2026,
+                'paket' => 'Platinum',
+                'nominal' => 75000000,
+                'bentuk_partisipasi' => 'Simposium Satelit',
+                'catatan' => 'Testing catat cepat',
+            ],
+        ]);
+
+        $this->assertDatabaseHas('perusahaan_kegiatan', [
+            'perusahaan_id' => $perusahaan->id,
+            'kegiatan_id' => $kegiatan->id,
+            'tahun' => 2026,
+            'paket' => 'Platinum',
+            'nominal' => 75000000,
+            'bentuk_partisipasi' => 'Simposium Satelit',
+            'catatan' => 'Testing catat cepat',
+        ]);
     }
 }

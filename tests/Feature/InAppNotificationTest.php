@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Feature;
 
 use App\Filament\Resources\Kontaks\Pages\CreateKontak;
-use App\Models\Kontak;
 use App\Models\Perusahaan;
 use App\Models\User;
 use App\Services\AppNotificationService;
@@ -54,19 +53,19 @@ class InAppNotificationTest extends TestCase
     }
 
     #[Test]
-    public function notifikasi_backup_dan_restore_tersimpan_di_database(): void
+    public function notifikasi_sistem_tersimpan_di_database(): void
     {
         $user = User::factory()->admin()->create();
         $service = new AppNotificationService();
 
-        $service->notifyBackupBerhasil($user, 'backup-2026-09-21.zip', '1.5 MB');
-        $service->notifyRestoreBerhasil($user, 'backup-2026-09-21.zip');
+        $service->notifyAdmins('Pemberitahuan Sistem 1', 'Pesan notifikasi sistem 1');
+        $service->notifyAdmins('Pemberitahuan Sistem 2', 'Pesan notifikasi sistem 2');
 
         $this->assertDatabaseCount('notifications', 2);
 
         $titles = $user->notifications()->pluck('data')->map(fn ($d) => $d['title'])->all();
-        $this->assertContains('Cadangan Database Berhasil Dibuat', $titles);
-        $this->assertContains('Pemulihan Database Selesai', $titles);
+        $this->assertContains('Pemberitahuan Sistem 1', $titles);
+        $this->assertContains('Pemberitahuan Sistem 2', $titles);
     }
 
     #[Test]
@@ -103,8 +102,8 @@ class InAppNotificationTest extends TestCase
         $user = User::factory()->admin()->create();
         $service = new AppNotificationService();
 
-        $service->notifyBackupBerhasil($user, 'file1.zip', '1 MB');
-        $service->notifyBackupBerhasil($user, 'file2.zip', '2 MB');
+        $service->notifyAdmins('Notifikasi A', 'Isi notifikasi A');
+        $service->notifyAdmins('Notifikasi B', 'Isi notifikasi B');
 
         $this->assertEquals(2, $user->unreadNotifications()->count());
 
@@ -115,4 +114,3 @@ class InAppNotificationTest extends TestCase
         $this->assertEquals(0, $user->fresh()->unreadNotifications()->count());
     }
 }
-

@@ -24,3 +24,9 @@ Route::middleware(['web', Authenticate::class])
     })
     ->name('impersonate.leave');
 
+Route::middleware(['web'])
+    ->get('/livewire-keepalive', function () {
+        return response()->noContent();
+    })
+    ->name('livewire.keepalive');
+

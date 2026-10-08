@@ -794,4 +794,56 @@ class KontakImportTest extends TestCase
             'nama' => 'Rangga',
         ]);
     }
+
+    #[Test]
+    public function template_import_dapat_diunduh_dalam_format_xlsx_dan_berisi_data_rapi(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $component = Livewire::test(ImportKontaks::class);
+        $response = $component->instance()->downloadTemplate();
+
+        $this->assertInstanceOf(\Symfony\Component\HttpFoundation\StreamedResponse::class, $response);
+        $this->assertStringContainsString('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', (string) $response->headers->get('Content-Type'));
+        $this->assertStringContainsString('template-import-kontak-icm.xlsx', (string) $response->headers->get('Content-Disposition'));
+
+        ob_start();
+        $response->sendContent();
+        $binary = ob_get_clean();
+
+        $this->assertNotEmpty($binary);
+
+        $tempPath = tempnam(sys_get_temp_dir(), 'test_tpl_').'.xlsx';
+        file_put_contents($tempPath, $binary);
+
+        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($tempPath);
+        $spreadsheet = $reader->load($tempPath);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Verifikasi header
+        $this->assertSame('nama_perusahaan', $sheet->getCell('A1')->getValue());
+        $this->assertSame('industri', $sheet->getCell('B1')->getValue());
+        $this->assertSame('nama', $sheet->getCell('C1')->getValue());
+        $this->assertSame('no_telepon', $sheet->getCell('D1')->getValue());
+        $this->assertSame('catatan', $sheet->getCell('E1')->getValue());
+
+        // Verifikasi sample data dan format teks nomor telepon (tidak hilang awalan 0)
+        $this->assertSame('PT Kalbe Farma Tbk', $sheet->getCell('A2')->getValue());
+        $this->assertSame('08111223344', (string) $sheet->getCell('D2')->getValue());
+
+        unlink($tempPath);
+    }
+
+    #[Test]
+    public function halaman_import_dapat_diakses_oleh_admin_dengan_sukses(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin);
+
+        $response = $this->get('/admin/import-data');
+
+        $response->assertSuccessful();
+        $response->assertSee('Import Data Kontak & Perusahaan');
+    }
 }
